@@ -1440,17 +1440,64 @@
       }
     }
 
-    // 최신 gemini 모델 리스트와 AQ/AIza 키를 모두 수용하는 호출 함수 (429 한도 초과 및 모델 자동 폴백 처리)
-    async function callGeminiApiWithKey(apiKey, contents) {
-      const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash"];
-      let lastErrorMsg = "";
+    // Google 서버에서 현재 키로 호출 가능한 모델 목록을 직접 조회한 뒤 호출하는 함수 (AQ. 및 AIza 키 모두 지원)
+    let cachedWorkingModel = "";
 
-      for (const m of models) {
+    async function fetchAvailableFlashModels(apiKey) {
+      const defaultModels = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-3.7-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-2.0-flash"
+      ];
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+          method: "GET",
+          headers: { "x-goog-api-key": apiKey }
+        });
+        if (!res.ok) return defaultModels;
+        const data = await res.json();
+        const list = (data.models || [])
+          .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ""))
+          .filter(name => name.includes("gemini") && !name.includes("tts") && !name.includes("image") && !name.includes("vision") && !name.includes("embedding"));
+
+        const flashModels = list.filter(n => n.includes("flash"));
+        if (flashModels.length > 0) {
+          // 2.5-flash나 최신 flash를 앞으로 배치
+          flashModels.sort((a, b) => {
+            if (a === "gemini-2.5-flash") return -1;
+            if (b === "gemini-2.5-flash") return 1;
+            return b.localeCompare(a);
+          });
+          return flashModels;
+        }
+        if (list.length > 0) return list;
+      } catch (e) {}
+      return defaultModels;
+    }
+
+    async function callGeminiApiWithKey(apiKey, contents) {
+      let modelsToTry = [];
+      if (cachedWorkingModel) {
+        modelsToTry.push(cachedWorkingModel);
+      } else {
+        modelsToTry = await fetchAvailableFlashModels(apiKey);
+      }
+
+      let firstRealError = "";
+
+      for (const m of modelsToTry) {
         try {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey)}`;
           const res = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": apiKey
+            },
             body: JSON.stringify({
               systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
               contents: contents,
@@ -1467,23 +1514,33 @@
             const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
             const parsed = safeParseAiJson(raw);
             if (parsed && parsed.enText) {
+              cachedWorkingModel = m;
               return { ok: true, model: m, turnResult: parsed };
             }
-            lastErrorMsg = "응답 형식 변환 오류";
+            if (!firstRealError) firstRealError = `[${m}] 응답 JSON 파싱 실패`;
           } else {
             const errData = await res.json().catch(() => ({}));
             const code = res.status;
             const msg = errData?.error?.message || `HTTP ${code}`;
             if (code === 429) {
-              return { ok: false, error: "사용량 한도(Rate Limit) 초과. 잠시 후 다시 시도해 주세요." };
+              if (!firstRealError) firstRealError = `[${m}] 사용량 한도(429) 초과: 잠시 후 시도하거나 다른 모델을 탐색합니다.`;
+              continue;
             }
-            lastErrorMsg = msg;
+            if (code === 401 || msg.includes("ACCESS_TOKEN_TYPE_UNSUPPORTED") || msg.includes("API_KEY_INVALID")) {
+              return {
+                ok: false,
+                error: `[인증 오류 ${code}] ${msg}`
+              };
+            }
+            if (!firstRealError) firstRealError = `[${m}] ${msg}`;
           }
         } catch (e) {
-          lastErrorMsg = e.message || "네트워크 오류";
+          if (!firstRealError) firstRealError = e.message || "네트워크 오류";
         }
       }
-      return { ok: false, error: lastErrorMsg };
+
+      cachedWorkingModel = "";
+      return { ok: false, error: firstRealError || "호출 가능한 모델을 찾지 못했습니다." };
     }
 
     async function requestAiTurn(userText, isFirstGreeting = false) {
