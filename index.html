@@ -302,6 +302,10 @@
       display: none;
       animation: fadeIn 0.2s ease-out;
       line-height: 1.4;
+      cursor: pointer;
+    }
+    .ai-ko-reveal:active {
+      opacity: 0.8;
     }
     .ai-ko-reveal.show { display: block; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1159,19 +1163,19 @@
 
         const hint = document.createElement("span");
         hint.className = "reveal-hint-badge";
-        hint.textContent = "영어를 누르면 한글 뜻과 음성이 나와요";
+        hint.textContent = "영어 터치: 영어 듣기+한글 자막 / 한글 자막 터치: 한글 듣기";
 
-        const toggleKoreanMeaning = (e) => {
+        const handleEnglishClick = (e) => {
           e.stopPropagation();
+          speakEnglishSentenceOnly(enText);
           const revealBox = bubble.querySelector(".ai-ko-reveal");
           if (revealBox) {
-            const isShown = revealBox.classList.toggle("show");
-            if (isShown && koSub) speakKoreanMeaning(koSub);
+            revealBox.classList.add("show");
           }
         };
 
-        enDiv.addEventListener("click", toggleKoreanMeaning);
-        hint.addEventListener("click", toggleKoreanMeaning);
+        enDiv.addEventListener("click", handleEnglishClick);
+        hint.addEventListener("click", handleEnglishClick);
 
         bubble.appendChild(enDiv);
         bubble.appendChild(hint);
@@ -1179,7 +1183,12 @@
         if (koSub) {
           const koDiv = document.createElement("div");
           koDiv.className = "ai-ko-reveal";
-          koDiv.textContent = koSub;
+          koDiv.textContent = "🔊 " + koSub;
+          koDiv.title = "클릭하면 한글로 읽어줘요";
+          koDiv.addEventListener("click", (e) => {
+            e.stopPropagation();
+            speakKoreanMeaning(koSub);
+          });
           bubble.appendChild(koDiv);
         }
       }
@@ -1331,6 +1340,19 @@
       u.rate = 0.78;
       u.pitch = 1.1;
       u.onend = () => { if (triggerEchoGuard) finishAiSpeech(true); };
+      window.speechSynthesis.speak(u);
+    }
+
+    function speakEnglishSentenceOnly(enText) {
+      if (!("speechSynthesis" in window) || !enText) return;
+      window.speechSynthesis.cancel();
+      const voices = window.speechSynthesis.getVoices();
+      const enVoice = voices.find(v => v.lang.startsWith("en-US") && (v.name.includes("Google") || v.name.includes("Natural"))) || voices.find(v => v.lang.startsWith("en"));
+      const u = new SpeechSynthesisUtterance(enText);
+      u.lang = "en-US";
+      if (enVoice) u.voice = enVoice;
+      u.rate = Number(appConfig.speechRate) || 0.85;
+      u.pitch = 1.08;
       window.speechSynthesis.speak(u);
     }
 
