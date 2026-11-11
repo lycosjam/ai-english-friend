@@ -432,16 +432,18 @@
 
     .control-action-btn {
       flex: 1;
-      height: 54px;
+      height: 58px;
       border-radius: 20px;
       border: none;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1.1;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       transition: transform 0.1s ease;
     }
@@ -451,6 +453,14 @@
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
       color: #ffffff;
       border: 1px solid #f87171;
+    }
+
+    .btn-emoji { font-size: 22px; line-height: 1; }
+
+    .help-action-btn {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: 1px solid #93c5fd;
     }
 
     .replay-action-btn {
@@ -602,7 +612,7 @@
     .textarea-field { resize: vertical; min-height: 68px; line-height: 1.45; }
     .row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    .preset-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .preset-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .preset-tab {
       padding: 11px 8px;
       border-radius: 12px;
@@ -703,7 +713,7 @@
       <div class="conn-pill" id="connStatusPill" title="터치하여 API 연결 상태 확인">AI 연결 확인 중...</div>
       <div style="display:flex;gap:6px;align-items:center">
         <button type="button" class="conn-pill" id="modeToggleBtn">🇰🇷 한국어</button>
-        <button type="button" class="conn-pill ok" id="helpBtn" style="display:none">🆘 도와줘</button>
+        <button type="button" class="conn-pill warn" id="reportStopBtn">⏹ 그만하기</button>
       </div>
       <button type="button" class="settings-btn" id="openSettingsBtn">
         부모 설정
@@ -755,8 +765,8 @@
   <!-- 하단 통나무 컨트롤 바 (대형 버튼 2개 + 마이크 바) -->
   <footer class="bottom-dock">
     <div class="wood-control-bar">
-      <button type="button" class="control-action-btn stop-action-btn" id="reportStopBtn">
-        멈췄어요
+      <button type="button" class="control-action-btn replay-action-btn" id="replayLastAiBtn">
+        <span class="btn-emoji">🔊</span>다시 듣기
       </button>
 
       <button type="button" class="mic-center-btn listening-ready" id="micCapsule">
@@ -764,8 +774,8 @@
         <span class="mic-subtitle" id="micSubtitle">한국어로 편하게 말해요</span>
       </button>
 
-      <button type="button" class="control-action-btn replay-action-btn" id="replayLastAiBtn">
-        다시 듣기
+      <button type="button" class="control-action-btn help-action-btn" id="helpBtn">
+        <span class="btn-emoji">🆘</span>도와줘
       </button>
     </div>
     <div class="dock-status-guide" id="dockStatusGuide">마이크 버튼을 누르고 편하게 이야기해 보세요</div>
@@ -789,6 +799,7 @@
             <button type="button" class="preset-tab active" data-preset="child1">첫째 (7세)</button>
             <button type="button" class="preset-tab" data-preset="child2">둘째 (6세)</button>
             <button type="button" class="preset-tab" data-preset="custom">직접 설정</button>
+            <button type="button" class="preset-tab" data-preset="test">🧪 테스트</button>
           </div>
         </div>
 
@@ -946,6 +957,13 @@
         levelDesc: "6세 미취학 유아 수준(알파벳·파닉스 소리 감각 단계). AI는 3~4단어 이내의 아주 쉽고 직관적인 단어로만 말하고, 아이가 따라 말할 영어 문장(repeatEn)도 2~4단어의 아주 짧고 신나는 표현으로 만들어 줘.",
         speechRate: 0.75,
         interests: "블록 쌓기(자동차·로봇·성 만들기), 스파이더맨, 피카츄"
+      },
+      test: {
+        aiName: "테스트",
+        childLabel: "테스트",
+        levelDesc: "테스트용. AI는 3~5단어의 쉬운 영어 문장으로 말하고, 아이가 따라 말할 영어 문장(repeatEn)은 2~4단어의 짧은 문장으로 만들어 줘.",
+        speechRate: 0.85,
+        interests: "동물, 음식"
       }
     };
 
@@ -1035,11 +1053,10 @@
       const i = DAILY_TOPICS_POOL.findIndex(t => t.prompt === appConfig.dailyTopic);
       return i >= 0 ? TOPIC_META[i] : null;
     }
-    function sessionLen() { return appConfig.preset === "child2" ? 4 : 6; }
+    function sessionLen() { return appConfig.preset === "test" ? 2 : appConfig.preset === "child2" ? 4 : 6; }
 
     function updateModeUI() {
       modeToggleBtn.textContent = appConfig.mode === "en" ? "🇬🇧 영어 도전" : "🇰🇷 한국어";
-      helpBtn.style.display = appConfig.mode === "en" ? "" : "none";
     }
 
     function repeatScore(spoken, target) {
@@ -1251,10 +1268,6 @@
         enDiv.className = "ai-en-text";
         enDiv.textContent = enText;
 
-        const hint = document.createElement("span");
-        hint.className = "reveal-hint-badge";
-        hint.textContent = "영어 터치: 영어 듣기+한글 자막 / 한글 자막 터치: 한글 듣기";
-
         const handleEnglishClick = (e) => {
           e.stopPropagation();
           speakEnglishSentenceOnly(enText);
@@ -1265,10 +1278,8 @@
         };
 
         enDiv.addEventListener("click", handleEnglishClick);
-        hint.addEventListener("click", handleEnglishClick);
 
         bubble.appendChild(enDiv);
-        bubble.appendChild(hint);
 
         if (koSub) {
           const koDiv = document.createElement("div");
