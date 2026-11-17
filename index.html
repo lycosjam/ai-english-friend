@@ -1,1753 +1,735 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#142218" />
-  <title>숲속 텐트 AI 영어 친구</title>
-  <style>
-    :root {
-      --forest-bg: #111c14;
-      --tent-canvas: #1a291e;
-      --tent-card: #223527;
-      --tent-border: #3b5742;
-      --lantern-gold: #f59e0b;
-      --lantern-warm: #fef3c7;
-      --lantern-glow: rgba(245, 158, 11, 0.22);
-      --leaf-mint: #6ee7b7;
-      --leaf-deep: #059669;
-      --wood-brown: #785233;
-      --text-cream: #f8faf5;
-      --text-muted: #b7c9bc;
-      --danger-red: #dc2626;
-      --user-bubble: #2e5a44;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: radial-gradient(circle at 50% 0%, #243b2a 0%, var(--forest-bg) 72%);
-      color: var(--text-cream);
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    /* 상단 숲속 텐트 헤더 */
-    .tent-header {
-      background: linear-gradient(180deg, rgba(20, 34, 24, 0.96) 0%, rgba(26, 41, 30, 0.9) 100%);
-      border-bottom: 1px solid var(--tent-border);
-      padding: 12px 16px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex-shrink: 0;
-      z-index: 20;
-    }
-
-    .header-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .lantern-orb {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 16px var(--lantern-glow);
-      flex-shrink: 0;
-      transition: transform 0.25s ease;
-    }
-
-    .lantern-orb.speaking {
-      animation: lanternPulse 1.1s infinite ease-in-out;
-    }
-
-    @keyframes lanternPulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
-      50% { transform: scale(1.08); box-shadow: 0 0 24px rgba(251, 191, 36, 0.65); }
-    }
-
-    .brand-titles {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--lantern-warm);
-      letter-spacing: -0.3px;
-    }
-
-    .brand-sub-badges {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 2px;
-      flex-wrap: wrap;
-    }
-
-    .pill-badge {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.09);
-      color: var(--text-muted);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      cursor: pointer;
-    }
-
-    .pill-badge.live-on {
-      background: rgba(16, 185, 129, 0.2);
-      color: #6ee7b7;
-      border-color: rgba(16, 185, 129, 0.45);
-    }
-
-    .pill-badge.live-off {
-      background: rgba(245, 158, 11, 0.16);
-      color: #fcd34d;
-      border-color: rgba(245, 158, 11, 0.35);
-    }
-
-    .header-btns {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-btn {
-      background: var(--tent-card);
-      border: 1px solid var(--tent-border);
-      color: var(--text-cream);
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .nav-btn:active {
-      transform: scale(0.96);
-    }
-
-    .nav-btn.primary-glow {
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      border-color: #f59e0b;
-      color: #ffffff;
-    }
-
-    /* 현재 선택된 동화책 & 진행 바 */
-    .story-bar {
-      background: rgba(17, 28, 20, 0.72);
-      border: 1px solid var(--tent-border);
-      border-radius: 12px;
-      padding: 8px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .story-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
-
-    .story-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #fbbf24;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .story-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-cream);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .story-step-chip {
-      font-size: 11px;
-      font-weight: 800;
-      background: rgba(245, 158, 11, 0.18);
-      color: #fde68a;
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 4px 10px;
-      border-radius: 999px;
-      flex-shrink: 0;
-    }
-
-    /* 상태 표시줄 */
-    .status-strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-muted);
-      padding: 0 2px;
-    }
-
-    .status-left {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .wave-bars {
-      display: inline-flex;
-      align-items: center;
-      gap: 2.5px;
-      height: 12px;
-    }
-
-    .wave-bars span {
-      width: 3px;
-      height: 4px;
-      border-radius: 2px;
-      background: var(--lantern-gold);
-    }
-
-    .wave-bars.active span:nth-child(1) { animation: waveAnim 0.7s infinite 0.0s; }
-    .wave-bars.active span:nth-child(2) { animation: waveAnim 0.7s infinite 0.15s; }
-    .wave-bars.active span:nth-child(3) { animation: waveAnim 0.7s infinite 0.3s; }
-    .wave-bars.active span:nth-child(4) { animation: waveAnim 0.7s infinite 0.15s; }
-
-    @keyframes waveAnim {
-      0%, 100% { height: 4px; }
-      50% { height: 12px; }
-    }
-
-    /* 중앙 채팅 영역 */
-    .chat-stream {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 14px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      scroll-behavior: smooth;
-    }
-
-    .msg-row {
-      display: flex;
-      width: 100%;
-      animation: slideUp 0.22s ease-out;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .msg-row.ai { justify-content: flex-start; }
-    .msg-row.user { justify-content: flex-end; }
-
-    /* AI 말풍선 (숲속 텐트 랜턴 카드 스타일 + 기존 터치 규칙 100% 유지) */
-    .ai-bubble {
-      max-width: 90%;
-      background: var(--tent-card);
-      border: 1px solid var(--tent-border);
-      border-radius: 20px 20px 20px 6px;
-      padding: 15px 17px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .ai-en-text {
-      font-size: 19px;
-      font-weight: 800;
-      line-height: 1.45;
-      color: var(--text-cream);
-      cursor: pointer;
-      word-break: keep-all;
-    }
-
-    .ai-en-text:active {
-      color: #fde68a;
-    }
-
-    .story-target-box {
-      background: rgba(245, 158, 11, 0.13);
-      border: 1.5px solid rgba(245, 158, 11, 0.55);
-      border-radius: 12px;
-      padding: 9px 13px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      cursor: pointer;
-    }
-
-    .story-target-label {
-      font-size: 11px;
-      font-weight: 800;
-      color: #fbbf24;
-    }
-
-    .story-target-sentence {
-      font-size: 18px;
-      font-weight: 800;
-      color: #fef3c7;
-      line-height: 1.38;
-    }
-
-
-
-    /* 영어 클릭 시 나타나는 한글 자막 박스 (클릭 시 한글 음성 재생) */
-    .ai-ko-reveal {
-      font-size: 14px;
-      font-weight: 600;
-      color: #fde047;
-      background: rgba(0, 0, 0, 0.36);
-      padding: 9px 12px;
-      border-radius: 10px;
-      border-left: 3px solid #f59e0b;
-      display: none;
-      line-height: 1.45;
-      cursor: pointer;
-    }
-
-    .ai-ko-reveal.show {
-      display: block;
-    }
-
-    .ai-ko-reveal:active {
-      opacity: 0.8;
-    }
-
-    /* 아이(사용자) 말풍선 */
-    .user-bubble {
-      max-width: 82%;
-      background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-      border: 1px solid #10b981;
-      color: #ffffff;
-      border-radius: 20px 20px 6px 20px;
-      padding: 12px 16px;
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.42;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
-      word-break: keep-all;
-    }
-
-    /* 하단 컨트롤 독 (2대 대형 버튼 + 실시간 마이크 바) */
-    .tent-dock {
-      background: linear-gradient(180deg, rgba(17, 28, 20, 0) 0%, rgba(17, 28, 20, 0.98) 25%);
-      padding: 8px 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex-shrink: 0;
-      z-index: 20;
-    }
-
-    .big-action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .big-btn {
-      padding: 12px 10px;
-      border-radius: 14px;
-      border: 1px solid var(--tent-border);
-      background: var(--tent-card);
-      color: var(--text-cream);
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .big-btn:active {
-      transform: scale(0.97);
-    }
-
-    .big-btn.stop {
-      background: rgba(185, 28, 28, 0.24);
-      border-color: rgba(239, 68, 68, 0.5);
-      color: #fca5a5;
-    }
-
-    .big-btn.replay {
-      background: rgba(217, 119, 6, 0.22);
-      border-color: rgba(245, 158, 11, 0.5);
-      color: #fde68a;
-    }
-
-    .mic-bar {
-      background: var(--tent-card);
-      border: 2px solid var(--tent-border);
-      border-radius: 999px;
-      padding: 8px 10px 8px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .mic-bar.live-active {
-      border-color: #10b981;
-      background: rgba(6, 78, 59, 0.45);
-      box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
-    }
-
-    .mic-bar.recording {
-      border-color: #ef4444;
-      background: rgba(127, 29, 29, 0.45);
-    }
-
-    .mic-label {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-cream);
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .mic-actions-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .text-type-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: var(--text-cream);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .mic-round {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #111c14;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .mic-bar.live-active .mic-round {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-    }
-
-    .mic-bar.recording .mic-round {
-      background: #ef4444;
-      color: #ffffff;
-    }
-
-    /* 설정 모달 (동화책 선택 & 스크립트 직접 입력 & Live API 연결) */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(4px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      z-index: 999;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal-panel {
-      width: 100%;
-      max-width: 540px;
-      max-height: 92dvh;
-      background: #18261c;
-      border: 1px solid var(--tent-border);
-      border-radius: 22px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
-    }
-
-    .modal-head {
-      padding: 15px 18px;
-      background: #131f16;
-      border-bottom: 1px solid var(--tent-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-head h2 {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--lantern-warm);
-    }
-
-    .close-modal-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: var(--text-cream);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .modal-scroll {
-      padding: 16px 18px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .field-label {
-      font-size: 13px;
-      font-weight: 800;
-      color: #fde68a;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .field-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    .child-switch-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .child-choice {
-      padding: 10px;
-      border-radius: 12px;
-      border: 1.5px solid var(--tent-border);
-      background: #111c14;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 800;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .child-choice.active {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.16);
-      color: #fef3c7;
-    }
-
-    .tent-input, .tent-select, .tent-textarea {
-      width: 100%;
-      background: #111c14;
-      border: 1px solid var(--tent-border);
-      border-radius: 12px;
-      padding: 10px 12px;
-      color: var(--text-cream);
-      font-size: 14px;
-      font-family: inherit;
-    }
-
-    .tent-textarea {
-      min-height: 110px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-
-    .inline-btn-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .sub-btn {
-      padding: 9px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--tent-border);
-      background: #223527;
-      color: var(--text-cream);
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .modal-foot {
-      padding: 14px 18px;
-      background: #131f16;
-      border-top: 1px solid var(--tent-border);
-      display: flex;
-      gap: 8px;
-    }
-
-    .save-start-btn {
-      flex: 1;
-      padding: 13px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-      color: #111c14;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-
-    .test-result-box {
-      font-size: 12px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #6ee7b7;
-      display: none;
-    }
-
-    .test-result-box.error {
-      background: rgba(220, 38, 38, 0.18);
-      border-color: rgba(239, 68, 68, 0.45);
-      color: #fca5a5;
-    }
-
-    /* ===== v2: 단순화된 헤더 / 동화 문장 카드 / 선생님 대화 ===== */
-    .tent-header { padding: 10px 14px; gap: 0; }
-    .tent-header .header-top-row { gap: 10px; }
-    .lantern-orb { width: 36px; height: 36px; border-radius: 12px; }
-    .story-bar { flex: 1; min-width: 0; background: none; border: none; padding: 0; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px; }
-    .story-name { font-size: 16px; font-weight: 800; color: var(--lantern-warm); max-width: 100%; }
-    .dots { display: flex; gap: 5px; }
-    .dots.many { display: none; }
-    .dots span { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.16); }
-    .dots span.done { background: var(--lantern-gold); }
-    .dots span.now { box-shadow: 0 0 0 3px rgba(245,158,11,0.35); }
-    .gear-btn { width: 38px; height: 38px; padding: 0; justify-content: center; font-size: 17px; border-radius: 50%; }
-    .status-strip { justify-content: center; padding: 0 2px; }
-    .big-action-grid { grid-template-columns: 1.25fr 1fr 1fr; }
-    #stopAllBtn { display: none !important; }
-    .big-btn.start { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-color: #fbbf24; color: #111c14; font-size: 16px; font-weight: 900; }
-    #readAllBtn { font-size: 14px; }
-    #readAllBtn[aria-pressed="true"] { background: #785233; border-color: #f59e0b; color: #fef3c7; }
-    @media (max-width: 390px) { .big-btn, .big-btn.start { font-size: 13px; padding-inline: 5px; } }
-    .story-card { max-width: 92%; background: rgba(245,158,11,0.14); border: 2px solid rgba(245,158,11,0.65); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; box-shadow: 0 0 18px var(--lantern-glow); }
-    .story-card .story-target-sentence { font-size: 24px; line-height: 1.35; }
-    .ai-bubble.talk { padding: 11px 15px; }
-    .ai-bubble.talk .ai-en-text { font-size: 16px; font-weight: 600; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>숲속 텐트 영어 친구</title>
+<style>
+:root{--ink:#24402c;--sky1:#bfe9ff;--sky2:#eefcff;--grass:#8fd46b;--yellow:#ffd45c;--pink:#ff6f91;--green:#2ecc71}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);height:100dvh;display:flex;flex-direction:column;overflow:hidden;user-select:none;-webkit-user-select:none;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,#d9f7c4 80%)}
+.bg{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.cloud{position:absolute;width:120px;height:44px;background:#fff;border-radius:50px;opacity:.9;animation:drift 28s linear infinite;left:-140px}
+.cloud::before,.cloud::after{content:'';position:absolute;background:#fff;border-radius:50%}
+.cloud::before{width:52px;height:52px;left:18px;top:-22px}
+.cloud::after{width:68px;height:68px;left:48px;top:-32px}
+.c1{top:60px}.c2{top:190px;width:90px;height:34px;animation-duration:36s;animation-delay:-12s}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(120vw)}}
+.hill{position:fixed;bottom:-140px;left:-15%;width:130%;height:300px;border-radius:50%;background:var(--grass);z-index:-1}
+.top{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
+.book-pill{flex:1;min-width:0;background:#fff;border-radius:999px;padding:8px 16px;box-shadow:0 4px 0 rgba(36,64,44,.16);display:flex;align-items:center;gap:10px}
+.tag{font-size:12px;font-weight:900;color:#b25e00;background:#ffe9b8;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.book-title{font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.round-btn{width:52px;height:52px;border-radius:50%;border:none;background:#fff;box-shadow:0 4px 0 rgba(36,64,44,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.round-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(36,64,44,.18)}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:6px 18px;overflow:auto}
+.teacher{width:116px;height:116px;transition:transform .3s}
+.teacher.talking{animation:bob .6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.caption{display:none;max-width:380px;text-align:center;font-size:16px;font-weight:700;color:#2b5a3a;background:rgba(255,255,255,.8);border-radius:18px;padding:8px 14px;line-height:1.4}
+.caption.show{display:block}
+.card{width:100%;max-width:460px;min-height:210px;background:#fff;border-radius:34px;padding:26px 22px;box-shadow:0 10px 0 rgba(36,64,44,.14);text-align:center;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;border:6px solid var(--yellow)}
+.card.empty{border-color:#bfe3a8;cursor:default}
+.card .en{font-size:clamp(30px,8.5vw,44px);font-weight:900;line-height:1.3;color:#1d3b5c;word-break:keep-all}
+.card .en.small{font-size:24px}
+.card .hint{font-size:14px;font-weight:700;color:#8a9a8f}
+.book-big{font-size:30px;font-weight:900;color:#1d3b5c;line-height:1.3}
+.start-book{margin-top:8px;padding:16px 30px;border-radius:24px;border:none;background:var(--pink);color:#fff;font-size:22px;font-weight:900;box-shadow:0 6px 0 #c94a68;cursor:pointer;font-family:inherit}
+.start-book:active{transform:translateY(4px);box-shadow:0 2px 0 #c94a68}
+.status{font-size:14px;font-weight:800;color:#2b5a3a;min-height:20px;text-align:center}
+.childline{font-size:14px;font-weight:700;color:#4b6b55;min-height:18px;text-align:center}
+.dock{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:6px 8px 18px;align-items:end;flex-shrink:0}
+.ctl{display:flex;flex-direction:column;align-items:center;gap:5px;border:none;background:none;cursor:pointer;font-family:inherit}
+.ctl .face{width:62px;height:62px;border-radius:20px;background:#fff;box-shadow:0 6px 0 rgba(36,64,44,.2);display:flex;align-items:center;justify-content:center}
+.ctl:active .face{transform:translateY(4px);box-shadow:0 2px 0 rgba(36,64,44,.2)}
+.ctl:disabled{opacity:.4;cursor:default}
+.ctl:disabled:active .face{transform:none;box-shadow:0 6px 0 rgba(36,64,44,.2)}
+.ctl > span:last-child{font-size:13px;font-weight:900;color:var(--ink);white-space:nowrap}
+.ctl.mic .face{background:var(--pink);color:#fff}
+.ctl.mic.on .face{background:var(--green);animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 6px 0 rgba(36,64,44,.2),0 0 0 0 rgba(46,204,113,.5)}50%{box-shadow:0 6px 0 rgba(36,64,44,.2),0 0 0 12px rgba(46,204,113,0)}}
+.flag svg{display:block;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.splash{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,#d9f7c4 100%)}
+.splash.hide{display:none}
+.splash h1{font-size:30px;font-weight:900;color:#1d5a36;line-height:1.3}
+.splash p{font-size:17px;font-weight:700}
+.big-start{padding:20px 40px;font-size:24px;font-weight:900;border:none;border-radius:28px;background:#ffb300;color:#3b2a00;box-shadow:0 8px 0 #c98a00;cursor:pointer;font-family:inherit}
+.big-start:active{transform:translateY(5px);box-shadow:0 3px 0 #c98a00}
+.msg{font-size:14px;font-weight:800;color:#c62828;min-height:20px}
+.modal-back{position:fixed;inset:0;background:rgba(36,64,44,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
+.modal-back.open{display:flex}
+.modal{background:#fffdf5;width:100%;max-width:520px;max-height:92dvh;border-radius:28px 28px 0 0;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:2px solid #efe7d2}
+.modal-head h2{font-size:18px;font-weight:900}
+.x{width:40px;height:40px;border-radius:50%;border:none;background:#f0ead8;font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}
+.modal-body{overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:16px}
+.flabel{display:block;font-weight:900;font-size:15px;margin-bottom:6px}
+input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #cfe5c2;font-size:16px;font-family:inherit;background:#fff;color:var(--ink);margin-top:6px}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.sub{padding:10px 14px;border-radius:12px;border:2px solid #cfe5c2;background:#f2faea;font-weight:800;font-size:14px;cursor:pointer;color:var(--ink);font-family:inherit}
+.res{font-size:14px;font-weight:700}
+.res.ok{color:#17803d}.res.bad{color:#c62828}
+.seg2,.seg4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg2 button,.seg4 button{padding:12px 8px;border-radius:14px;border:3px solid #dbeccd;background:#fff;font-weight:800;font-size:15px;cursor:pointer;color:var(--ink);font-family:inherit}
+.seg2 button.on,.seg4 button.on{background:var(--yellow);border-color:#ffb300}
+.modal-foot{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:14px 18px;border-top:2px solid #efe7d2}
+.primary{padding:14px 26px;border-radius:16px;border:none;background:#ffb300;color:#3b2a00;font-weight:900;font-size:17px;cursor:pointer;box-shadow:0 5px 0 #c98a00;font-family:inherit}
+</style>
 </head>
 <body>
 
-  <!-- 상단 숲속 텐트 헤더 -->
-  <header class="tent-header">
-    <div class="header-top-row">
-      <div class="lantern-orb" id="lanternOrb">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111c14" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20L12 4l9 16H3z"/><path d="M12 4v16"/></svg>
-      </div>
-      <div class="story-bar" id="storyBannerBtn" title="눌러서 동화책 바꾸기">
-        <span class="story-name" id="storyTitleLabel">Bubbles!</span>
-        
-      </div>
-      
-      <button type="button" class="nav-btn gear-btn" id="openSettingsBtn" aria-label="설정">⚙</button>
+<div class="bg"><span class="cloud c1"></span><span class="cloud c2"></span></div>
+<div class="hill"></div>
+
+<header class="top">
+  <div class="book-pill">
+    <span class="tag">오늘의 책</span>
+    <span class="book-title" id="bookTitle">책을 골라 주세요</span>
+  </div>
+  <button class="round-btn" id="settingsBtn" aria-label="설정">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+  </button>
+</header>
+
+<main class="stage">
+  <svg class="teacher" id="teacher" viewBox="0 -8 120 128" aria-hidden="true">
+    <circle cx="28" cy="30" r="14" fill="#a0673a"/>
+    <circle cx="92" cy="30" r="14" fill="#a0673a"/>
+    <circle cx="60" cy="62" r="46" fill="#b9793f"/>
+    <ellipse cx="60" cy="80" rx="23" ry="17" fill="#f4d7b0"/>
+    <circle cx="44" cy="56" r="5.5" fill="#2b2b2b"/>
+    <circle cx="76" cy="56" r="5.5" fill="#2b2b2b"/>
+    <circle cx="40" cy="68" r="5" fill="#ff9aa8" opacity=".7"/>
+    <circle cx="80" cy="68" r="5" fill="#ff9aa8" opacity=".7"/>
+    <ellipse cx="60" cy="74" rx="6" ry="4" fill="#2b2b2b"/>
+    <path d="M34 26 L60 -4 L86 26 Z" fill="#2f9e5b"/>
+    <path d="M28 26 H92" stroke="#237a46" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+  <div class="caption" id="caption"></div>
+  <div class="card" id="card"></div>
+  <div class="status" id="status"></div>
+  <div class="childline" id="childLine"></div>
+</main>
+
+<footer class="dock">
+  <button class="ctl" id="prevBtn" aria-label="이전 문장">
+    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+    <span>이전</span>
+  </button>
+  <button class="ctl" id="meaningBtn" aria-label="한글로 뜻 듣기">
+    <span class="face flag" id="krFlag"></span>
+    <span>한글</span>
+  </button>
+  <button class="ctl mic" id="micBtn" aria-label="마이크">
+    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg></span>
+    <span id="micLabel">말하기</span>
+  </button>
+  <button class="ctl" id="rereadBtn" aria-label="영어로 다시 읽기">
+    <span class="face flag" id="usFlag"></span>
+    <span>다시읽기</span>
+  </button>
+  <button class="ctl" id="nextBtn" aria-label="다음 문장">
+    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+    <span>다음</span>
+  </button>
+</footer>
+
+<section class="splash" id="splash">
+  <h1>AI 영어 선생님</h1>
+  <button class="big-start" id="splashStart">시작하기</button>
+  <div class="msg" id="splashMsg"></div>
+</section>
+
+<div class="modal-back" id="settingsModal">
+  <div class="modal" role="dialog" aria-label="선생님 설정">
+    <div class="modal-head">
+      <h2>선생님 설정</h2>
+      <button class="x" id="closeSettingsBtn" aria-label="닫기">✕</button>
     </div>
-    <div hidden>
-      <span id="childProfileBadge"></span><span id="liveStatusBadge"></span>
-      <div id="progressDots"></div><span id="storyProgressChip"></span>
-      <span id="storySeriesLabel"></span><span id="voiceNameTag"></span>
+    <div class="modal-body">
+      <div>
+        <span class="flabel">1. Gemini API 키</span>
+        <input id="apiKeyInput" type="password" placeholder="AIza..." autocomplete="off" />
+        <div class="row"><button class="sub" id="testBtn">연결 확인</button><span class="res" id="testResult"></span></div>
+      </div>
+      <div>
+        <span class="flabel">2. 동화책 선택</span>
+        <select id="bookSelect"></select>
+        <span class="flabel" style="margin-top:12px">책 목록 주소 (구글 시트, 웹에 게시한 CSV 주소)</span>
+        <input id="sheetInput" placeholder="https://docs.google.com/spreadsheets/.../pub?output=csv" />
+        <div class="row"><button class="sub" id="reloadBtn">책 목록 새로고침</button></div>
+      </div>
+      <div>
+        <span class="flabel">3. 선생님 목소리</span>
+        <div class="seg2">
+          <button type="button" data-voice="female">여자 선생님</button>
+          <button type="button" data-voice="male">남자 선생님</button>
+        </div>
+      </div>
+      <div>
+        <span class="flabel">4. 말하기 속도</span>
+        <div class="seg4">
+          <button type="button" data-speed="0">아주 천천히</button>
+          <button type="button" data-speed="1">천천히</button>
+          <button type="button" data-speed="2">보통</button>
+          <button type="button" data-speed="3">조금 빠르게</button>
+        </div>
+      </div>
+      <div>
+        <span class="flabel">5. 마이크</span>
+        <div class="seg2">
+          <button type="button" data-mic="always">계속 듣기</button>
+          <button type="button" data-mic="push">누르고 말하기</button>
+        </div>
+      </div>
+      <div>
+        <span class="flabel">6. 아이 이름 (인사말에 넣어요)</span>
+        <input id="childInput" placeholder="예: 민준" />
+      </div>
+      <div class="msg" id="settingsMsg"></div>
     </div>
-  </header>
-
-  <!-- 중앙 대화창 (한글/영어 실시간 자막 + 터치 시 음성/해석 분리 동작) -->
-  <main class="chat-stream" id="chatStream"></main>
-
-  <!-- 하단 컨트롤 영역 -->
-  <footer class="tent-dock">
-    <div class="status-strip">
-      <div class="status-left">
-        <div class="wave-bars" id="waveBars"><span></span><span></span><span></span><span></span></div>
-        <span id="statusText">라이브 음성 전용 · 동화책 시작을 눌러 주세요</span>
-      </div>
-    </div>
-    <div class="big-action-grid">
-      <button type="button" class="big-btn start" id="liveConnectBtn">▶ 동화책 시작</button>
-      <button type="button" class="big-btn stop" id="stopAllBtn">멈췄어요</button>
-      <button type="button" class="big-btn replay" id="replayLastBtn">🔁 다시 듣기</button>
-      <button type="button" class="big-btn" id="readAllBtn" aria-pressed="false" title="라이브 선생님이 영어 본문을 처음부터 끝까지 읽어줍니다">전부듣기</button>
-    </div>
-
-    <div class="mic-bar" id="micBar">
-      <span class="mic-label" id="micLabel">터치해서 말하기 (한글/영어 모두 가능)</span>
-      <div class="mic-actions-right">
-        <button type="button" class="text-type-btn" id="textInputBtn">글자 입력</button>
-        <div class="mic-round" id="micRoundIcon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" y1="19" x2="12" y2="23"/>
-            <line x1="8" y1="23" x2="16" y2="23"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- 부모 설정 및 동화책 스크립트 선택/입력 모달 -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal-panel">
-      <div class="modal-head">
-        <h2>숲속 텐트 설정 및 동화책 스크립트</h2>
-        <button type="button" class="close-modal-btn" id="closeSettingsBtn">✕</button>
-      </div>
-
-      <div class="modal-scroll">
-        <!-- 1. 아이 선택 -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>1. 학습할 아이 선택</span>
-          </div>
-          <div class="child-switch-grid">
-            <button type="button" class="child-choice active" data-child="child1">첫째 (7세 · 예비초1)</button>
-            <button type="button" class="child-choice" data-child="child2">둘째 (6세 · 파닉스)</button>
-          </div>
-        </div>
-
-        <!-- 2. 동화책 선택 (구글 드라이브 문서 스크립트 내장 라이브러리 + 직접 입력) -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>2. 오늘 읽을 동화책 선택</span>
-            <span style="color:#6ee7b7; font-size:11px;">드라이브 스크립트 탑재</span>
-          </div>
-          <select class="tent-select" id="bookSelectDropdown"></select>
-        </div>
-
-        <!-- 3. 동화책 영어 스크립트 확인 및 직접 입력/수정 -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>3. 동화책 영어 문장 스크립트 (직접 붙여넣기/수정 가능)</span>
-          </div>
-          <div class="field-desc">한 줄에 한 문장씩 입력하세요. 함께 읽기는 인사 후 한 문장씩 읽고 기다려요. 전부듣기는 본문만 끝까지 읽어요.</div>
-          <input type="text" class="tent-input" id="customBookTitleInput" placeholder="동화책 제목 (예: Bubbles!)" />
-          <textarea class="tent-textarea" id="scriptTextarea" placeholder="동화책 영어 본문을 한 줄에 한 문장씩 입력하거나 붙여넣으세요."></textarea>
-        </div>
-
-        <!-- 4. Gemini API 키 & Live 목소리 -->
-        <div class="field-group">
-          <div class="field-label">
-            <span>4. Google Gemini API 키</span>
-            <button type="button" class="sub-btn" id="testApiKeyBtn">키 연결 테스트</button>
-          </div>
-          <input type="password" class="tent-input" id="apiKeyInput" placeholder="AIzaSy... API 키 입력 (스마트폰에만 저장)" />
-          <div class="test-result-box" id="apiTestResult"></div>
-        </div>
-
-        <div class="row-2">
-          <div class="field-group">
-            <label class="field-label">라이브 AI 목소리</label>
-            <select class="tent-select" id="liveVoiceSelect">
-              <option value="Aoede">Aoede (다정한 선생님)</option>
-              <option value="Puck">Puck (활기찬 친구)</option>
-              <option value="Kore">Kore (차분한 목소리)</option>
-              <option value="Fenrir">Fenrir (씩씩한 곰돌이)</option>
-            </select>
-          </div>
-
-        </div>
-
-        <!-- 5. 구글 시트 웹앱 URL (기존 연동 유지) -->
-        <div class="field-group">
-          <label class="field-label">5. 구글 시트 기록 웹앱 URL (선택)</label>
-          <input type="url" class="tent-input" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
-        </div>
-
-        <!-- 6. 스마트폰용 코드 복사 도우미 -->
-        <div class="field-group">
-          <div class="field-label"><span>스마트폰 백업/코드 복사</span></div>
-          <div class="inline-btn-row">
-            <button type="button" class="sub-btn" id="copyHtmlCodeBtn">전체 HTML 코드 복사</button>
-            <button type="button" class="sub-btn" id="clearChatBtn">채팅창 비우기</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-foot">
-        <button type="button" class="save-start-btn" id="saveAndStartBtn">저장하고 동화책 라이브 시작</button>
-      </div>
+    <div class="modal-foot">
+      <button class="sub" id="stopTeacherBtn">선생님 끄기</button>
+      <button class="primary" id="saveBtn">저장</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const STORYBOOK_LIBRARY = [{"id": "flr_bubbles", "series": "First Little Readers A", "title": "Bubbles!", "pages": ["Bubbles at the beach.", "Bubbles in the bath.", "Bubbles in the sink.", "Bubbles in my drink.", "Bubbles in the clothes.", "Bubbles that I blow.", "Bubbles, bubbles, bubbles, everywhere I go!"]}, {"id": "flr_what_shines", "series": "First Little Readers A", "title": "What Shines?", "pages": ["The sun shines.", "A flashlight shines.", "The moon shines.", "A dime shines.", "A ring shines.", "My shoes shine.", "I shine!"]}, {"id": "flr_almost_spring", "series": "First Little Readers A", "title": "Almost Spring", "pages": ["Sun is shining. It is almost spring.", "Snow is melting. It is almost spring.", "Birds are singing. It is almost spring.", "Flowers are budding. It is almost spring.", "Wind is blowing. It is almost spring.", "Chicks are peeping. It is almost spring.", "Spring is here!"]}, {"id": "flr_i_can_draw", "series": "First Little Readers A", "title": "I Can Draw!", "pages": ["I can draw a seal.", "I can draw a clown.", "I can draw a king.", "I can draw a crown.", "I can draw a sheep.", "I can draw a bed.", "I can draw myself to sleep."]}, {"id": "flr_what_can_i_see", "series": "First Little Readers A", "title": "What Can I See?", "pages": ["I see an ant.", "I see a stone.", "I see a leaf.", "I see a home.", "I see a bee.", "I see a flower.", "But no one can see me!"]}, {"id": "flr_what_do_i_need", "series": "First Little Readers A", "title": "What Do I Need?", "pages": ["I need a table.", "I need a chair.", "I need a blanket.", "I need a pillow.", "I need a snack.", "I need a flashlight.", "I need a friend!"]}, {"id": "flr_playground", "series": "First Little Readers A", "title": "Fun at the Playground", "pages": ["I go in.", "I go out.", "I go high.", "I go low.", "I go up.", "I go down.", "At the playground, I get around!"]}, {"id": "flr_what_is_red", "series": "First Little Readers A", "title": "What Is Red?", "pages": ["Apples are red. Red, red, red.", "Strawberries are red. Red, red, red.", "Fire trucks are red. Red, red, red.", "Stop signs are red. Red, red, red.", "Flowers are red. Red, red, red.", "Hearts are red. Red, red, red.", "My face is red. Red, red, red!"]}, {"id": "flr_birthday", "series": "First Little Readers A", "title": "Birthday Surprise", "pages": ["I have paper.", "I have scissors.", "I have ribbon.", "I have glue.", "I have stickers.", "I have crayons.", "I have a birthday card for you!"]}, {"id": "flr_look_what_i_found", "series": "First Little Readers A", "title": "Look What I Found!", "pages": ["Look what I found! I found a stick.", "I found a stone.", "I found an acorn.", "I found a pine cone.", "I found a leaf.", "I found a feather.", "I found six things all together!"]}, {"id": "flr_where_is_petey", "series": "First Little Readers A", "title": "Where Is Petey?", "pages": ["Where is Petey? Is he under the bed?", "Is he in the shed?", "Is he behind the door?", "Is he in the drawer?", "Is he in the tub?", "Is he under the rug?", "Here is Petey!"]}, {"id": "flr_class_pets", "series": "First Little Readers A", "title": "Class Pets", "pages": ["The rabbit sniffs around and around.", "The fish swims around and around.", "The mouse crawls around and around.", "The hamster runs around and around.", "The snake slides around and around.", "The frog hops around and around.", "Class pets all around and around!"]}, {"id": "flr_winter", "series": "First Little Readers A", "title": "Winter Is Here", "pages": ["Winter is here. Sleep, bear, sleep.", "Winter is here. Sleep, snake, sleep.", "Winter is here. Sleep, chipmunk, sleep.", "Winter is here. Sleep, frog, sleep.", "Winter is here. Sleep, turtle, sleep.", "Winter is here. Sleep, groundhog, sleep.", "Spring is here. Time to wake up!"]}, {"id": "flr_shapes_lunch", "series": "First Little Readers A", "title": "Shapes for Lunch", "pages": ["I like to eat a square.", "I like to eat a triangle.", "I like to eat an oval.", "I like to eat a rectangle.", "I like to eat a circle.", "I like to eat a half-circle.", "Shapes are fun for lunch!"]}, {"id": "flr_supper", "series": "First Little Readers A", "title": "What Is for Supper?", "pages": ["I like pasta.", "I like pizza.", "I like tacos.", "I like grilled cheese.", "I like fish sticks.", "I like rice and beans.", "I like to eat!"]}, {"id": "flr_mud", "series": "First Little Readers A", "title": "Fun With Mud", "pages": ["Mud cookies.", "Mud cakes.", "Mud pies.", "Mud donuts.", "Mud muffins.", "Mud bread.", "Bake sale!"]}, {"id": "flr_night", "series": "First Little Readers A", "title": "When Night Comes", "pages": ["When night comes, the mouse comes out.", "When night comes, the owl comes out.", "When night comes, the moth comes out.", "When night comes, the bat comes out.", "When night comes, the firefly comes out.", "When night comes, the cat comes out.", "When night comes, I go inside!"]}, {"id": "flr_sweet_treat", "series": "First Little Readers A", "title": "Sweet Treat", "pages": ["I add the banana.", "You add the ice cream.", "I add the chocolate.", "You add the whipped cream.", "I add the nuts.", "You add the cherries.", "We share dessert!"]}, {"id": "flr_hurry_up", "series": "First Little Readers A", "title": "Hurry Up! Hurry Up!", "pages": ["Get out of bed. Hurry up! Hurry up!", "Brush my teeth. Hurry up! Hurry up!", "Get dressed. Hurry up! Hurry up!", "Eat breakfast. Hurry up! Hurry up!", "Take my lunch. Hurry up! Hurry up!", "Get the bus. Hurry up! Hurry up!", "It is the first day of school! Hurry up! Hurry up!"]}, {"id": "flr_hide_seek", "series": "First Little Readers A", "title": "Hide and Seek", "pages": ["Where can I hide?", "I can hide behind a chair.", "I can hide behind my hair.", "I can hide in a dress.", "I can hide in a mess.", "I can hide under the rug.", "I can hide in a hug!"]}, {"id": "flr_stripes", "series": "First Little Readers A", "title": "I Like Stripes", "pages": ["A candy cane has stripes. I like stripes.", "Toothpaste has stripes. I like stripes.", "A flag has stripes. I like stripes.", "A zebra has stripes. I like stripes.", "A street has stripes. I like stripes.", "A ladybug has stripes. No! No! No!", "A ladybug has spots. I like spots!"]}, {"id": "flr_school", "series": "First Little Readers A", "title": "I Like School!", "pages": ["I like to read.", "I like to paint.", "I like to cut.", "I like to glue.", "I like to count.", "I like to write.", "I like school!"]}, {"id": "flr_hats", "series": "First Little Readers A", "title": "Hats, Hats, Hats", "pages": ["I have a hat that is tall.", "I have a hat that is small.", "I have a hat that has holes.", "I have a hat that rolls.", "I have a hat that flops.", "I have a hat that is a mop.", "Hats, hats, hats! I like hats a lot!"]}, {"id": "pp_look_at_my_cat", "series": "Progressive Phonics 1 (-at)", "title": "Look At My Cat", "pages": ["Look, look, would you look at that?", "That is not a hat, that is my cat.", "My silly cat is scared of mice, so she hides on my head all day and night.", "I tell my cat, \"Don't be scared. Mice can't catch you way up there.\"", "Then one day my cat said, \"Mice!\"", "I got so scared that I screamed twice."]}, {"id": "pp_three_cats_mat", "series": "Progressive Phonics 1 (-at)", "title": "Three Cats And A Mat", "pages": ["We have three cats, but only one mat.", "So one cat sat on the mat.", "Then the second cat sat on the cat that sat on the mat.", "Then the third cat sat on the cat who sat on the cat on the mat.", "And then they were happy. How about that?"]}, {"id": "pp_rats_hat", "series": "Progressive Phonics 1 (-at)", "title": "The Rat's Hat", "pages": ["A rat went to the store to buy a hat.", "The first hat was too big.", "The second hat was too small.", "The third hat was just right, so the rat ate it bite by bite."]}, {"id": "pp_betty_bed", "series": "Progressive Phonics 2 (-ed)", "title": "Betty's Bed", "pages": ["My bed is not a baby bed.", "My bed is not too small.", "My bed is fine - the problem is that I am really tall."]}, {"id": "pp_race", "series": "Progressive Phonics 3 (-in)", "title": "The Race", "pages": ["\"I win!\" said the tortoise. \"I am a superstar!\"", "\"No, I win!\" said the snail. \"I was the first to come this far!\"", "\"No, you guys did not win. You didn't even start!\""]}, {"id": "pp_hot_pot_soup", "series": "Progressive Phonics 4 (-ot)", "title": "Hot Pot Of Soup", "pages": ["A hot pot of soup would be very, very nice.", "A hot pot of soup for two hungry mice.", "So they put a pea in a pot, and when the pot got hot, they found that one pea did not make a lot."]}, {"id": "pp_sun", "series": "Progressive Phonics 5 (-un)", "title": "Sun", "pages": ["The sun is big.", "The sun is yellow.", "The sun is like my lemon Jell-o.", "I thought the sun would taste good too, but the sun was much too hot to chew."]}];
+<script>
+const MODEL = 'gemini-3.8-live';
+const STORE_KEY = 'tent_reader_v2';
+const VOICES = { female: { label: '여자 선생님', voice: 'Aoede' }, male: { label: '남자 선생님', voice: 'Puck' } };
+const SPEEDS = [
+  { label: '아주 천천히', text: '아주 천천히, 한 단어씩 또박또박 끊어서' },
+  { label: '천천히', text: '천천히, 단어 사이를 살짝 쉬면서' },
+  { label: '보통', text: '아이가 듣기 편한 보통 빠르기로' },
+  { label: '조금 빠르게', text: '조금 빠르지만 또렷하게' }
+];
+const GREETINGS = [
+  n => `${n}안녕! 숲속 텐트에 온 걸 환영해!`,
+  n => `${n}어서 와! 선생님이 오늘도 기다리고 있었어.`,
+  n => `${n}반가워! 다시 만나서 정말 기뻐.`,
+  n => `${n}안녕안녕! 오늘도 재미있는 책 읽을 준비 됐니?`,
+  n => `${n}좋은 아침이야! 숲속 텐트에 와 줘서 고마워.`,
+  n => `${n}와, 왔구나! 오늘 기분은 어때?`
+];
+const INTROS = [
+  t => `오늘 같이 읽어볼 책은 "${t}"이라는 책이야. 선생님이 먼저 읽어 줄 테니까 잘 들어주렴.`,
+  t => `오늘은 "${t}" 책을 함께 읽어 볼 거야. 선생님 목소리를 잘 들어 주렴!`,
+  t => `오늘 읽을 책은 "${t}"이야. 선생님이 한 문장씩 읽어 줄게, 귀 기울여 들어 봐.`,
+  t => `"${t}" 책 같이 읽어 볼까? 선생님이 먼저 읽어 줄 테니 잘 들어주렴.`
+];
+const SAMPLE_BOOK = { title: 'I Can Draw!', sentences: [
+  'I can draw a seal.', 'I can draw a clown.', 'I can draw a king.', 'I can draw a crown.',
+  'I can draw a sheep.', 'I can draw a bed.', 'I can draw myself to sleep.'
+] };
+const SYSTEM = `너는 미취학 아이와 실물 영어 동화책을 함께 읽는 다정한 영어 선생님이야.
+- 말은 짧고 쉽게 한다. 아이에게 할 말만 하고, 준비 과정이나 계획은 말하지 않는다.
+- "[인사 요청]"을 받으면 요청된 문장을 자연스럽게 한 번만 읽고 멈춘다.
+- "[읽기 요청]"을 받으면 요청된 영어 문장만 원문 그대로 한 번 읽고 멈춘다. 설명이나 질문, 다른 문장을 덧붙이지 않는다.
+- "[뜻 요청]"을 받으면 한국어로 한두 문장만 짧게 말하고 멈춘다.
+- 아이가 말을 걸면 짧게 대답하고, 마지막에 "그럼 아까 문장으로 돌아가 볼까?"처럼 현재 문장으로 돌아가자고 부드럽게 말한다.
+- 따라 말하지 않아도 괜찮다고 격려한다. 발음을 고쳐 주려고 강요하지 않는다.
+- 다음 문장으로 스스로 넘어가지 않는다. 넘어가기는 앱이 정한다.`;
+const DEFAULTS = { apiKey: '', sheetUrl: '', bookTitle: '', voice: 'female', speed: 2, micMode: 'always', childName: '' };
 
-    const CHILD_PROFILES = {
-      child1: {
-        label: "첫째 (7세)",
-        ageDesc: "7세 예비 초등학생 (파닉스와 기초 사이트워드를 읽을 수 있음)",
-        interests: "축구, 우주, 요리, 세계지도, 신화",
-        voice: "Aoede"
-      },
-      child2: {
-        label: "둘째 (6세)",
-        ageDesc: "6세 미취학 아동 (알파벳과 짧은 단어 소리를 익히는 단계)",
-        interests: "블록 쌓기, 스파이더맨, 피카츄",
-        voice: "Puck"
-      }
-    };
+let cfg = { ...DEFAULTS };
+let books = [];
+let book = null;
+let index = -1;
+let phase = 'splash';
+let ws = null, connected = false, setupDone = false, introPending = false, introTimer = null;
+let outCtx = null, inCtx = null, micStream = null, micNode = null, micOn = false, pushing = false;
+let playAt = 0, sources = [];
+let teacherText = '', newTurn = false;
+let selVoice = 'female', selSpeed = 2, selMic = 'always';
 
-    let state = {
-      childKey: "child1",
-      bookId: "flr_bubbles",
-      bookTitle: "Bubbles!",
-      bookSeries: "First Little Readers A",
-      scriptLines: STORYBOOK_LIBRARY[0].pages.slice(),
-      apiKey: "",
-      liveVoice: "Aoede",
-      sheetUrl: ""
-    };
+const $ = id => document.getElementById(id);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    // WebSocket Live API 상태
-    let liveWs = null;
-    let isLiveConnected = false;
-    let audioCtx = null;
-    let micStream = null;
-    let micProcessor = null;
-    let playbackQueueTime = 0;
-    let activeSources = [];
-
-    // 실시간 자막 스트리밍 말풍선 참조
-    let currentAiBubbleObj = null;
-    let currentUserBubbleEl = null;
-    let lastAiTurnData = null;
-    let conversationLog = [];
-    let sessionMode = "tutor";
-    let isConnecting = false;
-    let liveSetupReady = false;
-    let micEnabled = false;
-    let allFinishedPending = false;
-    let currentStoryIdx = -1;      // 앱이 직접 관리하는 현재 동화 문장 번호(0부터)
-    let userSpokeSinceCard = true; // 마지막 카드 이후 아이가 말했는지
-    let liveTarget = "";           // 현재 읽는 동화 문장
-
-    // DOM 요소
-    const lanternOrb = document.getElementById("lanternOrb");
-    const childProfileBadge = document.getElementById("childProfileBadge");
-    const liveStatusBadge = document.getElementById("liveStatusBadge");
-    const liveConnectBtn = document.getElementById("liveConnectBtn");
-    const openSettingsBtn = document.getElementById("openSettingsBtn");
-    const storyBannerBtn = document.getElementById("storyBannerBtn");
-    const storySeriesLabel = document.getElementById("storySeriesLabel");
-    const storyTitleLabel = document.getElementById("storyTitleLabel");
-    const storyProgressChip = document.getElementById("storyProgressChip");
-    const waveBars = document.getElementById("waveBars");
-    const statusText = document.getElementById("statusText");
-    const voiceNameTag = document.getElementById("voiceNameTag");
-    const progressDots = document.getElementById("progressDots");
-    const chatStream = document.getElementById("chatStream");
-
-    const stopAllBtn = document.getElementById("stopAllBtn");
-    const replayLastBtn = document.getElementById("replayLastBtn");
-    const readAllBtn = document.getElementById("readAllBtn");
-    let isReadingAll = false;
-
-    const micBar = document.getElementById("micBar");
-    const micLabel = document.getElementById("micLabel");
-    const textInputBtn = document.getElementById("textInputBtn");
-
-    const settingsModal = document.getElementById("settingsModal");
-    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
-    const bookSelectDropdown = document.getElementById("bookSelectDropdown");
-    const customBookTitleInput = document.getElementById("customBookTitleInput");
-    const scriptTextarea = document.getElementById("scriptTextarea");
-    const apiKeyInput = document.getElementById("apiKeyInput");
-    const testApiKeyBtn = document.getElementById("testApiKeyBtn");
-    const apiTestResult = document.getElementById("apiTestResult");
-    const liveVoiceSelect = document.getElementById("liveVoiceSelect");
-    const sheetUrlInput = document.getElementById("sheetUrlInput");
-    const copyHtmlCodeBtn = document.getElementById("copyHtmlCodeBtn");
-    const clearChatBtn = document.getElementById("clearChatBtn");
-    const saveAndStartBtn = document.getElementById("saveAndStartBtn");
-
-    // 초기화: 드롭다운 채우기 & 저장값 불러오기
-    function initLibraryDropdown() {
-      bookSelectDropdown.innerHTML = "";
-      STORYBOOK_LIBRARY.forEach(book => {
-        const opt = document.createElement("option");
-        opt.value = book.id;
-        opt.textContent = `[${book.series}] ${book.title} (${book.pages.length}문장)`;
-        bookSelectDropdown.appendChild(opt);
-      });
-      const customOpt = document.createElement("option");
-      customOpt.value = "custom";
-      customOpt.textContent = "[직접 입력] 새 동화책 스크립트 붙여넣기";
-      bookSelectDropdown.appendChild(customOpt);
-    }
-
-    function loadState() {
-      try {
-        const saved = localStorage.getItem("forest_tent_live_state_v1");
-        if (saved) {
-          state = { ...state, ...JSON.parse(saved) };
-        }
-        const legacyKey = localStorage.getItem("ai_eng_friend_gemini_key");
-        if (!state.apiKey && legacyKey) state.apiKey = legacyKey;
-      } catch (e) {}
-      syncUI();
-    }
-
-    function saveState() {
-      try {
-        localStorage.setItem("forest_tent_live_state_v1", JSON.stringify(state));
-        if (state.apiKey) {
-          localStorage.setItem("ai_eng_friend_gemini_key", state.apiKey.trim());
-        } else { localStorage.removeItem("ai_eng_friend_gemini_key"); }
-      } catch (e) {}
-    }
-
-    function syncUI() {
-      const profile = CHILD_PROFILES[state.childKey] || CHILD_PROFILES.child1;
-      childProfileBadge.textContent = profile.label;
-      storySeriesLabel.textContent = state.bookSeries || "Storybook Script";
-      storyTitleLabel.textContent = state.bookTitle || "오늘의 동화책";
-      setProgress(currentStoryIdx);
-      voiceNameTag.textContent = state.liveVoice;
-
-      document.querySelectorAll(".child-choice").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.child === state.childKey);
-      });
-      bookSelectDropdown.value = state.bookId || "custom";
-      customBookTitleInput.value = state.bookTitle || "";
-      scriptTextarea.value = state.scriptLines.join("\n");
-      apiKeyInput.value = state.apiKey || "";
-      liveVoiceSelect.value = state.liveVoice || "Aoede";
-      sheetUrlInput.value = state.sheetUrl || "";
-    }
-
-    // 동화책 튜터링 시스템 지시문 생성 (한 문장 낭독 -> 핵심 단어 설명 -> 따라 읽기 유도)
-function buildStoryTutorInstruction() {
-  const profile = CHILD_PROFILES[state.childKey] || CHILD_PROFILES.child1;
-  const script = state.scriptLines.map((line,i)=>`${i+1}. ${line}`).join('\n');
-  const mode = sessionMode === 'all'
-    ? '전부듣기 모드: 인사·설명·칭찬·따라 말하기 권유 없이 영어 본문만 처음부터 끝까지 원문 순서대로 모두 읽는다. 각 문장을 읽기 직전에 showStorySentence(index)를 호출한다. 문장 사이에 아이의 반응을 기다리지 말고 같은 응답 안에서 계속 읽는다. 마지막 문장을 읽으면 다른 말 없이 마친다.'
-    : '함께 읽기 모드: 처음에 "안녕! 오늘도 같이 책 읽어보자."라고 짧게 인사하고 첫 영어 문장을 읽는다. 본문은 한 문장씩 읽고 "같이 말해볼까?"라고 짧게 권한 뒤 아이를 기다린다. 따라 말하면 짧게 격려하고 다음 한 문장을 읽는다. 다시 읽기·뜻 질문에는 현재 문장을 유지한다. 어려워하면 짧게 나눠 읽고 강요하지 않는다. 안내·칭찬·설명은 짧고 쉬운 한국어로 한다. 마지막 문장 뒤에는 한국어로 짧게 격려한다.';
-  return `너는 실물 영어 동화책을 펼쳐 놓은 ${profile.ageDesc} 아이의 다정한 영어 선생님이다.\n책 제목: ${state.bookTitle}\n영어 원문:\n${script}\n${mode}\n공통 규칙: 책 본문은 영어 원문 그대로 천천히 또렷하게 읽는다. 문장을 읽기 전에 showStorySentence(index)를 호출한다. 준비 과정, 분석, 수업 계획, 자기 설명, 마크다운 소제목은 출력하거나 발화하지 않는다. Initiating the storybook, I'm now ready, First I'll provide a greeting 같은 말은 하지 않는다. 아이에게 직접 할 말만 발화한다. 책 그림을 직접 볼 수 없으므로 보이는 척하지 않는다.`;
+function flagKR() {
+  return `<svg width="42" height="28" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff" stroke="#ccc"/><circle cx="30" cy="20" r="9" fill="#cd2e3a"/><path d="M30 11a9 9 0 0 1 0 18a4.5 4.5 0 0 1 0-9a4.5 4.5 0 0 0 0-9z" fill="#0047a0"/><path d="M6 7h9M6 10h9M6 13h9M45 7h9M45 10h9M45 13h9M6 27h9M6 30h9M6 33h9M45 27h9M45 30h9M45 33h9" stroke="#000" stroke-width="1.6"/></svg>`;
+}
+function flagUS() {
+  let s = '<svg width="42" height="28" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff"/>';
+  for (let i = 0; i < 13; i += 2) s += `<rect y="${i * 40 / 13}" width="60" height="${40 / 13}" fill="#d22b3a"/>`;
+  s += '<rect width="26" height="21.5" fill="#3c3b6e"/>';
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) s += `<circle cx="${3.5 + c * 5}" cy="${3 + r * 5}" r="1" fill="#fff"/>`;
+  return s + '</svg>';
 }
 
-    // =========================================================
-    // 1. 기존 말풍선 터치 인터랙션 유지 (영어 클릭 -> 영어 음성 + 한글 자막 / 한글 자막 클릭 -> 한글 음성)
-    // =========================================================
-    function updateLiveControls() {
-      readAllBtn.textContent = isReadingAll ? "듣기 중지" : "전부듣기";
-      readAllBtn.setAttribute("aria-pressed", String(isReadingAll));
-      liveConnectBtn.textContent = isConnecting ? "연결 중..." : (isLiveConnected && sessionMode === "tutor" ? "■ 끝내기" : "▶ 동화책 시작");
-      liveConnectBtn.disabled = isConnecting;
-      readAllBtn.disabled = isConnecting;
-      micBar.classList.toggle("live-active", micEnabled);
-      micBar.setAttribute("aria-pressed", String(micEnabled));
-      micLabel.textContent = micEnabled ? "마이크 켜짐 · 터치하면 끄기" : "마이크 꺼짐 · 터치해서 말하기";
-    }
-    function stopReadAll(showStatus = true) {
-      if (isReadingAll) disconnectLiveSession(showStatus ? "전부듣기를 멈췄어요." : "");
-    }
-    function startReadAll() {
-      if (isReadingAll) { disconnectLiveSession("전부듣기를 멈췄어요."); return; }
-      connectGeminiLive("all");
-    }
-    function finishReadAllWhenIdle() {
-      if (isReadingAll && allFinishedPending && activeSources.length === 0) disconnectLiveSession("책을 끝까지 들었어요! 함께 읽고 싶으면 동화책 시작을 눌러 주세요.");
-    }
-    function requestLiveSpeech(text) {
-      if (!text) return;
-      if (!isLiveConnected || !liveSetupReady || !liveWs || liveWs.readyState !== WebSocket.OPEN || sessionMode === "all") { connectGeminiLive("tutor", text); return; }
-      stopAllLiveAudio();
-      liveWs.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text}]}],turnComplete:true}}));
-      statusText.textContent = "라이브 선생님이 답하고 있어요...";
-    }
-    function handleTurnBasedUserReply(userText) {
-      createUserChatBubble(userText); logTurnToSheet("Child", userText); requestLiveSpeech(userText);
-    }
-    function toggleMicAction() {
-      if (!isLiveConnected || !liveSetupReady || sessionMode === "all") { connectGeminiLive("tutor"); return; }
-      if (micEnabled) { stopLiveMicrophone(); updateLiveControls(); statusText.textContent = "마이크를 껐어요. 선생님 목소리는 계속 들을 수 있어요."; }
-      else startLiveMicrophone(liveWs);
-    }
-    function promptTextReply() {
-      const input = prompt("선생님에게 할 말을 입력하세요 (한글/영어 모두 가능):");
-      if (input && input.trim()) handleTurnBasedUserReply(input.trim());
-    }
+// ---------- 저장 ----------
+function loadCfg() {
+  try { cfg = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORE_KEY) || '{}') }; } catch (e) { cfg = { ...DEFAULTS }; }
+}
+function saveCfg() { try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch (e) {} }
 
+// ---------- 책 목록 (구글 시트 CSV: 책 제목, 문장 순서, 영어 문장) ----------
+function parseCsv(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+function buildBooks(rows) {
+  const map = new Map();
+  rows.forEach((r, i) => {
+    const title = (r[0] || '').trim(), ord = parseInt(r[1], 10), en = (r[2] || '').trim();
+    if (!title || !en || isNaN(ord)) return; // 제목 행이나 빈 행은 건너뜀
+    if (!map.has(title)) map.set(title, []);
+    map.get(title).push({ ord, i, en });
+  });
+  return [...map].map(([title, list]) => ({
+    title, sentences: list.sort((a, b) => a.ord - b.ord || a.i - b.i).map(x => x.en)
+  }));
+}
+async function fetchBooks(url) {
+  if (!url) return [SAMPLE_BOOK];
+  let text;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    text = await res.text();
+  } catch (e) {
+    throw new Error('책 목록을 가져오지 못했어요. 시트를 "웹에 게시(CSV)"했는지 확인해 주세요.');
+  }
+  const list = buildBooks(parseCsv(text));
+  if (!list.length) throw new Error('책 목록을 찾지 못했어요. 시트 열 순서(책 제목, 문장 순서, 영어 문장)를 확인해 주세요.');
+  return list;
+}
 
-    // ---- 동화 문장 카드 / 선생님 대화 말풍선 분리 ----
-    function setProgress(idx) {
-      const total = state.scriptLines.length;
-      const done = Math.max(0, Math.min(idx + 1, total));
-      progressDots.className = "dots" + (total > 12 ? " many" : "");
-      progressDots.innerHTML = "";
-      for (let i = 0; i < total; i++) {
-        const d = document.createElement("span");
-        if (i < done) d.classList.add("done");
-        if (i === idx) d.classList.add("now");
-        progressDots.appendChild(d);
+// ---------- 오디오 출력 (24kHz PCM) ----------
+function ensureOut() {
+  if (!outCtx) outCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+  if (outCtx.state === 'suspended') outCtx.resume();
+  return outCtx;
+}
+function playPcm(b64) {
+  const ctx = ensureOut();
+  const bin = atob(b64), len = bin.length >> 1, f = new Float32Array(len);
+  for (let i = 0; i < len; i++) {
+    let v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
+    if (v >= 0x8000) v -= 0x10000;
+    f[i] = v / 32768;
+  }
+  const buf = ctx.createBuffer(1, len, 24000);
+  buf.getChannelData(0).set(f);
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.connect(ctx.destination);
+  const now = ctx.currentTime;
+  if (playAt < now) playAt = now;
+  src.start(playAt);
+  playAt += buf.duration;
+  sources.push(src);
+  src.onended = () => {
+    sources = sources.filter(s => s !== src);
+    if (!sources.length) setTalking(false);
+  };
+  setTalking(true);
+}
+function stopPlayback() {
+  sources.forEach(s => { try { s.stop(); } catch (e) {} });
+  sources = [];
+  if (outCtx) playAt = outCtx.currentTime;
+  setTalking(false);
+}
+
+// ---------- 마이크 (16kHz PCM) ----------
+async function startMic() {
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    inCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    const src = inCtx.createMediaStreamSource(micStream);
+    micNode = inCtx.createScriptProcessor(4096, 1, 1);
+    micNode.onaudioprocess = e => {
+      if (!shouldSendMic()) return;
+      const input = e.inputBuffer.getChannelData(0);
+      const out = new Int16Array(input.length);
+      for (let i = 0; i < input.length; i++) {
+        const s = Math.max(-1, Math.min(1, input[i]));
+        out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
       }
-      storyProgressChip.textContent = `${done}/${total}`;
+      const bytes = new Uint8Array(out.buffer);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+      send({ realtimeInput: { audio: { data: btoa(bin), mimeType: 'audio/pcm;rate=16000' } } });
+    };
+    src.connect(micNode);
+    micNode.connect(inCtx.destination);
+    return true;
+  } catch (e) {
+    stopMic();
+    return false;
+  }
+}
+function stopMic() {
+  if (micNode) { try { micNode.disconnect(); } catch (e) {} micNode.onaudioprocess = null; micNode = null; }
+  if (inCtx) { try { inCtx.close(); } catch (e) {} inCtx = null; }
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+}
+function shouldSendMic() {
+  // 선생님이 말하는 동안에는 보내지 않아 되울림으로 대화가 꼬이지 않게 함
+  if (!connected || !setupDone || sources.length) return false;
+  return cfg.micMode === 'always' ? micOn : pushing;
+}
+
+// ---------- Gemini Live 연결 ----------
+function wsUrl(key) {
+  return `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(key)}`;
+}
+function send(obj) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
+function setupMessage() {
+  return { setup: {
+    model: 'models/' + MODEL,
+    generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICES[cfg.voice].voice } } } },
+    systemInstruction: { parts: [{ text: SYSTEM }] },
+    inputAudioTranscription: {},
+    outputAudioTranscription: {}
+  } };
+}
+function canUse() { return connected && setupDone && !introPending && !!book; }
+
+async function startSession() {
+  if (!cfg.apiKey.trim()) { openSettings('먼저 API 키를 넣어 주세요.'); return; }
+  closeSession();
+  ensureOut();
+  setPhase('loading');
+  status('선생님을 부르는 중이에요...');
+  const micOk = await startMic();
+  micOn = micOk && cfg.micMode === 'always';
+  if (!micOk) status('마이크를 쓸 수 없어요. 선생님 목소리는 들을 수 있어요.');
+  const sock = new WebSocket(wsUrl(cfg.apiKey.trim()));
+  ws = sock;
+  sock.onopen = () => {
+    if (ws !== sock) return;
+    connected = true;
+    sock.send(JSON.stringify(setupMessage()));
+    renderDock();
+  };
+  sock.onmessage = async ev => {
+    if (ws !== sock) return;
+    let raw = ev.data;
+    if (raw instanceof Blob) raw = await raw.text();
+    let msg;
+    try { msg = JSON.parse(raw); } catch (e) { return; }
+    handle(msg);
+  };
+  sock.onerror = () => { if (ws === sock) fail('연결에 실패했어요. 인터넷과 API 키를 확인해 주세요.'); };
+  sock.onclose = e => { if (ws === sock) fail('연결이 끊겼어요. 시작하기를 다시 눌러 주세요. (코드 ' + e.code + ')'); };
+}
+
+function closeSession() {
+  const s = ws;
+  ws = null; connected = false; setupDone = false; introPending = false;
+  clearTimeout(introTimer);
+  pushing = false; micOn = false;
+  if (s) { try { s.close(); } catch (e) {} }
+  stopPlayback();
+  stopMic();
+  teacherText = '';
+  $('caption').classList.remove('show');
+  $('caption').textContent = '';
+  $('childLine').textContent = '';
+  status('');
+}
+
+function fail(msg) {
+  closeSession();
+  setPhase('splash');
+  $('splashMsg').textContent = msg;
+}
+
+function handle(msg) {
+  if (msg.error) return fail('선생님 연결에 문제가 생겼어요: ' + (msg.error.message || '알 수 없는 오류'));
+  if (msg.setupComplete) { setupDone = true; sayIntro(); return; }
+  const sc = msg.serverContent;
+  if (!sc) return;
+  if (sc.interrupted) stopPlayback();
+  if (sc.inputTranscription && sc.inputTranscription.text) {
+    $('childLine').textContent = '아이: ' + sc.inputTranscription.text;
+  }
+  if (sc.outputTranscription && sc.outputTranscription.text) {
+    if (newTurn) { teacherText = ''; newTurn = false; }
+    teacherText += sc.outputTranscription.text;
+    const cap = $('caption');
+    cap.textContent = teacherText;
+    cap.classList.add('show');
+  }
+  for (const part of (sc.modelTurn && sc.modelTurn.parts) || []) {
+    if (part.inlineData && String(part.inlineData.mimeType || '').startsWith('audio/pcm')) playPcm(part.inlineData.data);
+  }
+  if (sc.turnComplete) {
+    newTurn = true;
+    $('childLine').textContent = '';
+    if (introPending) {
+      introPending = false;
+      clearTimeout(introTimer);
+      setPhase('ready');
+      status('책 읽기 시작을 눌러 주세요');
     }
+  }
+}
 
-    // 말풍선 터치 규칙: 영어 터치 → 영어로 다시 읽기 + 한글 자막 표시 / 한글 자막 터치 → 한글로 읽기
-    function bindTouch(enEl, koEl, getText) {
-      enEl.addEventListener("click", (event) => {
-        event.stopPropagation(); const text = getText().trim();
-        if (text) requestLiveSpeech("다음 문장만 그대로 다시 읽어 주세요. 영어 문장은 영어로, 한국어 문장은 한국어로 읽고, 다음 문장으로 넘어가지 말고 기다리세요: " + JSON.stringify(text));
-      });
-      koEl.addEventListener("click", (event) => {
-        event.stopPropagation(); const text = koEl.textContent.replace(/^🔊\s*/, "").trim();
-        if (text) requestLiveSpeech("다음 설명을 한국어로 짧게 말해 주세요: " + JSON.stringify(text));
-      });
+function sendText(text) {
+  teacherText = ''; newTurn = false;
+  $('caption').classList.remove('show');
+  $('caption').textContent = '';
+  send({ clientContent: { turns: [{ role: 'user', parts: [{ text }] }], turnComplete: true } });
+}
+
+function sayIntro() {
+  const nm = cfg.childName.trim();
+  const greet = pick(GREETINGS)(nm ? nm + '! ' : '');
+  const intro = pick(INTROS)(book ? book.title : '오늘의 책');
+  introPending = true;
+  setPhase('loading');
+  status('선생님이 인사하고 있어요');
+  clearTimeout(introTimer);
+  introTimer = setTimeout(() => {
+    if (introPending) { introPending = false; setPhase('ready'); status('책 읽기 시작을 눌러 주세요'); }
+  }, 20000);
+  sendText(`[인사 요청] 아래 두 문장을 이어서 자연스럽게 한 번만 읽고 멈추세요. 다른 말은 덧붙이지 마세요.\n${greet} ${intro}`);
+}
+
+// ---------- 읽기 흐름 ----------
+function startBook() {
+  if (!canUse()) return;
+  index = 0;
+  readSentence();
+}
+function readSentence() {
+  if (!canUse() || index < 0) return;
+  stopPlayback();
+  sendText(`[읽기 요청] 말하기 속도: ${SPEEDS[cfg.speed].text}. 아래 영어 문장만 원문 그대로 한 번 읽고 멈추세요. 설명이나 질문은 하지 마세요.\n"${book.sentences[index]}"`);
+  renderAll();
+}
+function go(delta) {
+  if (!canUse()) return;
+  if (index < 0) { if (delta > 0) startBook(); return; }
+  const next = index + delta;
+  if (next < 0 || next >= book.sentences.length) {
+    status(delta < 0 ? '첫 문장이에요' : '마지막 문장이에요');
+    return;
+  }
+  index = next;
+  readSentence();
+}
+function meaning() {
+  if (!canUse() || index < 0) return;
+  stopPlayback();
+  sendText(`[뜻 요청] 아래 영어 문장의 뜻을 아이에게 한국어로 한두 문장만 짧게 말해 주세요. 영어 문장은 다시 읽지 마세요.\n"${book.sentences[index]}"`);
+  renderAll();
+}
+
+// ---------- 화면 ----------
+function setPhase(p) {
+  phase = p;
+  $('splash').classList.toggle('hide', p !== 'splash');
+  renderAll();
+}
+function status(text) { $('status').textContent = text; }
+function setTalking(on) {
+  $('teacher').classList.toggle('talking', on);
+  if (connected && setupDone && !introPending) {
+    if (on) status('선생님이 말하고 있어요');
+    else status(cfg.micMode === 'always' && micOn ? '아이 차례예요. 말해 보세요' : '');
+  }
+}
+function renderAll() {
+  $('bookTitle').textContent = book ? book.title : '책을 골라 주세요';
+  renderCard();
+  renderDock();
+}
+function renderCard() {
+  const el = $('card');
+  if (!book) { el.className = 'card empty'; el.innerHTML = '<div class="en small">설정에서 책을 골라 주세요</div>'; return; }
+  if (phase === 'loading') { el.className = 'card empty'; el.innerHTML = '<div class="en small">선생님이 인사하고 있어요</div><div class="hint">잠시만 기다려 주세요</div>'; return; }
+  if (index < 0) { el.className = 'card empty'; el.innerHTML = `<div class="book-big">${esc(book.title)}</div><button class="start-book" data-act="start">책 읽기 시작</button>`; return; }
+  el.className = 'card';
+  el.innerHTML = `<div class="en">${esc(book.sentences[index])}</div><div class="hint">문장을 누르면 다시 읽어요</div>`;
+}
+function renderDock() {
+  const ok = canUse();
+  $('prevBtn').disabled = !(ok && index > 0);
+  $('nextBtn').disabled = !(ok && (index < 0 || index < book.sentences.length - 1));
+  $('meaningBtn').disabled = !(ok && index >= 0);
+  $('rereadBtn').disabled = !(ok && index >= 0);
+  $('micBtn').disabled = !connected;
+  const on = cfg.micMode === 'always' ? micOn : pushing;
+  $('micBtn').classList.toggle('on', on);
+  $('micLabel').textContent = !connected ? '말하기'
+    : cfg.micMode === 'always' ? (micOn ? '듣는 중' : '마이크 꺼짐')
+    : (pushing ? '말하는 중' : '누르고 말해요');
+}
+
+// ---------- 설정창 ----------
+function openSettings(msg = '') {
+  fillForm();
+  $('settingsMsg').textContent = msg;
+  $('testResult').textContent = '';
+  $('testResult').className = 'res';
+  $('settingsModal').classList.add('open');
+}
+function closeSettings() { $('settingsModal').classList.remove('open'); }
+function fillForm() {
+  $('apiKeyInput').value = cfg.apiKey;
+  $('sheetInput').value = cfg.sheetUrl;
+  $('childInput').value = cfg.childName;
+  selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode;
+  paintSegs();
+  renderBookSelect();
+}
+function renderBookSelect() {
+  const sel = $('bookSelect');
+  sel.innerHTML = '';
+  books.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.title;
+    o.textContent = `${b.title} (${b.sentences.length}문장)`;
+    sel.appendChild(o);
+  });
+  if (book) sel.value = book.title;
+}
+function paintSegs() {
+  document.querySelectorAll('[data-voice]').forEach(b => b.classList.toggle('on', b.dataset.voice === selVoice));
+  document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', Number(b.dataset.speed) === selSpeed));
+  document.querySelectorAll('[data-mic]').forEach(b => b.classList.toggle('on', b.dataset.mic === selMic));
+}
+function showTest(text, bad) {
+  const o = $('testResult');
+  o.textContent = text;
+  o.className = 'res ' + (bad ? 'bad' : 'ok');
+}
+function testConnection() {
+  const key = $('apiKeyInput').value.trim();
+  if (!key) { showTest('API 키를 먼저 넣어 주세요.', true); return; }
+  showTest('연결을 확인하는 중...', false);
+  let done = false;
+  let t = null, timer = null;
+  const finish = (text, bad) => {
+    if (done) return;
+    done = true;
+    clearTimeout(timer);
+    if (t) { try { t.close(); } catch (e) {} }
+    showTest(text, bad);
+  };
+  t = new WebSocket(wsUrl(key));
+  timer = setTimeout(() => finish('응답이 없어요. 인터넷 연결을 확인해 주세요.', true), 10000);
+  t.onopen = () => t.send(JSON.stringify({ setup: { model: 'models/' + MODEL, generationConfig: { responseModalities: ['AUDIO'] } } }));
+  t.onmessage = async ev => {
+    let raw = ev.data;
+    if (raw instanceof Blob) raw = await raw.text();
+    const m = JSON.parse(raw);
+    if (m.setupComplete) finish('연결 성공! 선생님 목소리를 쓸 수 있어요.', false);
+    else if (m.error) finish('연결 실패: ' + (m.error.message || '키나 모델 권한을 확인해 주세요.'), true);
+  };
+  t.onerror = () => finish('연결에 실패했어요. 키와 인터넷을 확인해 주세요.', true);
+  t.onclose = e => finish('연결이 닫혔어요 (코드 ' + e.code + ').', true);
+}
+async function saveSettings() {
+  const before = { key: cfg.apiKey, voice: cfg.voice, mic: cfg.micMode, sheet: cfg.sheetUrl };
+  cfg.apiKey = $('apiKeyInput').value.trim();
+  cfg.sheetUrl = $('sheetInput').value.trim();
+  cfg.childName = $('childInput').value.trim();
+  cfg.voice = selVoice; cfg.speed = selSpeed; cfg.micMode = selMic;
+  if (cfg.sheetUrl !== before.sheet || !books.length) {
+    try {
+      books = await fetchBooks(cfg.sheetUrl);
+    } catch (e) {
+      saveCfg();
+      $('settingsMsg').textContent = e.message;
+      return;
     }
-
-    function stripTarget(text, sentence) {
-      if (!sentence) return text;
-      const words = sentence.match(/[A-Za-z0-9']+/g);
-      if (!words || !words.length) return text;
-      const re = new RegExp(words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[^A-Za-z0-9']+"), "gi");
-      return text.replace(re, "")
-        .replace(/["“”]\s*[.,!?]*\s*["“”]/g, "")
-        .replace(/\s{2,}/g, " ")
-        .replace(/^[\s.,!?:;-]+/, "")
-        .trim();
-    }
-
-    function createStoryCard(sentence) {
-      const row = document.createElement("div");
-      row.className = "msg-row ai";
-      const card = document.createElement("div");
-      card.className = "story-card";
-      const label = document.createElement("span");
-      label.className = "story-target-label";
-      label.textContent = "📖 동화책 문장";
-      const en = document.createElement("div");
-      en.className = "story-target-sentence";
-      en.textContent = sentence;
-      const ko = document.createElement("div");
-      ko.className = "ai-ko-reveal";
-      const meaningBtn = document.createElement("button");
-      meaningBtn.type = "button"; meaningBtn.className = "sub-btn"; meaningBtn.textContent = "뜻 물어보기";
-      meaningBtn.addEventListener("click", event => { event.stopPropagation(); requestLiveSpeech("현재 문장 " + JSON.stringify(sentence) + "의 뜻을 한국어로 짧게 설명하고, 다음 문장으로 넘어가지 말고 기다려 주세요."); });
-      card.append(label, en, meaningBtn, ko);
-      bindTouch(card, ko, () => sentence, "");
-      row.appendChild(card);
-      chatStream.appendChild(row);
-      const idx = state.scriptLines.indexOf(sentence);
-      if (idx >= 0) { currentStoryIdx = idx; setProgress(idx); }
-      lastAiTurnData = { text: sentence, targetSentence: sentence };
-      scrollToBottom();
-    }
-
-    // 선생님 대화 말풍선 (targetSentence가 있으면 위에 동화 카드를 먼저 만들고, 대화에서는 그 문장을 뺌)
-    function createAiChatBubble(initialText = "", koSubtitle = "", targetSentence = "", noCard = false) {
-      if (targetSentence && !noCard) createStoryCard(targetSentence);
-
-      const row = document.createElement("div");
-      row.className = "msg-row ai";
-      const bubble = document.createElement("div");
-      bubble.className = "ai-bubble talk";
-      const enDiv = document.createElement("div");
-      enDiv.className = "ai-en-text";
-      const koDiv = document.createElement("div");
-      koDiv.className = "ai-ko-reveal";
-      bubble.append(enDiv, koDiv);
-      row.appendChild(bubble);
-      chatStream.appendChild(row);
-
-      let raw = initialText;
-      const render = () => {
-        const shown = stripTarget(raw, targetSentence);
-        enDiv.textContent = shown;
-        row.style.display = shown.replace(/[\s.,!?'"“”-]/g, "") ? "" : "none";
-      };
-      render();
-      bindTouch(enDiv, koDiv, () => enDiv.textContent, koSubtitle);
-      scrollToBottom();
-
-      return {
-        row, bubble, enDiv, koDiv,
-        appendText(chunk) { raw += chunk; render(); scrollToBottom(); },
-        finalize(finalKo) {
-          if (finalKo) { koDiv.textContent = "🔊 " + finalKo; koDiv.dataset.translated = "true"; }
-          if (raw.trim()) logTurnToSheet("AI", raw.trim());
-        }
-      };
-    }
-
-    // Live: AI가 showStorySentence(번호)를 호출하면 앱이 스크립트에서 문장을 꺼내 카드로 표시
-    function showStorySentenceFromAi(rawIdx) {
-      const n = parseInt(rawIdx, 10);
-      const total = state.scriptLines.length;
-      if (!n || n < 1 || n > total) return `error: 1~${total} 사이의 번호만 쓸 수 있어요.`;
-      const sentence = state.scriptLines[n - 1];
-      if (currentAiBubbleObj) { currentAiBubbleObj.finalize(""); currentAiBubbleObj = null; }
-      if (!(n - 1 === currentStoryIdx && !userSpokeSinceCard)) createStoryCard(sentence);
-      currentStoryIdx = n - 1;
-      userSpokeSinceCard = false;
-      liveTarget = sentence;
-      setProgress(n - 1);
-      return `OK. 화면에 ${n}번 문장이 표시됐어요: "${sentence}". 이 문장만 또렷하게 읽어 주세요.`;
-    }
-
-    function createUserChatBubble(initialText = "") {
-      const row = document.createElement("div");
-      row.className = "msg-row user";
-      userSpokeSinceCard = true;
-      const bubble = document.createElement("div");
-      bubble.className = "user-bubble";
-      bubble.textContent = initialText;
-      row.appendChild(bubble);
-      chatStream.appendChild(row);
-      scrollToBottom();
-      return {
-        bubble,
-        appendText(chunk) {
-          bubble.textContent += chunk;
-          scrollToBottom();
-        }
-      };
-    }
-
-    function scrollToBottom() {
-      requestAnimationFrame(() => {
-        chatStream.scrollTop = chatStream.scrollHeight;
-      });
-    }
-
-    // =========================================================
-    // 2. Gemini Multimodal Live API (WebSocket 실시간 양방향 오디오 & 한/영 자막)
-    // =========================================================
-    function arrayBufferToBase64(buffer) {
-      let binary = "";
-      const bytes = new Uint8Array(buffer);
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return window.btoa(binary);
-    }
-
-    function base64ToUint8Array(base64) {
-      const binary = window.atob(base64);
-      const len = binary.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binary.charCodeAt(i);
-      }
-      return bytes;
-    }
-
-    function stopAllLiveAudio() {
-      activeSources.forEach(src => {
-        try { src.stop(); } catch (e) {}
-      });
-      activeSources = [];
-      if (audioCtx) {
-        playbackQueueTime = audioCtx.currentTime;
-      }
-      lanternOrb.classList.remove("speaking");
-      waveBars.classList.remove("active");
-    }
-
-    // 24kHz PCM 오디오 청크 재생
-    function enqueuePcm24kAudio(base64Data) {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
-      }
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-      }
-
-      const pcmBytes = base64ToUint8Array(base64Data);
-      const int16 = new Int16Array(pcmBytes.buffer);
-      const float32 = new Float32Array(int16.length);
-      for (let i = 0; i < int16.length; i++) {
-        float32[i] = int16[i] / 32768.0;
-      }
-
-      const audioBuffer = audioCtx.createBuffer(1, float32.length, 24000);
-      audioBuffer.getChannelData(0).set(float32);
-
-      const source = audioCtx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(audioCtx.destination);
-
-      const now = audioCtx.currentTime;
-      if (playbackQueueTime < now) {
-        playbackQueueTime = now;
-      }
-      source.start(playbackQueueTime);
-      playbackQueueTime += audioBuffer.duration;
-
-      activeSources.push(source);
-      lanternOrb.classList.add("speaking");
-      waveBars.classList.add("active");
-      statusText.textContent = "AI 선생님이 동화책을 읽어주고 있어요...";
-
-      source.onended = () => {
-        activeSources = activeSources.filter(s => s !== source);
-        if (activeSources.length === 0) {
-          lanternOrb.classList.remove("speaking");
-          waveBars.classList.remove("active");
-          if (isLiveConnected) {
-            statusText.textContent = isReadingAll ? "전부듣기 중 · 라이브 선생님이 읽어줘요" : "아이 차례예요! 따라 읽거나 대답해 보세요.";
-            finishReadAllWhenIdle();
-          }
-        }
-      };
-    }
-
-    // 마이크 캡처 시작 (16kHz PCM 스트리밍)
-    async function startLiveMicrophone(sessionSocket) {
-      try {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
-        }
-        if (audioCtx.state === "suspended") {
-          await audioCtx.resume();
-        }
-
-        micStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            channelCount: 1,
-            echoCancellation: true,
-            noiseSuppression: true,
-            autoGainControl: true
-          }
-        });
-
-        if (sessionSocket.intentionalClose || liveWs !== sessionSocket || !isLiveConnected) {
-          micStream.getTracks().forEach(track => track.stop());
-          micStream = null;
-          return;
-        }
-        const inputCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-        const source = inputCtx.createMediaStreamSource(micStream);
-        const processor = inputCtx.createScriptProcessor(4096, 1, 1);
-
-        processor.onaudioprocess = (e) => {
-          if (!isLiveConnected || !liveSetupReady || !micEnabled || sessionMode !== "tutor" || !liveWs || liveWs.readyState !== WebSocket.OPEN) return;
-          const inputFloat = e.inputBuffer.getChannelData(0);
-          const int16 = new Int16Array(inputFloat.length);
-          for (let i = 0; i < inputFloat.length; i++) {
-            const s = Math.max(-1, Math.min(1, inputFloat[i]));
-            int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-          }
-          const base64Audio = arrayBufferToBase64(int16.buffer);
-          liveWs.send(JSON.stringify({
-            realtimeInput: {
-              mediaChunks: [{
-                mimeType: "audio/pcm;rate=16000",
-                data: base64Audio
-              }]
-            }
-          }));
-        };
-
-        source.connect(processor);
-        processor.connect(inputCtx.destination);
-        micProcessor = { processor, source, inputCtx };
-
-        micBar.classList.add("live-active");
-        micEnabled = true;
-        updateLiveControls();
-      } catch (err) {
-        micEnabled = false;
-        updateLiveControls();
-        statusText.textContent = "마이크를 사용할 수 없어요. 듣기는 가능하며, 권한을 허용하거나 글자로 답할 수 있어요.";
-      }
-    }
-
-    function stopLiveMicrophone() {
-      micEnabled = false;
-      if (micProcessor) {
-        try {
-          micProcessor.processor.disconnect();
-          micProcessor.source.disconnect();
-          micProcessor.inputCtx.close();
-        } catch (e) {}
-        micProcessor = null;
-      }
-      if (micStream) {
-        micStream.getTracks().forEach(t => t.stop());
-        micStream = null;
-      }
-      micBar.classList.remove("live-active", "recording");
-      micLabel.textContent = "터치해서 말하기 (한글/영어 모두 가능)";
-    }
-
-    function disconnectLiveSession(reasonMsg) {
-      isLiveConnected = false;
-      isConnecting = false;
-      liveSetupReady = false;
-      isReadingAll = false;
-      allFinishedPending = false;
-      if (liveWs) {
-        liveWs.intentionalClose = true;
-        try { liveWs.close(); } catch (e) {}
-        liveWs = null;
-      }
-      stopLiveMicrophone();
-      stopAllLiveAudio();
-      liveStatusBadge.textContent = "라이브 대기중";
-      liveStatusBadge.className = "pill-badge live-off";
-      updateLiveControls();
-      if (reasonMsg) statusText.textContent = reasonMsg;
-    }
-
-    let liveConnectTimestamp = 0;
-
-    async function connectGeminiLive(mode = "tutor", openingRequest = "") {
-      if (isConnecting) return;
-      const key = (state.apiKey || "").trim();
-      if (!key) {
-        openSettings();
-        apiTestResult.style.display = "block";
-        apiTestResult.classList.add("error");
-        apiTestResult.textContent = "먼저 Google Gemini API 키를 입력하고 저장해 주세요.";
-        return;
-      }
-
-      if (isLiveConnected && sessionMode === mode && !openingRequest) {
-        disconnectLiveSession("라이브 연결을 종료했어요."); return;
-      }
-      disconnectLiveSession();
-      sessionMode = mode === "all" ? "all" : "tutor";
-      isReadingAll = sessionMode === "all";
-      isConnecting = true;
-      updateLiveControls();
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate:24000});
-        if (audioCtx.state === "suspended") await audioCtx.resume();
-      } catch (error) { disconnectLiveSession("이 브라우저에서 라이브 오디오를 시작할 수 없어요."); return; }
-
-      statusText.textContent = "숲속 텐트 라이브 채널 연결 중...";
-      liveConnectBtn.textContent = "연결 중...";
-      liveConnectTimestamp = Date.now();
-      currentStoryIdx = -1; liveTarget = ""; userSpokeSinceCard = true;
-      currentAiBubbleObj = null; currentUserBubbleEl = null; setProgress(-1);
-
-      // 사용 중인 Gemini Live 오디오 모델로 연결
-      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(key)}`;
-
-      try {
-        liveWs = new WebSocket(wsUrl);
-      } catch (e) {
-        disconnectLiveSession("라이브 연결을 시작하지 못했어요. 네트워크를 확인하고 다시 눌러 주세요.");
-        return;
-      }
-
-      const sessionWs = liveWs;
-      let setupReady = false;
-      let microphoneReady = false;
-      let lessonStarted = false;
-      const beginLessonWhenReady = () => {
-        if (lessonStarted || !setupReady || !microphoneReady || sessionWs.intentionalClose || liveWs !== sessionWs || sessionWs.readyState !== WebSocket.OPEN) return;
-        lessonStarted = true;
-        liveSetupReady = true;
-        isConnecting = false;
-        updateLiveControls();
-        statusText.textContent = sessionMode === "all" ? "전부듣기 중 · 라이브 선생님이 읽어줘요" : "선생님과 한 문장씩 읽어요.";
-        sessionWs.send(JSON.stringify({
-          clientContent: {
-            turns: [{role: "user", parts: [{text: openingRequest || (sessionMode === "all" ? "전부듣기를 시작해 주세요. 인사나 권유 없이 첫 문장부터 마지막 문장까지 영어 원문만 순서대로 읽고 각 문장 직전에 showStorySentence를 호출하세요. 문장 사이에 답을 기다리지 마세요." : "지금 아이에게 짧게 한국어로 인사하고 첫 영어 문장을 읽어 주세요. 같이 말해볼까 하고 아이를 기다리세요. 준비 과정은 설명하지 마세요.")}]}],
-            turnComplete: true
-          }
-        }));
-      };
-      liveWs.onopen = async () => {
-        if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        isLiveConnected = true;
-        liveStatusBadge.textContent = "LIVE 실시간 연결됨";
-        liveStatusBadge.className = "pill-badge live-on";
-        updateLiveControls();
-        statusText.textContent = "연결 완료! 선생님이 인사와 1번 문장을 준비 중이에요...";
-
-        const setupPayload = {
-          setup: {
-            model: "models/gemini-2.5-flash-native-audio-preview-09-2025",
-            generationConfig: {
-              responseModalities: ["AUDIO"],
-              speechConfig: {
-                voiceConfig: {
-                  prebuiltVoiceConfig: {
-                    voiceName: state.liveVoice || "Aoede"
-                  }
-                }
-              }
-            },
-            systemInstruction: {
-              parts: [{ text: buildStoryTutorInstruction(true) }]
-            },
-            tools: [{
-              functionDeclarations: [{
-                name: "showStorySentence",
-                description: "동화책의 n번째 문장을 아이 화면에 노란 카드로 보여준다. 그 문장을 읽어 주기 직전에 호출한다.",
-                parameters: {
-                  type: "OBJECT",
-                  properties: { index: { type: "INTEGER", description: "스크립트의 문장 번호 (1부터 시작)" } },
-                  required: ["index"]
-                }
-              }]
-            }],
-            inputAudioTranscription: {},
-            outputAudioTranscription: {}
-          }
-        };
-        liveWs.send(JSON.stringify(setupPayload));
-
-        if (sessionMode === "tutor") await startLiveMicrophone(sessionWs);
-        microphoneReady = true;
-        beginLessonWhenReady();
-      };
-
-      liveWs.onmessage = async (event) => {
-        if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        try {
-          let rawData = event.data;
-          if (rawData instanceof Blob) {
-            rawData = await rawData.text();
-          }
-          if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-          const msg = JSON.parse(rawData);
-          if (msg.error) {
-            disconnectLiveSession("라이브 연결 오류예요. 모델 사용 권한이나 할당량을 확인한 뒤 다시 시작해 주세요.");
-            return;
-          }
-          if (msg.setupComplete) {
-            setupReady = true;
-            beginLessonWhenReady();
-          }
-
-          if (msg.toolCall && msg.toolCall.functionCalls) {
-            const responses = msg.toolCall.functionCalls.map(fc => ({
-              id: fc.id,
-              name: fc.name,
-              response: { result: fc.name === "showStorySentence" ? showStorySentenceFromAi(fc.args && fc.args.index) : "ok" }
-            }));
-            if (liveWs && liveWs.readyState === WebSocket.OPEN) {
-              liveWs.send(JSON.stringify({ toolResponse: { functionResponses: responses } }));
-            }
-            return;
-          }
-
-          if (msg.serverContent) {
-            const sc = msg.serverContent;
-
-            if (sc.interrupted) {
-              stopAllLiveAudio();
-              if (currentAiBubbleObj) {
-                currentAiBubbleObj.finalize("");
-                currentAiBubbleObj = null;
-              }
-            }
-
-            if (sc.inputTranscription && sc.inputTranscription.text) {
-              if (!currentUserBubbleEl) {
-                currentUserBubbleEl = createUserChatBubble("");
-              }
-              currentUserBubbleEl.appendText(sc.inputTranscription.text);
-            }
-
-            if (sc.outputTranscription && sc.outputTranscription.text) {
-              if (currentUserBubbleEl) {
-                logTurnToSheet("Child", currentUserBubbleEl.bubble.textContent);
-                currentUserBubbleEl = null;
-              }
-              if (!currentAiBubbleObj) {
-                currentAiBubbleObj = createAiChatBubble("", "", liveTarget, true);
-              }
-              currentAiBubbleObj.appendText(sc.outputTranscription.text);
-            }
-
-            if (sc.modelTurn && sc.modelTurn.parts) {
-              for (const part of sc.modelTurn.parts) {
-                if (part.thought === true) continue;
-                if (part.inlineData && part.inlineData.mimeType && part.inlineData.mimeType.startsWith("audio/pcm")) {
-                  enqueuePcm24kAudio(part.inlineData.data);
-                }
-                // AUDIO 응답의 자막은 outputTranscription에서만 표시한다.
-                // modelTurn.parts의 text는 음성 대사가 아닐 수 있으므로 표시하지 않는다.
-              }
-            }
-
-            if (sc.turnComplete) {
-              if (isReadingAll && currentStoryIdx === state.scriptLines.length - 1) allFinishedPending = true;
-              if (currentAiBubbleObj) {
-                currentAiBubbleObj.finalize("");
-                currentAiBubbleObj = null;
-              }
-              finishReadAllWhenIdle();
-            }
-          }
-        } catch (e) {
-          console.warn("Live 메시지 처리:", e);
-        }
-      };
-
-      liveWs.onerror = () => {
-        if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        disconnectLiveSession("라이브 연결에 실패했어요. 네트워크·API 키·할당량을 확인하고 다시 시작해 주세요.");
-      };
-      liveWs.onclose = (event) => {
-        if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        disconnectLiveSession("라이브 연결이 종료됐어요. 다시 시작을 눌러 주세요. (연결 코드: " + event.code + ")");
-      };
-    }
-
-
-    // 모든 낭독·안내·대화는 Gemini Live 연결에서만 처리한다.
-
-    // =========================================================
-    // 5. 구글 시트 기록 연동 (기존 기능 유지)
-    // =========================================================
-    function logTurnToSheet(speaker, text) {
-      if (!state.sheetUrl || !state.sheetUrl.startsWith("http")) return;
-      try {
-        fetch(state.sheetUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            child: CHILD_PROFILES[state.childKey]?.label || state.childKey,
-            book: state.bookTitle,
-            speaker: speaker,
-            message: text
-          })
-        });
-      } catch (e) {}
-    }
-
-    // =========================================================
-    // 6. 설정 모달 및 이벤트 바인딩
-    // =========================================================
-    function openSettings() {
-      if (liveWs) disconnectLiveSession("설정을 여는 동안 수업을 멈췄어요.");
-      syncUI();
-      apiTestResult.style.display = "none";
-      settingsModal.classList.add("open");
-    }
-
-    function closeSettings() {
-      settingsModal.classList.remove("open");
-    }
-
-    openSettingsBtn.addEventListener("click", openSettings);
-    storyBannerBtn.addEventListener("click", openSettings);
-    childProfileBadge.addEventListener("click", openSettings);
-    closeSettingsBtn.addEventListener("click", closeSettings);
-
-    settingsModal.addEventListener("click", (e) => {
-      if (e.target === settingsModal) closeSettings();
-    });
-
-    document.querySelectorAll(".child-choice").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const key = btn.dataset.child;
-        state.childKey = key;
-        const p = CHILD_PROFILES[key];
-        if (p) {
-          state.liveVoice = p.voice;
-        }
-        syncUI();
-      });
-    });
-
-    bookSelectDropdown.addEventListener("change", () => {
-      const selectedId = bookSelectDropdown.value;
-      state.bookId = selectedId;
-      const found = STORYBOOK_LIBRARY.find(b => b.id === selectedId);
-      if (found) {
-        state.bookTitle = found.title;
-        state.bookSeries = found.series;
-        state.scriptLines = found.pages.slice();
-        customBookTitleInput.value = found.title;
-        scriptTextarea.value = found.pages.join("\n");
-        lastAiTurnData = null;
-        saveState();
-        syncUI();
-      } else {
-        state.bookSeries = "직접 입력 동화책";
-        customBookTitleInput.value = "";
-        scriptTextarea.value = "";
-        customBookTitleInput.focus();
-      }
-    });
-
-
-    testApiKeyBtn.addEventListener("click", async () => {
-      const key = apiKeyInput.value.trim();
-      apiTestResult.style.display = "block";
-      if (!key) {
-        apiTestResult.className = "test-result-box error";
-        apiTestResult.textContent = "API 키를 먼저 입력해 주세요.";
-        return;
-      }
-      apiTestResult.className = "test-result-box";
-      apiTestResult.textContent = "Google 서버 연결 확인 중...";
-
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`, {
-          method: "GET",
-          headers: { "x-goog-api-key": key }
-        });
-        if (res.ok) {
-          apiTestResult.className = "test-result-box";
-          apiTestResult.textContent = "API 키 조회 성공. 실제 라이브 음성 연결은 동화책 시작을 눌러 확인해 주세요.";
-        } else {
-          const errJson = await res.json().catch(() => ({}));
-          const detail = errJson?.error?.message || `HTTP ${res.status}`;
-          apiTestResult.className = "test-result-box error";
-          apiTestResult.textContent = `연결 실패: ${detail}`;
-        }
-      } catch (err) {
-        apiTestResult.className = "test-result-box error";
-        apiTestResult.textContent = "네트워크 오류가 발생했습니다.";
-      }
-    });
-
-    copyHtmlCodeBtn.addEventListener("click", async () => {
-      const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-      try {
-        await navigator.clipboard.writeText(fullHtml);
-        alert("전체 HTML 코드가 클립보드에 복사되었습니다!");
-      } catch (e) {
-        alert("복사 권한이 제한되어 있습니다. 첨부된 텍스트 파일을 이용해 주세요.");
-      }
-    });
-
-    clearChatBtn.addEventListener("click", () => {
-      stopReadAll(false);
-      chatStream.innerHTML = "";
-      conversationLog = [];
-      currentStoryIdx = -1; setProgress(-1);
-      closeSettings();
-    });
-
-    saveAndStartBtn.addEventListener("click", () => {
-      stopReadAll(false);
-      const rawLines = scriptTextarea.value
-        .split(/\r?\n/)
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
-
-      state.bookTitle = customBookTitleInput.value.trim() || "오늘의 동화책";
-      state.scriptLines = rawLines.length > 0 ? rawLines : ["Bubbles at the beach."];
-      state.apiKey = apiKeyInput.value.trim();
-      state.liveVoice = liveVoiceSelect.value;
-      state.sheetUrl = sheetUrlInput.value.trim();
-
-      saveState();
-      syncUI();
-      closeSettings();
-
-      chatStream.innerHTML = "";
-      conversationLog = [];
-      currentStoryIdx = -1; setProgress(-1);
-
-      disconnectLiveSession();
-      connectGeminiLive("tutor");
-    });
-
-    liveConnectBtn.addEventListener("click", () => connectGeminiLive("tutor"));
-
-    readAllBtn.addEventListener("click", startReadAll);
-
-    stopAllBtn.addEventListener("click", () => disconnectLiveSession("수업을 멈췄어요."));
-    replayLastBtn.addEventListener("click", () => {
-      const sentence = lastAiTurnData?.targetSentence || state.scriptLines[Math.max(currentStoryIdx,0)];
-      if (sentence) requestLiveSpeech("다음 영어 문장만 원문 그대로 천천히 다시 읽어 주세요. 다음 문장으로 넘어가지 말고 기다리세요: " + JSON.stringify(sentence));
-    });
-
-
-    micBar.addEventListener("click", (e) => {
-      if (e.target === textInputBtn) return;
-      toggleMicAction();
-    });
-
-    textInputBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      promptTextReply();
-    });
-
-    window.addEventListener("DOMContentLoaded", () => {
-      initLibraryDropdown();
-      loadState();
-      const firstSentence = state.scriptLines[0] || "Bubbles at the beach.";
-      const welcomeEn = "안녕! 오늘도 같이 책 읽어보자.";
-      const welcomeKo = "동화책 시작·다시 듣기·전부듣기 모두 라이브 선생님 목소리로 들려줘요. API 키와 인터넷 연결이 필요해요.";
-      const b = createAiChatBubble(welcomeEn, welcomeKo);
-      b.finalize(welcomeKo);
-      updateLiveControls();
-    });
-    window.addEventListener("pagehide", () => disconnectLiveSession());
-  </script>
+  }
+  const chosen = $('bookSelect').value;
+  const changed = !book || chosen !== book.title;
+  book = books.find(b => b.title === chosen) || books[0];
+  cfg.bookTitle = book.title;
+  if (changed) index = -1;
+  saveCfg();
+  const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.micMode !== before.mic);
+  closeSettings();
+  if (needRestart) {
+    closeSession();
+    setPhase('splash');
+    $('splashMsg').textContent = '설정을 적용했어요. 시작하기를 누르면 선생님이 새로 인사해요.';
+    return;
+  }
+  renderAll();
+}
+async function reloadBooks() {
+  const url = $('sheetInput').value.trim();
+  $('settingsMsg').textContent = '책 목록을 불러오는 중...';
+  try {
+    books = await fetchBooks(url);
+    renderBookSelect();
+    $('settingsMsg').textContent = `책 ${books.length}권을 불러왔어요.`;
+  } catch (e) {
+    $('settingsMsg').textContent = e.message;
+  }
+}
+
+// ---------- 이벤트 ----------
+$('splashStart').addEventListener('click', () => startSession());
+$('settingsBtn').addEventListener('click', () => openSettings());
+$('closeSettingsBtn').addEventListener('click', closeSettings);
+$('settingsModal').addEventListener('click', e => { if (e.target === $('settingsModal')) closeSettings(); });
+$('testBtn').addEventListener('click', testConnection);
+$('reloadBtn').addEventListener('click', reloadBooks);
+$('saveBtn').addEventListener('click', saveSettings);
+$('stopTeacherBtn').addEventListener('click', () => { closeSession(); closeSettings(); setPhase('splash'); $('splashMsg').textContent = ''; });
+document.querySelectorAll('[data-voice]').forEach(b => b.addEventListener('click', () => { selVoice = b.dataset.voice; paintSegs(); }));
+document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => { selSpeed = Number(b.dataset.speed); paintSegs(); }));
+document.querySelectorAll('[data-mic]').forEach(b => b.addEventListener('click', () => { selMic = b.dataset.mic; paintSegs(); }));
+$('bookSelect').addEventListener('change', () => { /* 저장할 때 적용 */ });
+$('card').addEventListener('click', e => {
+  if (e.target.closest('[data-act="start"]')) { startBook(); return; }
+  if (index >= 0) readSentence();
+});
+$('prevBtn').addEventListener('click', () => go(-1));
+$('nextBtn').addEventListener('click', () => go(1));
+$('meaningBtn').addEventListener('click', meaning);
+$('rereadBtn').addEventListener('click', readSentence);
+$('micBtn').addEventListener('click', () => {
+  if (!connected) return;
+  if (cfg.micMode === 'always') { micOn = !micOn; status(micOn ? '듣고 있어요' : '마이크를 껐어요'); renderDock(); }
+});
+$('micBtn').addEventListener('pointerdown', () => { if (connected && cfg.micMode === 'push') { pushing = true; renderDock(); } });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $('micBtn').addEventListener(ev, () => {
+  if (cfg.micMode === 'push' && pushing) { pushing = false; renderDock(); }
+}));
+$('krFlag').innerHTML = flagKR();
+$('usFlag').innerHTML = flagUS();
+
+// ---------- 시작 ----------
+async function init() {
+  loadCfg();
+  let loadErr = '';
+  try {
+    books = await fetchBooks(cfg.sheetUrl);
+  } catch (e) {
+    books = [SAMPLE_BOOK];
+    loadErr = e.message + ' (기본 책으로 시작해요)';
+  }
+  book = books.find(b => b.title === cfg.bookTitle) || books[0];
+  renderBookSelect();
+  renderAll();
+  if (loadErr) $('splashMsg').textContent = loadErr;
+}
+init();
+</script>
 </body>
 </html>
