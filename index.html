@@ -617,7 +617,7 @@
 
     .row-2 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 8px;
     }
 
@@ -729,14 +729,14 @@
     <div class="status-strip">
       <div class="status-left">
         <div class="wave-bars" id="waveBars"><span></span><span></span><span></span><span></span></div>
-        <span id="statusText">▶ 동화책 시작을 눌러 주세요</span>
+        <span id="statusText">라이브 음성 전용 · 동화책 시작을 눌러 주세요</span>
       </div>
     </div>
     <div class="big-action-grid">
       <button type="button" class="big-btn start" id="liveConnectBtn">▶ 동화책 시작</button>
       <button type="button" class="big-btn stop" id="stopAllBtn">멈췄어요</button>
       <button type="button" class="big-btn replay" id="replayLastBtn">🔁 다시 듣기</button>
-      <button type="button" class="big-btn" id="readAllBtn" aria-pressed="false" title="기기의 영어 음성으로 책 본문을 처음부터 끝까지 읽습니다">전부듣기</button>
+      <button type="button" class="big-btn" id="readAllBtn" aria-pressed="false" title="라이브 선생님이 영어 본문을 처음부터 끝까지 읽어줍니다">전부듣기</button>
     </div>
 
     <div class="mic-bar" id="micBar">
@@ -789,7 +789,7 @@
           <div class="field-label">
             <span>3. 동화책 영어 문장 스크립트 (직접 붙여넣기/수정 가능)</span>
           </div>
-          <div class="field-desc">한 줄에 한 문장씩 넣으면 AI 선생님이 연결 직후 인사하고 1번 문장부터 차례대로 읽어준 뒤, 핵심 단어 1개를 설명하고 따라 읽게 합니다.</div>
+          <div class="field-desc">한 줄에 한 문장씩 입력하세요. 함께 읽기는 인사 후 한 문장씩 읽고 기다려요. 전부듣기는 본문만 끝까지 읽어요.</div>
           <input type="text" class="tent-input" id="customBookTitleInput" placeholder="동화책 제목 (예: Bubbles!)" />
           <textarea class="tent-textarea" id="scriptTextarea" placeholder="동화책 영어 본문을 한 줄에 한 문장씩 입력하거나 붙여넣으세요."></textarea>
         </div>
@@ -814,10 +814,7 @@
               <option value="Fenrir">Fenrir (씩씩한 곰돌이)</option>
             </select>
           </div>
-          <div class="field-group">
-            <label class="field-label">보조 음성 속도 (<span id="rateLabel">0.85x</span>)</label>
-            <input type="range" id="speechRateRange" min="0.65" max="1.05" step="0.05" value="0.85" />
-          </div>
+
         </div>
 
         <!-- 5. 구글 시트 웹앱 URL (기존 연동 유지) -->
@@ -850,14 +847,12 @@
         label: "첫째 (7세)",
         ageDesc: "7세 예비 초등학생 (파닉스와 기초 사이트워드를 읽을 수 있음)",
         interests: "축구, 우주, 요리, 세계지도, 신화",
-        speechRate: 0.85,
         voice: "Aoede"
       },
       child2: {
         label: "둘째 (6세)",
         ageDesc: "6세 미취학 아동 (알파벳과 짧은 단어 소리를 익히는 단계)",
         interests: "블록 쌓기, 스파이더맨, 피카츄",
-        speechRate: 0.75,
         voice: "Puck"
       }
     };
@@ -870,7 +865,6 @@
       scriptLines: STORYBOOK_LIBRARY[0].pages.slice(),
       apiKey: "",
       liveVoice: "Aoede",
-      speechRate: 0.85,
       sheetUrl: ""
     };
 
@@ -888,8 +882,11 @@
     let currentUserBubbleEl = null;
     let lastAiTurnData = null;
     let conversationLog = [];
-    let isFallbackRecording = false;
-    let fallbackRecognition = null;
+    let sessionMode = "tutor";
+    let isConnecting = false;
+    let liveSetupReady = false;
+    let micEnabled = false;
+    let allFinishedPending = false;
     let currentStoryIdx = -1;      // 앱이 직접 관리하는 현재 동화 문장 번호(0부터)
     let userSpokeSinceCard = true; // 마지막 카드 이후 아이가 말했는지
     let liveTarget = "";           // 현재 읽는 동화 문장
@@ -914,8 +911,7 @@
     const replayLastBtn = document.getElementById("replayLastBtn");
     const readAllBtn = document.getElementById("readAllBtn");
     let isReadingAll = false;
-    let readAllRun = 0;
-    let readAllUtterance = null;
+
     const micBar = document.getElementById("micBar");
     const micLabel = document.getElementById("micLabel");
     const textInputBtn = document.getElementById("textInputBtn");
@@ -929,8 +925,6 @@
     const testApiKeyBtn = document.getElementById("testApiKeyBtn");
     const apiTestResult = document.getElementById("apiTestResult");
     const liveVoiceSelect = document.getElementById("liveVoiceSelect");
-    const speechRateRange = document.getElementById("speechRateRange");
-    const rateLabel = document.getElementById("rateLabel");
     const sheetUrlInput = document.getElementById("sheetUrlInput");
     const copyHtmlCodeBtn = document.getElementById("copyHtmlCodeBtn");
     const clearChatBtn = document.getElementById("clearChatBtn");
@@ -968,7 +962,7 @@
         localStorage.setItem("forest_tent_live_state_v1", JSON.stringify(state));
         if (state.apiKey) {
           localStorage.setItem("ai_eng_friend_gemini_key", state.apiKey.trim());
-        }
+        } else { localStorage.removeItem("ai_eng_friend_gemini_key"); }
       } catch (e) {}
     }
 
@@ -988,168 +982,62 @@
       scriptTextarea.value = state.scriptLines.join("\n");
       apiKeyInput.value = state.apiKey || "";
       liveVoiceSelect.value = state.liveVoice || "Aoede";
-      speechRateRange.value = state.speechRate || 0.85;
-      rateLabel.textContent = Number(state.speechRate).toFixed(2) + "x";
       sheetUrlInput.value = state.sheetUrl || "";
     }
 
     // 동화책 튜터링 시스템 지시문 생성 (한 문장 낭독 -> 핵심 단어 설명 -> 따라 읽기 유도)
-    function buildStoryTutorInstruction(useTool = false) {
-      const profile = CHILD_PROFILES[state.childKey] || CHILD_PROFILES.child1;
-      const numberedScript = state.scriptLines.map((line, i) => `${i + 1}번 문장: ${line}`).join("\n");
-      return `너는 '숲속 텐트'의 다정한 영어 선생님이야. 아이는 ${profile.ageDesc}이고 좋아하는 주제는 (${profile.interests})야.
-
-[오늘의 동화책] "${state.bookTitle}"
-${numberedScript}
-
-[말하는 방식]
-- 아주 짧게! 한 번에 최대 2~3문장. 영어 중심, 한국어는 꼭 필요할 때만 한두 마디.
-- 단어 설명은 아이가 물어볼 때만 해.
-
-[진행 순서]
-1. 시작: 한 문장으로 짧게 인사하고 바로 1번 문장으로 간다.
-2. 동화 문장은 한 번에 딱 한 문장씩: ${useTool ? "먼저 showStorySentence(번호)를 호출해 화면에 문장을 띄운 다음, " : ""}그 영어 문장만 천천히 또렷하게 읽어 주고 \"Now you!\"처럼 짧게 따라 읽도록 권해. 문장 뒤에 긴 설명을 붙이지 마.
-3. 아이가 따라 읽으면 짧게 칭찬(Great job!)하고 바로 다음 번호 문장으로 간다.
-4. 어설프거나 따라 하지 못하면 한 번만 더 읽어 주고, 그래도 어려워하면 격려하며 다음 문장으로 간다.
-5. 아이가 갑자기 다른 질문을 하면 친절하게 1~2문장으로 쉽게 대답한 뒤 \"자, 다시 읽어볼까?\" 하며 끊긴 문장부터 이어 간다.
-6. 마지막 문장까지 읽으면 크게 칭찬하고 마무리 인사를 한다.${useTool ? "\n\n[도구 규칙]\n- 동화 문장을 읽기 직전에 항상 showStorySentence를 호출해. 번호는 위 스크립트 번호 그대로 써.\n- 질문에 답한 뒤 끊긴 문장으로 돌아올 때도 같은 번호로 다시 호출해." : ""}`;
-    }
+function buildStoryTutorInstruction() {
+  const profile = CHILD_PROFILES[state.childKey] || CHILD_PROFILES.child1;
+  const script = state.scriptLines.map((line,i)=>`${i+1}. ${line}`).join('\n');
+  const mode = sessionMode === 'all'
+    ? '전부듣기 모드: 인사·설명·칭찬·따라 말하기 권유 없이 영어 본문만 처음부터 끝까지 원문 순서대로 모두 읽는다. 각 문장을 읽기 직전에 showStorySentence(index)를 호출한다. 문장 사이에 아이의 반응을 기다리지 말고 같은 응답 안에서 계속 읽는다. 마지막 문장을 읽으면 다른 말 없이 마친다.'
+    : '함께 읽기 모드: 처음에 "안녕! 오늘도 같이 책 읽어보자."라고 짧게 인사하고 첫 영어 문장을 읽는다. 본문은 한 문장씩 읽고 "같이 말해볼까?"라고 짧게 권한 뒤 아이를 기다린다. 따라 말하면 짧게 격려하고 다음 한 문장을 읽는다. 다시 읽기·뜻 질문에는 현재 문장을 유지한다. 어려워하면 짧게 나눠 읽고 강요하지 않는다. 안내·칭찬·설명은 짧고 쉬운 한국어로 한다. 마지막 문장 뒤에는 한국어로 짧게 격려한다.';
+  return `너는 실물 영어 동화책을 펼쳐 놓은 ${profile.ageDesc} 아이의 다정한 영어 선생님이다.\n책 제목: ${state.bookTitle}\n영어 원문:\n${script}\n${mode}\n공통 규칙: 책 본문은 영어 원문 그대로 천천히 또렷하게 읽는다. 문장을 읽기 전에 showStorySentence(index)를 호출한다. 준비 과정, 분석, 수업 계획, 자기 설명, 마크다운 소제목은 출력하거나 발화하지 않는다. Initiating the storybook, I'm now ready, First I'll provide a greeting 같은 말은 하지 않는다. 아이에게 직접 할 말만 발화한다. 책 그림을 직접 볼 수 없으므로 보이는 척하지 않는다.`;
+}
 
     // =========================================================
     // 1. 기존 말풍선 터치 인터랙션 유지 (영어 클릭 -> 영어 음성 + 한글 자막 / 한글 자막 클릭 -> 한글 음성)
     // =========================================================
-    function createEnglishUtterance(text) {
-      const voices = window.speechSynthesis.getVoices();
-      const enVoice = voices.find(v => v.lang.startsWith("en-US") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha")))
-                   || voices.find(v => v.lang.startsWith("en"));
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      if (enVoice) u.voice = enVoice;
-      u.rate = Number(state.speechRate) || 0.85;
-      u.pitch = 1.06;
-      return u;
+    function updateLiveControls() {
+      readAllBtn.textContent = isReadingAll ? "듣기 중지" : "전부듣기";
+      readAllBtn.setAttribute("aria-pressed", String(isReadingAll));
+      liveConnectBtn.textContent = isConnecting ? "연결 중..." : (isLiveConnected && sessionMode === "tutor" ? "■ 끝내기" : "▶ 동화책 시작");
+      liveConnectBtn.disabled = isConnecting;
+      readAllBtn.disabled = isConnecting;
+      micBar.classList.toggle("live-active", micEnabled);
+      micBar.setAttribute("aria-pressed", String(micEnabled));
+      micLabel.textContent = micEnabled ? "마이크 켜짐 · 터치하면 끄기" : "마이크 꺼짐 · 터치해서 말하기";
     }
-
-    function speakEnglishOnly(text) {
-      if (!("speechSynthesis" in window) || !text) return;
-      const wasReadingAll = isReadingAll;
-      stopReadAll(false);
-      if (wasReadingAll) statusText.textContent = "선택한 문장을 다시 읽어요.";
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(createEnglishUtterance(text));
-    }
-
-    // 전부듣기는 대화 API를 호출하지 않고 현재 책의 본문만 문장별로 이어 읽는다.
     function stopReadAll(showStatus = true) {
-      const wasReading = isReadingAll;
-      readAllRun++;
-      isReadingAll = false;
-      readAllUtterance = null;
-      readAllBtn.textContent = "전부듣기";
-      readAllBtn.setAttribute("aria-pressed", "false");
-      if (wasReading && "speechSynthesis" in window) window.speechSynthesis.cancel();
-      if (wasReading) {
-        lanternOrb.classList.remove("speaking");
-        waveBars.classList.remove("active");
-        if (showStatus) statusText.textContent = "전부듣기를 멈췄어요. 다시 듣거나 말해볼 수 있어요.";
-      }
+      if (isReadingAll) disconnectLiveSession(showStatus ? "전부듣기를 멈췄어요." : "");
     }
-
-    function stopFallbackRecognition() {
-      if (fallbackRecognition) {
-        fallbackRecognition.onend = null;
-        fallbackRecognition.onresult = null;
-        try { fallbackRecognition.abort(); } catch (e) {}
-        fallbackRecognition = null;
-      }
-      isFallbackRecording = false;
-      micBar.classList.remove("recording");
-      if (!isLiveConnected) micLabel.textContent = "터치해서 말하기 (한글/영어 모두 가능)";
-    }
-
     function startReadAll() {
-      if (isReadingAll) { stopReadAll(); return; }
-      if (!("speechSynthesis" in window)) {
-        statusText.textContent = "이 브라우저는 전부듣기를 지원하지 않아요. 다른 브라우저를 이용해 주세요.";
-        return;
-      }
-      const lines = state.scriptLines.map(line => line.trim()).filter(Boolean);
-      if (!lines.length) { statusText.textContent = "먼저 읽을 영어 본문을 입력해 주세요."; return; }
-      // 라이브 마이크와 낭독을 종료해 책 읽는 소리가 아이의 말로 전송되지 않게 한다.
-      disconnectLiveSession();
-      stopFallbackRecognition();
-      window.speechSynthesis.cancel();
-      isReadingAll = true;
-      const run = ++readAllRun;
-      readAllBtn.textContent = "듣기 중지";
-      readAllBtn.setAttribute("aria-pressed", "true");
-      liveConnectBtn.textContent = "▶ 동화책 시작";
-      const readSentence = (index) => {
-        if (!isReadingAll || run !== readAllRun) return;
-        if (index >= lines.length) {
-          stopReadAll(false);
-          statusText.textContent = "책을 끝까지 들었어요! 다시 듣거나 따라 말해볼까요?";
-          return;
-        }
-        currentStoryIdx = index;
-        fallbackPageIndex = index;
-        createStoryCard(lines[index]);
-        statusText.textContent = "전부듣기 중 · 기기 영어 음성으로 본문만 읽어요";
-        lanternOrb.classList.add("speaking");
-        waveBars.classList.add("active");
-        const utterance = createEnglishUtterance(lines[index]);
-        readAllUtterance = utterance;
-        utterance.onend = () => {
-          if (isReadingAll && run === readAllRun) readSentence(index + 1);
-        };
-        utterance.onerror = () => {
-          if (!isReadingAll || run !== readAllRun) return;
-          stopReadAll(false);
-          statusText.textContent = "읽기가 중단됐어요. 전부듣기를 다시 눌러 주세요.";
-        };
-        window.speechSynthesis.speak(utterance);
-      };
-      readSentence(0);
+      if (isReadingAll) { disconnectLiveSession("전부듣기를 멈췄어요."); return; }
+      connectGeminiLive("all");
+    }
+    function finishReadAllWhenIdle() {
+      if (isReadingAll && allFinishedPending && activeSources.length === 0) disconnectLiveSession("책을 끝까지 들었어요! 함께 읽고 싶으면 동화책 시작을 눌러 주세요.");
+    }
+    function requestLiveSpeech(text) {
+      if (!text) return;
+      if (!isLiveConnected || !liveSetupReady || !liveWs || liveWs.readyState !== WebSocket.OPEN || sessionMode === "all") { connectGeminiLive("tutor", text); return; }
+      stopAllLiveAudio();
+      liveWs.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text}]}],turnComplete:true}}));
+      statusText.textContent = "라이브 선생님이 답하고 있어요...";
+    }
+    function handleTurnBasedUserReply(userText) {
+      createUserChatBubble(userText); logTurnToSheet("Child", userText); requestLiveSpeech(userText);
+    }
+    function toggleMicAction() {
+      if (!isLiveConnected || !liveSetupReady || sessionMode === "all") { connectGeminiLive("tutor"); return; }
+      if (micEnabled) { stopLiveMicrophone(); updateLiveControls(); statusText.textContent = "마이크를 껐어요. 선생님 목소리는 계속 들을 수 있어요."; }
+      else startLiveMicrophone(liveWs);
+    }
+    function promptTextReply() {
+      const input = prompt("선생님에게 할 말을 입력하세요 (한글/영어 모두 가능):");
+      if (input && input.trim()) handleTurnBasedUserReply(input.trim());
     }
 
-    function speakKoreanOnly(text) {
-      if (!("speechSynthesis" in window) || !text) return;
-      const wasReadingAll = isReadingAll;
-      stopReadAll(false);
-      if (wasReadingAll) statusText.textContent = "한국어 뜻을 읽어요.";
-      window.speechSynthesis.cancel();
-      const voices = window.speechSynthesis.getVoices();
-      const koVoice = voices.find(v => v.lang.startsWith("ko"));
-      const cleanKo = text.replace(/^🔊\s*/, "").trim();
-      const u = new SpeechSynthesisUtterance(cleanKo);
-      u.lang = "ko-KR";
-      if (koVoice) u.voice = koVoice;
-      u.rate = 0.96;
-      window.speechSynthesis.speak(u);
-    }
-
-    // 영어 문장만 추출하는 보조 함수 (한글 설명이 섞여 있을 때 영어 부분만 발음)
-    function extractEnglishPart(mixedText) {
-      const matches = mixedText.match(/[A-Za-z][A-Za-z0-9\s',.!?\"-]*/g);
-      if (!matches) return mixedText;
-      const joined = matches.map(s => s.trim()).filter(s => s.length > 1).join(" ");
-      return joined || mixedText;
-    }
-
-    async function translateToKoreanSubtitle(text) {
-      if (!text) return "";
-      try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ko&dt=t&q=${encodeURIComponent(text)}`;
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data[0]) {
-            return data[0].map(seg => seg[0]).join("");
-          }
-        }
-      } catch (e) {}
-      return text;
-    }
 
     // ---- 동화 문장 카드 / 선생님 대화 말풍선 분리 ----
     function setProgress(idx) {
@@ -1167,27 +1055,14 @@ ${numberedScript}
     }
 
     // 말풍선 터치 규칙: 영어 터치 → 영어로 다시 읽기 + 한글 자막 표시 / 한글 자막 터치 → 한글로 읽기
-    function bindTouch(enEl, koEl, getText, preKo) {
-      enEl.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const full = getText().trim();
-        if (!full) return;
-        if (/[A-Za-z]/.test(full)) speakEnglishOnly(extractEnglishPart(full));
-        else speakKoreanOnly(full);
-        if (!koEl.dataset.translated) {
-          koEl.textContent = "한글 번역 불러오는 중...";
-          koEl.classList.add("show");
-          const t = preKo || await translateToKoreanSubtitle(full);
-          koEl.textContent = "🔊 " + t;
-          koEl.dataset.translated = "true";
-        } else {
-          koEl.classList.add("show");
-        }
+    function bindTouch(enEl, koEl, getText) {
+      enEl.addEventListener("click", (event) => {
+        event.stopPropagation(); const text = getText().trim();
+        if (text) requestLiveSpeech("다음 문장만 그대로 다시 읽어 주세요. 영어 문장은 영어로, 한국어 문장은 한국어로 읽고, 다음 문장으로 넘어가지 말고 기다리세요: " + JSON.stringify(text));
       });
-      koEl.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const k = koEl.textContent.replace(/^🔊\s*/, "").trim();
-        if (k && !k.includes("불러오는 중")) speakKoreanOnly(k);
+      koEl.addEventListener("click", (event) => {
+        event.stopPropagation(); const text = koEl.textContent.replace(/^🔊\s*/, "").trim();
+        if (text) requestLiveSpeech("다음 설명을 한국어로 짧게 말해 주세요: " + JSON.stringify(text));
       });
     }
 
@@ -1216,7 +1091,10 @@ ${numberedScript}
       en.textContent = sentence;
       const ko = document.createElement("div");
       ko.className = "ai-ko-reveal";
-      card.append(label, en, ko);
+      const meaningBtn = document.createElement("button");
+      meaningBtn.type = "button"; meaningBtn.className = "sub-btn"; meaningBtn.textContent = "뜻 물어보기";
+      meaningBtn.addEventListener("click", event => { event.stopPropagation(); requestLiveSpeech("현재 문장 " + JSON.stringify(sentence) + "의 뜻을 한국어로 짧게 설명하고, 다음 문장으로 넘어가지 말고 기다려 주세요."); });
+      card.append(label, en, meaningBtn, ko);
       bindTouch(card, ko, () => sentence, "");
       row.appendChild(card);
       chatStream.appendChild(row);
@@ -1271,7 +1149,6 @@ ${numberedScript}
       if (currentAiBubbleObj) { currentAiBubbleObj.finalize(""); currentAiBubbleObj = null; }
       if (!(n - 1 === currentStoryIdx && !userSpokeSinceCard)) createStoryCard(sentence);
       currentStoryIdx = n - 1;
-      fallbackPageIndex = n - 1;
       userSpokeSinceCard = false;
       liveTarget = sentence;
       setProgress(n - 1);
@@ -1379,7 +1256,8 @@ ${numberedScript}
           lanternOrb.classList.remove("speaking");
           waveBars.classList.remove("active");
           if (isLiveConnected) {
-            statusText.textContent = "아이 차례예요! 따라 읽거나 대답해 보세요.";
+            statusText.textContent = isReadingAll ? "전부듣기 중 · 라이브 선생님이 읽어줘요" : "아이 차례예요! 따라 읽거나 대답해 보세요.";
+            finishReadAllWhenIdle();
           }
         }
       };
@@ -1414,7 +1292,7 @@ ${numberedScript}
         const processor = inputCtx.createScriptProcessor(4096, 1, 1);
 
         processor.onaudioprocess = (e) => {
-          if (!isLiveConnected || !liveWs || liveWs.readyState !== WebSocket.OPEN) return;
+          if (!isLiveConnected || !liveSetupReady || !micEnabled || sessionMode !== "tutor" || !liveWs || liveWs.readyState !== WebSocket.OPEN) return;
           const inputFloat = e.inputBuffer.getChannelData(0);
           const int16 = new Int16Array(inputFloat.length);
           for (let i = 0; i < inputFloat.length; i++) {
@@ -1437,13 +1315,17 @@ ${numberedScript}
         micProcessor = { processor, source, inputCtx };
 
         micBar.classList.add("live-active");
-        micLabel.textContent = "실시간 마이크 켜짐 · 편하게 말해보세요";
+        micEnabled = true;
+        updateLiveControls();
       } catch (err) {
-        statusText.textContent = "마이크 권한을 허용하면 실시간 대화가 시작됩니다.";
+        micEnabled = false;
+        updateLiveControls();
+        statusText.textContent = "마이크를 사용할 수 없어요. 듣기는 가능하며, 권한을 허용하거나 글자로 답할 수 있어요.";
       }
     }
 
     function stopLiveMicrophone() {
+      micEnabled = false;
       if (micProcessor) {
         try {
           micProcessor.processor.disconnect();
@@ -1462,6 +1344,10 @@ ${numberedScript}
 
     function disconnectLiveSession(reasonMsg) {
       isLiveConnected = false;
+      isConnecting = false;
+      liveSetupReady = false;
+      isReadingAll = false;
+      allFinishedPending = false;
       if (liveWs) {
         liveWs.intentionalClose = true;
         try { liveWs.close(); } catch (e) {}
@@ -1471,15 +1357,14 @@ ${numberedScript}
       stopAllLiveAudio();
       liveStatusBadge.textContent = "라이브 대기중";
       liveStatusBadge.className = "pill-badge live-off";
-      liveConnectBtn.textContent = "▶ 동화책 시작";
+      updateLiveControls();
       if (reasonMsg) statusText.textContent = reasonMsg;
     }
 
     let liveConnectTimestamp = 0;
 
-    async function connectGeminiLive() {
-      stopReadAll(false);
-      stopFallbackRecognition();
+    async function connectGeminiLive(mode = "tutor", openingRequest = "") {
+      if (isConnecting) return;
       const key = (state.apiKey || "").trim();
       if (!key) {
         openSettings();
@@ -1489,14 +1374,18 @@ ${numberedScript}
         return;
       }
 
-      if (isLiveConnected) {
-        disconnectLiveSession("실시간 라이브 대화를 종료했습니다.");
-        return;
+      if (isLiveConnected && sessionMode === mode && !openingRequest) {
+        disconnectLiveSession("라이브 연결을 종료했어요."); return;
       }
-
-      // 기존 음성 즉시 중단
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      stopAllLiveAudio();
+      disconnectLiveSession();
+      sessionMode = mode === "all" ? "all" : "tutor";
+      isReadingAll = sessionMode === "all";
+      isConnecting = true;
+      updateLiveControls();
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate:24000});
+        if (audioCtx.state === "suspended") await audioCtx.resume();
+      } catch (error) { disconnectLiveSession("이 브라우저에서 라이브 오디오를 시작할 수 없어요."); return; }
 
       statusText.textContent = "숲속 텐트 라이브 채널 연결 중...";
       liveConnectBtn.textContent = "연결 중...";
@@ -1504,23 +1393,40 @@ ${numberedScript}
       currentStoryIdx = -1; liveTarget = ""; userSpokeSinceCard = true;
       currentAiBubbleObj = null; currentUserBubbleEl = null; setProgress(-1);
 
-      // 최신 공식 Gemini Live API 모델 사용
+      // 사용 중인 Gemini Live 오디오 모델로 연결
       const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(key)}`;
 
       try {
         liveWs = new WebSocket(wsUrl);
       } catch (e) {
-        startTurnBasedStoryFallback(true);
+        disconnectLiveSession("라이브 연결을 시작하지 못했어요. 네트워크를 확인하고 다시 눌러 주세요.");
         return;
       }
 
       const sessionWs = liveWs;
+      let setupReady = false;
+      let microphoneReady = false;
+      let lessonStarted = false;
+      const beginLessonWhenReady = () => {
+        if (lessonStarted || !setupReady || !microphoneReady || sessionWs.intentionalClose || liveWs !== sessionWs || sessionWs.readyState !== WebSocket.OPEN) return;
+        lessonStarted = true;
+        liveSetupReady = true;
+        isConnecting = false;
+        updateLiveControls();
+        statusText.textContent = sessionMode === "all" ? "전부듣기 중 · 라이브 선생님이 읽어줘요" : "선생님과 한 문장씩 읽어요.";
+        sessionWs.send(JSON.stringify({
+          clientContent: {
+            turns: [{role: "user", parts: [{text: openingRequest || (sessionMode === "all" ? "전부듣기를 시작해 주세요. 인사나 권유 없이 첫 문장부터 마지막 문장까지 영어 원문만 순서대로 읽고 각 문장 직전에 showStorySentence를 호출하세요. 문장 사이에 답을 기다리지 마세요." : "지금 아이에게 짧게 한국어로 인사하고 첫 영어 문장을 읽어 주세요. 같이 말해볼까 하고 아이를 기다리세요. 준비 과정은 설명하지 마세요.")}]}],
+            turnComplete: true
+          }
+        }));
+      };
       liveWs.onopen = async () => {
         if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
         isLiveConnected = true;
         liveStatusBadge.textContent = "LIVE 실시간 연결됨";
         liveStatusBadge.className = "pill-badge live-on";
-        liveConnectBtn.textContent = "■ 끝내기";
+        updateLiveControls();
         statusText.textContent = "연결 완료! 선생님이 인사와 1번 문장을 준비 중이에요...";
 
         const setupPayload = {
@@ -1556,21 +1462,9 @@ ${numberedScript}
         };
         liveWs.send(JSON.stringify(setupPayload));
 
-        await startLiveMicrophone(sessionWs);
-
-        setTimeout(() => {
-          if (liveWs === sessionWs && !sessionWs.intentionalClose && liveWs.readyState === WebSocket.OPEN) {
-            liveWs.send(JSON.stringify({
-              clientContent: {
-                turns: [{
-                  role: "user",
-                  parts: [{ text: `선생님 안녕하세요! 오늘 동화책 "${state.bookTitle}" 수업을 시작해 주세요. 짧게 인사하고 1번 문장부터 시작해 주세요.` }]
-                }],
-                turnComplete: true
-              }
-            }));
-          }
-        }, 450);
+        if (sessionMode === "tutor") await startLiveMicrophone(sessionWs);
+        microphoneReady = true;
+        beginLessonWhenReady();
       };
 
       liveWs.onmessage = async (event) => {
@@ -1582,6 +1476,14 @@ ${numberedScript}
           }
           if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
           const msg = JSON.parse(rawData);
+          if (msg.error) {
+            disconnectLiveSession("라이브 연결 오류예요. 모델 사용 권한이나 할당량을 확인한 뒤 다시 시작해 주세요.");
+            return;
+          }
+          if (msg.setupComplete) {
+            setupReady = true;
+            beginLessonWhenReady();
+          }
 
           if (msg.toolCall && msg.toolCall.functionCalls) {
             const responses = msg.toolCall.functionCalls.map(fc => ({
@@ -1626,23 +1528,22 @@ ${numberedScript}
 
             if (sc.modelTurn && sc.modelTurn.parts) {
               for (const part of sc.modelTurn.parts) {
+                if (part.thought === true) continue;
                 if (part.inlineData && part.inlineData.mimeType && part.inlineData.mimeType.startsWith("audio/pcm")) {
                   enqueuePcm24kAudio(part.inlineData.data);
                 }
-                if (part.text) {
-                  if (!currentAiBubbleObj) {
-                    currentAiBubbleObj = createAiChatBubble("", "", liveTarget, true);
-                  }
-                  currentAiBubbleObj.appendText(part.text);
-                }
+                // AUDIO 응답의 자막은 outputTranscription에서만 표시한다.
+                // modelTurn.parts의 text는 음성 대사가 아닐 수 있으므로 표시하지 않는다.
               }
             }
 
             if (sc.turnComplete) {
+              if (isReadingAll && currentStoryIdx === state.scriptLines.length - 1) allFinishedPending = true;
               if (currentAiBubbleObj) {
                 currentAiBubbleObj.finalize("");
                 currentAiBubbleObj = null;
               }
+              finishReadAllWhenIdle();
             }
           }
         } catch (e) {
@@ -1652,249 +1553,16 @@ ${numberedScript}
 
       liveWs.onerror = () => {
         if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        disconnectLiveSession();
-        startTurnBasedStoryFallback(true);
+        disconnectLiveSession("라이브 연결에 실패했어요. 네트워크·API 키·할당량을 확인하고 다시 시작해 주세요.");
       };
-
-      liveWs.onclose = () => {
+      liveWs.onclose = (event) => {
         if (sessionWs.intentionalClose || liveWs !== sessionWs) return;
-        const elapsed = Date.now() - liveConnectTimestamp;
-        const wasConnected = isLiveConnected;
-        disconnectLiveSession();
-        // 연결 후 4초 이내에 서버가 소켓을 닫은 경우(예: AQ. 키 제한 또는 무료 할당량 한도)
-        // 에러 메시지로 멈추지 않고 즉시 REST API + 음성 튜터 모드로 자동 전환하여 소리가 바로 나오게 함!
-        if (elapsed < 4000 || !wasConnected) {
-          startTurnBasedStoryFallback(true);
-        } else {
-          statusText.textContent = "라이브 세션이 종료되었습니다. 다시 시작하려면 [동화책 시작]을 누르세요.";
-        }
+        disconnectLiveSession("라이브 연결이 종료됐어요. 다시 시작을 눌러 주세요. (연결 코드: " + event.code + ")");
       };
     }
 
-    // =========================================================
-    // 3. 동화책 튜터 모드 (AQ. / AIza 키 모두 완벽 호환 + 동적 모델 탐색 + 즉시 음성 출력)
-    // =========================================================
-    let fallbackPageIndex = 0;
-    let cachedRestModel = "";
 
-    async function resolveWorkingGeminiModel(apiKey) {
-      if (cachedRestModel) return [cachedRestModel];
-      const defaults = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"];
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
-          method: "GET",
-          headers: { "x-goog-api-key": apiKey }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const models = (data.models || [])
-            .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
-            .map(m => m.name.replace(/^models\//, ""))
-            .filter(n => n.includes("flash") && !n.includes("tts") && !n.includes("image") && !n.includes("audio"));
-          if (models.length > 0) {
-            models.sort((a, b) => (a === "gemini-2.5-flash" ? -1 : b === "gemini-2.5-flash" ? 1 : b.localeCompare(a)));
-            return models;
-          }
-        }
-      } catch (e) {}
-      return defaults;
-    }
-
-    async function callGeminiStoryTutorApi(userPromptText) {
-      const key = (state.apiKey || "").trim();
-      if (!key) return null;
-
-      const models = await resolveWorkingGeminiModel(key);
-      for (const m of models) {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(key)}`;
-          const res = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": key
-            },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: buildStoryTutorInstruction() }] },
-              contents: [
-                ...conversationLog.slice(-6),
-                { role: "user", parts: [{ text: userPromptText }] }
-              ],
-              generationConfig: {
-                temperature: 0.65,
-                maxOutputTokens: 1024,
-                responseMimeType: "application/json"
-              }
-            })
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-            const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
-            if (parsed && parsed.spokenText) {
-              cachedRestModel = m;
-              return parsed;
-            }
-          }
-        } catch (e) {}
-      }
-      return null;
-    }
-
-    async function startTurnBasedStoryFallback(fromLiveFallback = false) {
-      stopReadAll(false);
-      const requestRun = readAllRun;
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      fallbackPageIndex = 0;
-      const firstLine = state.scriptLines[0] || "Bubbles at the beach.";
-
-      if (fromLiveFallback) {
-        liveStatusBadge.textContent = "음성 튜터 연결됨";
-        liveStatusBadge.className = "pill-badge live-on";
-      }
-
-      statusText.textContent = `"${state.bookTitle}" 1번 문장을 준비하고 있어요...`;
-
-      // Gemini API 키가 있으면 AI 선생님이 직접 첫인사 + 1번 문장 낭독 + 핵심 단어 설명 생성
-      const aiFirstTurn = await callGeminiStoryTutorApi(
-        `동화책 "${state.bookTitle}" 수업을 시작해 줘. 반갑게 인사한 뒤 1번 문장("${firstLine}") 딱 한 문장만 읽어주고, 따라 읽도록 짧게 유도해 줘. 반드시 JSON 형식으로만 응답: {"spokenText": "선생님이 말할 영어와 한국어 대사", "targetSentence": "${firstLine}", "koSummary": "전체 한국어 번역 및 풀이"}`
-      );
-
-      if (requestRun !== readAllRun || isReadingAll) return;
-      if (aiFirstTurn && aiFirstTurn.spokenText) {
-        conversationLog.push({ role: "model", parts: [{ text: aiFirstTurn.spokenText }] });
-        const b = createAiChatBubble(aiFirstTurn.spokenText, aiFirstTurn.koSummary || "", aiFirstTurn.targetSentence || firstLine);
-        b.finalize(aiFirstTurn.koSummary || "");
-        speakEnglishOnly(extractEnglishPart(aiFirstTurn.spokenText));
-        statusText.textContent = `[${state.bookTitle}] 1/${state.scriptLines.length}번 문장 · 따라 말해 보세요!`;
-        return;
-      }
-
-      // API 키가 없거나 오프라인일 때도 선택한 책의 제목과 1번 문장으로 즉시 음성 출력!
-      const greeting = `Hi! Welcome to the Forest Tent! Today we will read "${state.bookTitle}". Sentence 1: "${firstLine}". Can you repeat after me?`;
-      const koGuide = `안녕! 숲속 텐트에 온 걸 환영해! 오늘 함께 읽을 동화책은 '${state.bookTitle}'이야. 1번 문장: "${firstLine}". 소리 내어 따라 읽어 볼까?`;
-
-      const bubbleObj = createAiChatBubble(greeting, koGuide, firstLine);
-      bubbleObj.finalize(koGuide);
-      speakEnglishOnly(greeting);
-      statusText.textContent = `[${state.bookTitle}] 1/${state.scriptLines.length}번 문장 · 따라 말해 보세요!`;
-    }
-
-    async function handleTurnBasedUserReply(userText) {
-      stopReadAll(false);
-      const requestRun = readAllRun;
-      createUserChatBubble(userText);
-      logTurnToSheet("Child", userText);
-
-      if (isLiveConnected && liveWs && liveWs.readyState === WebSocket.OPEN) {
-        liveWs.send(JSON.stringify({
-          clientContent: {
-            turns: [{ role: "user", parts: [{ text: userText }] }],
-            turnComplete: true
-          }
-        }));
-        return;
-      }
-
-      const nextIdx = Math.min(fallbackPageIndex + 1, state.scriptLines.length - 1);
-      const currentLine = state.scriptLines[fallbackPageIndex] || "";
-      const nextLine = state.scriptLines[nextIdx] || "";
-      const isFinished = (fallbackPageIndex >= state.scriptLines.length - 1);
-
-      statusText.textContent = "선생님이 다음 문장과 단어 설명을 준비하고 있어요...";
-
-      const promptMsg = isFinished
-        ? `아이가 마지막 문장("${currentLine}")까지 읽고 "${userText}"라고 대답했어. 동화책 "${state.bookTitle}" 완독을 진심으로 축하해 주고 칭찬해 줘! JSON 형식: {"spokenText": "칭찬과 완독 축하 대사", "targetSentence": "${currentLine}", "koSummary": "한국어 풀이"}`
-        : `아이가 방금 "${userText}"라고 말했어. 방금 읽은 문장("${currentLine}")에 대해 크게 칭찬한 뒤, 다음 문장("${nextLine}") 딱 1문장만 읽어주고 따라 읽도록 짧게 유도해 줘. JSON 형식: {"spokenText": "선생님이 말할 영어+한국어 대사", "targetSentence": "${nextLine}", "koSummary": "전체 한국어 풀이"}`;
-
-      const parsed = await callGeminiStoryTutorApi(promptMsg);
-      if (requestRun !== readAllRun || isReadingAll) return;
-      if (parsed && parsed.spokenText) {
-        if (!isFinished) fallbackPageIndex = nextIdx;
-        conversationLog.push({ role: "user", parts: [{ text: userText }] });
-        conversationLog.push({ role: "model", parts: [{ text: parsed.spokenText }] });
-
-        const b = createAiChatBubble(parsed.spokenText, parsed.koSummary || "", parsed.targetSentence || nextLine);
-        b.finalize(parsed.koSummary || "");
-        speakEnglishOnly(extractEnglishPart(parsed.spokenText));
-        statusText.textContent = `[${state.bookTitle}] ${fallbackPageIndex + 1}/${state.scriptLines.length}번 문장 진행 중`;
-        return;
-      }
-
-      if (!isFinished) fallbackPageIndex = nextIdx;
-      const replyEn = isFinished
-        ? `Congratulations! You finished reading "${state.bookTitle}"! You did a wonderful job!`
-        : `Great job! Now let's read sentence ${fallbackPageIndex + 1}: "${nextLine}". Can you repeat after me?`;
-      const replyKo = isFinished
-        ? `축하해! '${state.bookTitle}' 동화책을 끝까지 다 읽었어! 정말 멋지다!`
-        : `참 잘했어! 이제 ${fallbackPageIndex + 1}번 문장을 읽어볼까? "${nextLine}" 소리 내어 따라 읽어 보자!`;
-      const b = createAiChatBubble(replyEn, replyKo, nextLine);
-      b.finalize(replyKo);
-      speakEnglishOnly(replyEn);
-      statusText.textContent = `[${state.bookTitle}] ${fallbackPageIndex + 1}/${state.scriptLines.length}번 문장 진행 중`;
-    }
-
-    // =========================================================
-    // 4. 마이크 버튼 및 글자 입력 처리
-    // =========================================================
-    function toggleMicAction() {
-      stopReadAll();
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      if (isLiveConnected) {
-        // 라이브 모드에서는 이미 실시간 마이크가 열려 있으므로 안내만 표시
-        statusText.textContent = "실시간 마이크가 켜져 있어요! 편하게 말씀하시면 바로 알아듣습니다.";
-        return;
-      }
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        promptTextReply();
-        return;
-      }
-
-      if (isFallbackRecording && fallbackRecognition) {
-        fallbackRecognition.stop();
-        return;
-      }
-
-      fallbackRecognition = new SpeechRecognition();
-      fallbackRecognition.lang = "ko-KR";
-      fallbackRecognition.interimResults = false;
-
-      isFallbackRecording = true;
-      micBar.classList.add("recording");
-      micLabel.textContent = "듣고 있어요... (끝나면 다시 터치)";
-
-      let transcript = "";
-      fallbackRecognition.onresult = (e) => {
-        if (e.results && e.results[0]) {
-          transcript = e.results[0][0].transcript;
-        }
-      };
-      fallbackRecognition.onend = () => {
-        isFallbackRecording = false;
-        micBar.classList.remove("recording");
-        micLabel.textContent = "터치해서 말하기 (한글/영어 모두 가능)";
-        if (transcript.trim()) {
-          handleTurnBasedUserReply(transcript.trim());
-        }
-      };
-      fallbackRecognition.onerror = () => {
-        isFallbackRecording = false;
-        micBar.classList.remove("recording");
-        micLabel.textContent = "터치해서 말하기 (한글/영어 모두 가능)";
-      };
-
-      fallbackRecognition.start();
-    }
-
-    function promptTextReply() {
-      const input = prompt("아이의 대답이나 따라 읽은 문장을 입력하세요 (한글/영어 모두 가능):");
-      if (input && input.trim()) {
-        handleTurnBasedUserReply(input.trim());
-      }
-    }
+    // 모든 낭독·안내·대화는 Gemini Live 연결에서만 처리한다.
 
     // =========================================================
     // 5. 구글 시트 기록 연동 (기존 기능 유지)
@@ -1921,7 +1589,7 @@ ${numberedScript}
     // 6. 설정 모달 및 이벤트 바인딩
     // =========================================================
     function openSettings() {
-      stopReadAll();
+      if (liveWs) disconnectLiveSession("설정을 여는 동안 수업을 멈췄어요.");
       syncUI();
       apiTestResult.style.display = "none";
       settingsModal.classList.add("open");
@@ -1946,7 +1614,6 @@ ${numberedScript}
         state.childKey = key;
         const p = CHILD_PROFILES[key];
         if (p) {
-          state.speechRate = p.speechRate;
           state.liveVoice = p.voice;
         }
         syncUI();
@@ -1963,9 +1630,7 @@ ${numberedScript}
         state.scriptLines = found.pages.slice();
         customBookTitleInput.value = found.title;
         scriptTextarea.value = found.pages.join("\n");
-        fallbackPageIndex = 0;
         lastAiTurnData = null;
-        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         saveState();
         syncUI();
       } else {
@@ -1976,9 +1641,6 @@ ${numberedScript}
       }
     });
 
-    speechRateRange.addEventListener("input", () => {
-      rateLabel.textContent = Number(speechRateRange.value).toFixed(2) + "x";
-    });
 
     testApiKeyBtn.addEventListener("click", async () => {
       const key = apiKeyInput.value.trim();
@@ -1998,7 +1660,7 @@ ${numberedScript}
         });
         if (res.ok) {
           apiTestResult.className = "test-result-box";
-          apiTestResult.textContent = "연결 성공! 동화책 튜터와 음성 대화가 정상 작동합니다.";
+          apiTestResult.textContent = "API 키 조회 성공. 실제 라이브 음성 연결은 동화책 시작을 눌러 확인해 주세요.";
         } else {
           const errJson = await res.json().catch(() => ({}));
           const detail = errJson?.error?.message || `HTTP ${res.status}`;
@@ -2025,7 +1687,6 @@ ${numberedScript}
       stopReadAll(false);
       chatStream.innerHTML = "";
       conversationLog = [];
-      fallbackPageIndex = 0;
       currentStoryIdx = -1; setProgress(-1);
       closeSettings();
     });
@@ -2041,7 +1702,6 @@ ${numberedScript}
       state.scriptLines = rawLines.length > 0 ? rawLines : ["Bubbles at the beach."];
       state.apiKey = apiKeyInput.value.trim();
       state.liveVoice = liveVoiceSelect.value;
-      state.speechRate = parseFloat(speechRateRange.value) || 0.85;
       state.sheetUrl = sheetUrlInput.value.trim();
 
       saveState();
@@ -2050,48 +1710,22 @@ ${numberedScript}
 
       chatStream.innerHTML = "";
       conversationLog = [];
-      fallbackPageIndex = 0;
       currentStoryIdx = -1; setProgress(-1);
 
-      if (isLiveConnected) {
-        disconnectLiveSession();
-      }
-      if (state.apiKey) {
-        connectGeminiLive();
-      } else {
-        startTurnBasedStoryFallback();
-      }
+      disconnectLiveSession();
+      connectGeminiLive("tutor");
     });
 
-    liveConnectBtn.addEventListener("click", () => {
-      if (state.apiKey) {
-        connectGeminiLive();
-      } else {
-        startTurnBasedStoryFallback();
-      }
-    });
+    liveConnectBtn.addEventListener("click", () => connectGeminiLive("tutor"));
 
     readAllBtn.addEventListener("click", startReadAll);
 
-    stopAllBtn.addEventListener("click", () => {
-      stopReadAll(false);
-      stopFallbackRecognition();
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-      stopAllLiveAudio();
-      if (isLiveConnected) {
-        disconnectLiveSession("대화를 잠시 멈췄어요. 다시 시작하려면 [동화책 시작]을 누르세요.");
-      } else {
-        statusText.textContent = "잠시 멈췄어요. 준비되면 마이크나 [동화책 시작]을 눌러요!";
-      }
+    stopAllBtn.addEventListener("click", () => disconnectLiveSession("수업을 멈췄어요."));
+    replayLastBtn.addEventListener("click", () => {
+      const sentence = lastAiTurnData?.targetSentence || state.scriptLines[Math.max(currentStoryIdx,0)];
+      if (sentence) requestLiveSpeech("다음 영어 문장만 원문 그대로 천천히 다시 읽어 주세요. 다음 문장으로 넘어가지 말고 기다리세요: " + JSON.stringify(sentence));
     });
 
-    replayLastBtn.addEventListener("click", () => {
-      if (lastAiTurnData && lastAiTurnData.targetSentence) {
-        speakEnglishOnly(lastAiTurnData.targetSentence);
-      } else if (state.scriptLines.length > 0) {
-        speakEnglishOnly(state.scriptLines[fallbackPageIndex] || state.scriptLines[0]);
-      }
-    });
 
     micBar.addEventListener("click", (e) => {
       if (e.target === textInputBtn) return;
@@ -2107,11 +1741,13 @@ ${numberedScript}
       initLibraryDropdown();
       loadState();
       const firstSentence = state.scriptLines[0] || "Bubbles at the beach.";
-      const welcomeEn = `Welcome to the Forest Tent! Today's storybook is "${state.bookTitle}".`;
-      const welcomeKo = `숲속 텐트에 온 걸 환영해! 오늘 함께 읽을 동화책은 '${state.bookTitle}'이야. [동화책 시작]을 누르면 한 문장씩 함께 읽고, [전부듣기]를 누르면 책 본문을 처음부터 끝까지 들을 수 있어!`;
+      const welcomeEn = "안녕! 오늘도 같이 책 읽어보자.";
+      const welcomeKo = "동화책 시작·다시 듣기·전부듣기 모두 라이브 선생님 목소리로 들려줘요. API 키와 인터넷 연결이 필요해요.";
       const b = createAiChatBubble(welcomeEn, welcomeKo);
       b.finalize(welcomeKo);
+      updateLiveControls();
     });
+    window.addEventListener("pagehide", () => disconnectLiveSession());
   </script>
 </body>
 </html>
