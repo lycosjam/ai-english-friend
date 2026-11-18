@@ -95,6 +95,13 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 .book-item.active{border-color:#ffb300;background:#fff9e6}
 .book-item-title{font-size:19px;font-weight:900;color:var(--ink);line-height:1.25}
 .book-item-meta{font-size:13px;font-weight:800;color:#b25e00;background:#ffe9b8;padding:5px 11px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+
+.filter-section{display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:2px solid #efe7d2}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-chip{padding:8px 14px;border-radius:999px;border:2px solid #cfe5c2;background:#fff;font-size:14px;font-weight:800;color:var(--ink);cursor:pointer;font-family:inherit;transition:all .15s}
+.filter-chip.on{background:var(--yellow);border-color:#ffb300;color:#3b2a00}
+.filter-chip.lvl.on{background:#bff0d4;border-color:#2ecc71;color:#14532d}
+.book-item-sub{font-size:12px;font-weight:800;color:#6b8773;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -224,6 +231,10 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
       <button class="x" id="closeBookListBtn" aria-label="닫기">✕</button>
     </div>
     <div class="modal-body">
+      <div class="filter-section" id="bookFilterSection">
+        <div class="filter-row" id="seriesFilterRow"></div>
+        <div class="filter-row" id="levelFilterRow"></div>
+      </div>
       <div class="book-grid" id="bookListGrid"></div>
     </div>
   </div>
@@ -254,7 +265,7 @@ const INTROS = [
   t => `오늘 읽을 책은 "${t}"이야. 선생님이 한 문장씩 읽어 줄게, 귀 기울여 들어 봐.`,
   t => `"${t}" 책 같이 읽어 볼까? 선생님이 먼저 읽어 줄 테니 잘 들어주렴.`
 ];
-const SAMPLE_BOOK = { title: 'I Can Draw!', sentences: [
+const SAMPLE_BOOK = { series: 'First Little Readers', level: 'levelA', title: 'I Can Draw!', sentences: [
   'I can draw a seal.', 'I can draw a clown.', 'I can draw a king.', 'I can draw a crown.',
   'I can draw a sheep.', 'I can draw a bed.', 'I can draw myself to sleep.'
 ] };
@@ -331,13 +342,30 @@ function parseCsv(text) {
 function buildBooks(rows) {
   const map = new Map();
   rows.forEach((r, i) => {
-    const title = (r[0] || '').trim(), ord = parseInt(r[1], 10), en = (r[2] || '').trim();
+    let series = '기본 시리즈', level = '전체', title = '', ord = NaN, en = '';
+    if (r.length >= 5 && !isNaN(parseInt(r[3], 10))) {
+      // 5열 구조: 시리즈 | 레벨 | 책 제목 | 문장 순서 | 영어 문장
+      series = (r[0] || '').trim() || '기타';
+      level = (r[1] || '').trim() || '기본';
+      title = (r[2] || '').trim();
+      ord = parseInt(r[3], 10);
+      en = (r[4] || '').trim();
+    } else {
+      // 3열 구조 호환: 책 제목 | 문장 순서 | 영어 문장
+      title = (r[0] || '').trim();
+      ord = parseInt(r[1], 10);
+      en = (r[2] || '').trim();
+    }
     if (!title || !en || isNaN(ord)) return;
-    if (!map.has(title)) map.set(title, []);
-    map.get(title).push({ ord, i, en });
+    const key = `${series}||${level}||${title}`;
+    if (!map.has(key)) map.set(key, { series, level, title, list: [] });
+    map.get(key).list.push({ ord, i, en });
   });
-  return [...map].map(([title, list]) => ({
-    title, sentences: list.sort((a, b) => a.ord - b.ord || a.i - b.i).map(x => x.en)
+  return [...map.values()].map(item => ({
+    series: item.series,
+    level: item.level,
+    title: item.title,
+    sentences: item.list.sort((a, b) => a.ord - b.ord || a.i - b.i).map(x => x.en)
   }));
 }
 async function fetchBooks(url) {
@@ -811,7 +839,8 @@ function renderBookSelect() {
   books.forEach(b => {
     const o = document.createElement('option');
     o.value = b.title;
-    o.textContent = `${b.title} (${b.sentences.length}문장)`;
+    const prefix = b.level && b.level !== '전체' ? `[${b.level}] ` : '';
+    o.textContent = `${prefix}${b.title} (${b.sentences.length}문장)`;
     sel.appendChild(o);
   });
   if (book) sel.value = book.title;
@@ -908,16 +937,74 @@ document.querySelectorAll('[data-voice]').forEach(b => b.addEventListener('click
 document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => { selSpeed = Number(b.dataset.speed); paintSegs(); }));
 document.querySelectorAll('[data-mic]').forEach(b => b.addEventListener('click', () => { selMic = b.dataset.mic; paintSegs(); }));
 $('bookSelect').addEventListener('change', () => {});
+let activeSeriesFilter = '';
+let activeLevelFilter = '';
+
 function openBookList() {
+  if (book) {
+    activeSeriesFilter = book.series || '';
+    activeLevelFilter = book.level || '';
+  }
+  renderBookShelf();
+  $('bookListModal').classList.add('open');
+}
+
+function renderBookShelf() {
+  const seriesRow = $('seriesFilterRow');
+  const levelRow = $('levelFilterRow');
   const grid = $('bookListGrid');
+  seriesRow.innerHTML = '';
+  levelRow.innerHTML = '';
   grid.innerHTML = '';
-  books.forEach(b => {
+
+  const allSeries = [...new Set(books.map(b => b.series))];
+  if (!activeSeriesFilter || !allSeries.includes(activeSeriesFilter)) {
+    activeSeriesFilter = allSeries[0] || '';
+  }
+
+  // 1단: 시리즈 필터 탭 (예: [First Little Readers])
+  allSeries.forEach(s => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'filter-chip' + (s === activeSeriesFilter ? ' on' : '');
+    chip.textContent = s;
+    chip.addEventListener('click', () => {
+      activeSeriesFilter = s;
+      const levelsInSeries = [...new Set(books.filter(b => b.series === s).map(b => b.level))];
+      activeLevelFilter = levelsInSeries[0] || '';
+      renderBookShelf();
+    });
+    seriesRow.appendChild(chip);
+  });
+
+  // 2단: 선택된 시리즈 내 레벨 필터 탭 (예: [levelA] [levelB] [levelC] [levelD])
+  const booksInSeries = books.filter(b => b.series === activeSeriesFilter);
+  const levels = [...new Set(booksInSeries.map(b => b.level))];
+  if (!activeLevelFilter || !levels.includes(activeLevelFilter)) {
+    activeLevelFilter = levels[0] || '';
+  }
+
+  levels.forEach(lvl => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'filter-chip lvl' + (lvl === activeLevelFilter ? ' on' : '');
+    chip.textContent = lvl;
+    chip.addEventListener('click', () => {
+      activeLevelFilter = lvl;
+      renderBookShelf();
+    });
+    levelRow.appendChild(chip);
+  });
+
+  // 3단: 필터링된 책 카드 목록
+  const filteredBooks = booksInSeries.filter(b => b.level === activeLevelFilter);
+  filteredBooks.forEach(b => {
     const btn = document.createElement('button');
     btn.type = 'button';
     const isCurrent = book && b.title === book.title;
     btn.className = 'book-item' + (isCurrent ? ' active' : '');
     const badgeText = (isCurrent && finished) ? `완독! · ${b.sentences.length}문장` : `${b.sentences.length}문장`;
-    btn.innerHTML = `<span class="book-item-title">${esc(b.title)}</span><span class="book-item-meta">${badgeText}</span>`;
+    btn.innerHTML = `<div><div class="book-item-sub">${esc(b.series)} · ${esc(b.level)}</div><div class="book-item-title">${esc(b.title)}</div></div><span class="book-item-meta">${badgeText}</span>`;
     btn.addEventListener('click', () => {
       stopPlayback();
       pendingAutoNext = false;
@@ -932,7 +1019,6 @@ function openBookList() {
     });
     grid.appendChild(btn);
   });
-  $('bookListModal').classList.add('open');
 }
 function closeBookList() {
   $('bookListModal').classList.remove('open');
@@ -980,4 +1066,3 @@ init();
 </script>
 </body>
 </html>
-
