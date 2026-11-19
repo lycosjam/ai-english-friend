@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>숲속 텐트 영어 친구</title>
 <style>
 :root{
@@ -13,16 +13,16 @@
   --yellow:#ffd45c;
   --pink:#ff6f91;
   --green:#2ecc71;
-  --blue:#2f80ed;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+html,body{height:100%;overflow:hidden}
 body{
   font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   color:var(--ink);
   height:100dvh;
   display:flex;
   flex-direction:column;
+  justify-content:space-between;
   overflow:hidden;
   user-select:none;
   -webkit-user-select:none;
@@ -33,34 +33,46 @@ body{
 .cloud::before,.cloud::after{content:'';position:absolute;background:#fff;border-radius:50%}
 .cloud::before{width:52px;height:52px;left:18px;top:-22px}
 .cloud::after{width:68px;height:68px;left:48px;top:-32px}
-.c1{top:60px}.c2{top:190px;width:90px;height:34px;animation-duration:36s;animation-delay:-12s}
+.c1{top:52px}.c2{top:175px;width:90px;height:34px;animation-duration:36s;animation-delay:-12s}
 @keyframes drift{from{transform:translateX(0)}to{transform:translateX(120vw)}}
-.hill{position:fixed;bottom:-140px;left:-15%;width:130%;height:300px;border-radius:50%;background:var(--grass);z-index:-1}
+.hill{position:fixed;bottom:-145px;left:-15%;width:130%;height:290px;border-radius:50%;background:var(--grass);z-index:-1}
 
 /* Top Header */
-.top{display:flex;align-items:center;gap:8px;padding:12px 14px 4px;flex-shrink:0}
-.book-pill{flex:1;min-width:0;min-height:48px;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:0 4px 0 rgba(36,64,44,.16);display:flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit;color:var(--ink);text-align:left}
+.top{display:flex;align-items:center;gap:8px;padding:10px 12px 4px;flex-shrink:0}
+.book-pill{flex:1;min-width:0;height:46px;background:#fff;border-radius:999px;padding:0 14px;box-shadow:0 4px 0 rgba(36,64,44,.16);display:flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit;color:var(--ink);text-align:left}
 .book-pill:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(36,64,44,.16)}
 .tag{font-size:12px;font-weight:900;color:#b25e00;background:#ffe9b8;border-radius:999px;padding:4px 9px;white-space:nowrap;flex-shrink:0}
-.book-title{font-size:17px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.mode-pill{height:48px;border-radius:999px;border:none;background:#fff;padding:0 14px;box-shadow:0 4px 0 rgba(36,64,44,.18);display:flex;align-items:center;gap:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900;color:var(--ink);white-space:nowrap;flex-shrink:0;transition:all .15s}
+.book-title{font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.mode-pill{height:46px;border-radius:999px;border:none;background:#fff;padding:0 13px;box-shadow:0 4px 0 rgba(36,64,44,.18);display:flex;align-items:center;gap:5px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900;color:var(--ink);white-space:nowrap;flex-shrink:0;transition:all .15s}
 .mode-pill.auto{background:#2ecc71;color:#fff;box-shadow:0 4px 0 #1f9d55}
 .mode-pill:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(36,64,44,.18)}
-.round-btn{width:48px;height:48px;border-radius:50%;border:none;background:#fff;box-shadow:0 4px 0 rgba(36,64,44,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative}
+.round-btn{width:46px;height:46px;border-radius:50%;border:none;background:#fff;box-shadow:0 4px 0 rgba(36,64,44,.18);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;position:relative}
 .round-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(36,64,44,.18)}
-.lock-dot{position:absolute;right:5px;bottom:5px;width:14px;height:14px;border-radius:50%;background:#ffe9b8;border:1.5px solid #c98a00;display:flex;align-items:center;justify-content:center}
+.lock-dot{position:absolute;right:4px;bottom:4px;width:14px;height:14px;border-radius:50%;background:#ffe9b8;border:1.5px solid #c98a00;display:flex;align-items:center;justify-content:center}
 
-/* Stage & Teacher */
-.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:6px 16px;overflow:auto}
-.teacher-wrap{position:relative;width:128px;height:128px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mic-ring{position:absolute;inset:2px;border-radius:50%;border:4px solid rgba(46,204,113,0);transform:scale(1);transition:transform .08s ease-out,border-color .2s,background-color .2s;pointer-events:none}
+/* Stage & Teacher (Zero-Scroll Compact Vertical Fit) */
+.stage{
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(6px,1.2dvh,10px);
+  padding:4px 16px;
+  overflow:hidden;
+}
+.teacher-wrap{
+  position:relative;
+  width:clamp(84px,13.5dvh,112px);
+  height:clamp(84px,13.5dvh,112px);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.mic-ring{position:absolute;inset:1px;border-radius:50%;border:4px solid rgba(46,204,113,0);transform:scale(1);transition:transform .08s ease-out,border-color .2s,background-color .2s;pointer-events:none}
 .teacher-wrap.listening .mic-ring{border-color:rgba(46,204,113,.55);background:rgba(46,204,113,.12);transform:scale(var(--mic-scale,1.06))}
 .teacher-wrap.talking .mic-ring{border-color:rgba(255,179,0,.45);background:rgba(255,212,92,.14);animation:talkRing .9s ease-in-out infinite}
 @keyframes talkRing{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.teacher{width:112px;height:112px;position:relative;z-index:1;transition:transform .25s}
+.teacher{width:90%;height:90%;position:relative;z-index:1;transition:transform .25s}
 .teacher-wrap.talking .teacher{animation:bob .55s ease-in-out infinite}
 .teacher-wrap.listening .teacher{transform:scale(1.04)}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .mouth-open{display:none}
 .teacher-wrap.talking .mouth-idle{display:none}
 .teacher-wrap.talking .mouth-open{display:block;animation:talkMouth .28s ease-in-out infinite alternate}
@@ -74,131 +86,134 @@ body{
 
 /* Turn Indicator Pill */
 .turn-pill{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:7px 16px;border-radius:999px;
-  font-size:15px;font-weight:900;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 14px;border-radius:999px;
+  font-size:14px;font-weight:900;
   background:#fff;color:var(--ink);
-  box-shadow:0 4px 0 rgba(36,64,44,.12);
-  border:2.5px solid #dbeccd;
-  min-height:36px;
+  box-shadow:0 3px 0 rgba(36,64,44,.12);
+  border:2px solid #dbeccd;
+  min-height:32px;
+  flex-shrink:0;
   transition:all .2s;
 }
 .turn-pill.talking{background:#fff8db;border-color:#ffb300;color:#8a4b00}
-.turn-pill.listening{background:#e8f9ef;border-color:#2ecc71;color:#146c38;animation:pillBounce 1.4s ease-in-out infinite}
+.turn-pill.listening{background:#e8f9ef;border-color:#2ecc71;color:#146c38}
 .turn-pill.auto{background:#eef6ff;border-color:#5ba4ff;color:#154c96}
-.turn-pill.hidden{visibility:hidden}
-@keyframes pillBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-.turn-dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex-shrink:0}
+.turn-pill.hidden{display:none}
+.turn-dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0}
 .turn-pill.listening .turn-dot{animation:dotBlink .9s infinite}
 @keyframes dotBlink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
 
-.caption{display:none;max-width:440px;text-align:center;font-size:17px;font-weight:800;color:#245234;background:rgba(255,255,255,.9);border-radius:18px;padding:10px 16px;line-height:1.45;box-shadow:0 3px 0 rgba(36,64,44,.08)}
+.caption{display:none;max-width:440px;text-align:center;font-size:15px;font-weight:800;color:#245234;background:rgba(255,255,255,.9);border-radius:16px;padding:7px 14px;line-height:1.38;box-shadow:0 3px 0 rgba(36,64,44,.08);flex-shrink:0}
 .caption.show{display:block}
 
-/* Main Card & Large Word Touch Targets */
+/* Main Card - Natural Sentence Flow (No Boxes, Original Word Spacing) */
 .card{
-  width:100%;max-width:500px;min-height:220px;
-  background:#fff;border-radius:34px;padding:22px 18px;
-  box-shadow:0 10px 0 rgba(36,64,44,.14);
-  text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;
-  border:6px solid var(--yellow);transition:border-color .2s,box-shadow .2s;
+  width:100%;max-width:460px;
+  min-height:clamp(155px,24dvh,205px);
+  background:#fff;border-radius:30px;
+  padding:clamp(16px,2.4dvh,22px) 18px;
+  box-shadow:0 9px 0 rgba(36,64,44,.14);
+  text-align:center;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:10px;
+  border:5px solid var(--yellow);
+  transition:border-color .2s,box-shadow .2s;
+  flex-shrink:0;
 }
 .card.auto-active{border-color:#2ecc71}
-.card.listening-active{border-color:#2ecc71;box-shadow:0 10px 0 rgba(46,204,113,.22)}
+.card.listening-active{border-color:#2ecc71;box-shadow:0 9px 0 rgba(46,204,113,.22)}
 .card.empty{border-color:#bfe3a8}
 .card .en{
-  font-size:clamp(28px,7.5vw,42px);
-  font-weight:900;line-height:1.3;color:#1d3b5c;
+  font-size:clamp(28px,8vw,42px);
+  font-weight:900;line-height:1.4;color:#1d3b5c;
   word-break:keep-all;
-  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
-  gap:8px 6px;
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
+  gap:2px 2px;
 }
-.card .en.small{font-size:23px}
+.card .en.small{font-size:22px}
 .word-btn{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:46px;min-height:50px;
-  padding:6px 12px;
-  border-radius:16px;
-  background:#f7fbf3;
-  border:2px solid #e2efd8;
+  display:inline-block;
+  padding:2px 4px;
+  border-radius:10px;
   cursor:pointer;
-  transition:transform .12s,background-color .15s,box-shadow .15s,border-color .15s;
+  transition:transform .12s,background-color .15s,box-shadow .15s,color .15s;
 }
-.word-btn:hover{background:#fff8dc;border-color:#ffe07d}
-.word-btn:active{transform:scale(.94)}
-.word-btn.active{background:#ffe07d;border-color:#f0b400;color:#663c00;box-shadow:0 4px 0 #d9a300;transform:translateY(-2px)}
+.word-btn:hover{background:#fff6d6}
+.word-btn:active{transform:scale(.95)}
+.word-btn.active{background:#ffe07d;color:#663c00;box-shadow:0 3px 0 #e6b822;transform:translateY(-1px)}
 
-.word-meaning-box{min-height:44px;display:flex;align-items:center;justify-content:center}
+.word-meaning-box{display:none;align-items:center;justify-content:center}
+.word-meaning-box.show{display:flex}
 .word-meaning-pill{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#f0f9f2;border:2.5px solid #8fd46b;color:#1b5e20;
-  font-size:18px;font-weight:900;
-  padding:8px 18px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:7px;
+  background:#f0f9f2;border:2px solid #8fd46b;color:#1b5e20;
+  font-size:17px;font-weight:900;
+  padding:6px 15px;border-radius:999px;
   cursor:pointer;font-family:inherit;
-  box-shadow:0 3px 0 rgba(27,94,32,.14);
-  animation:popIn .18s ease-out;
+  box-shadow:0 3px 0 rgba(27,94,32,.12);
+  animation:popIn .16s ease-out;
 }
-.word-meaning-pill:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(27,94,32,.14)}
+.word-meaning-pill:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(27,94,32,.12)}
 .word-meaning-pill strong{color:#0d47a1}
-.word-meaning-pill .spk-ic{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#d8f3dc;color:#1b5e20;flex-shrink:0}
-@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-.card .hint{font-size:14px;font-weight:800;color:#738a7a}
+.word-meaning-pill .spk-ic{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#d8f3dc;color:#1b5e20;flex-shrink:0}
+@keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.card .hint{font-size:13px;font-weight:700;color:#8a9a8f;white-space:nowrap}
 
-.card.finish{border-color:#ffb300;background:linear-gradient(180deg,#fffdf2 0%,#fff6d1 100%);gap:14px}
-.trophy-badge{width:76px;height:76px;border-radius:50%;background:#ffe07d;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 #e0a800;margin-bottom:2px}
-.finish-title{font-size:28px;font-weight:900;color:#b25e00;line-height:1.25}
-.finish-sub{font-size:16px;font-weight:800;color:#4b6b55}
-.finish-actions{display:flex;gap:10px;width:100%;margin-top:6px}
-.finish-btn{flex:1;padding:16px 12px;border-radius:20px;border:none;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit}
-.finish-btn.again{background:#fff;color:var(--ink);border:3px solid #ffd45c;box-shadow:0 5px 0 #e0b840}
-.finish-btn.other{background:var(--pink);color:#fff;box-shadow:0 5px 0 #c94a68}
+.card.finish{border-color:#ffb300;background:linear-gradient(180deg,#fffdf2 0%,#fff6d1 100%);gap:10px}
+.trophy-badge{width:64px;height:64px;border-radius:50%;background:#ffe07d;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 #e0a800}
+.finish-title{font-size:24px;font-weight:900;color:#b25e00;line-height:1.25}
+.finish-sub{font-size:15px;font-weight:800;color:#4b6b55}
+.finish-actions{display:flex;gap:10px;width:100%;margin-top:4px}
+.finish-btn{flex:1;padding:13px 10px;border-radius:18px;border:none;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+.finish-btn.again{background:#fff;color:var(--ink);border:3px solid #ffd45c;box-shadow:0 4px 0 #e0b840}
+.finish-btn.other{background:var(--pink);color:#fff;box-shadow:0 4px 0 #c94a68}
 .finish-btn:active{transform:translateY(3px)}
 
-.dots{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;min-height:16px}
-.dot{width:13px;height:13px;border-radius:50%;background:rgba(36,64,44,.18);transition:all .25s}
+.dots{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;min-height:14px;flex-shrink:0}
+.dot{width:11px;height:11px;border-radius:50%;background:rgba(36,64,44,.18);transition:all .25s}
 .dot.done{background:#2ecc71;transform:scale(1.05)}
-.dot.cur{background:#ffb300;box-shadow:0 0 0 3px rgba(255,179,0,.35);transform:scale(1.22)}
-.book-big{font-size:30px;font-weight:900;color:#1d3b5c;line-height:1.3}
-.start-book{margin-top:8px;padding:18px 34px;border-radius:26px;border:none;background:var(--pink);color:#fff;font-size:23px;font-weight:900;box-shadow:0 6px 0 #c94a68;cursor:pointer;font-family:inherit}
+.dot.cur{background:#ffb300;box-shadow:0 0 0 3px rgba(255,179,0,.35);transform:scale(1.2)}
+.book-big{font-size:28px;font-weight:900;color:#1d3b5c;line-height:1.3}
+.start-book{margin-top:6px;padding:15px 30px;border-radius:24px;border:none;background:var(--pink);color:#fff;font-size:21px;font-weight:900;box-shadow:0 6px 0 #c94a68;cursor:pointer;font-family:inherit}
 .start-book:active{transform:translateY(4px);box-shadow:0 2px 0 #c94a68}
-.childline{font-size:15px;font-weight:800;color:#1f6f3d;min-height:20px;text-align:center}
+.childline{font-size:13.5px;font-weight:800;color:#1f6f3d;min-height:18px;text-align:center;flex-shrink:0}
 
-/* Bottom Dock - Larger, Preschooler-Friendly Spacing */
+/* Bottom Dock - Strictly Symmetric 5-Column Alignment */
 .dock{
   display:grid;
-  grid-template-columns:1fr 1fr 1.25fr 1.1fr 1fr;
-  gap:10px;
-  padding:8px 12px 18px;
-  max-width:560px;width:100%;margin:0 auto;
-  align-items:end;flex-shrink:0;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  padding:6px 10px calc(12px + env(safe-area-inset-bottom, 0px));
+  max-width:520px;width:100%;margin:0 auto;
+  align-items:end;
+  flex-shrink:0;
 }
-.ctl{display:flex;flex-direction:column;align-items:center;gap:6px;border:none;background:none;cursor:pointer;font-family:inherit;padding:2px}
+.ctl{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;border:none;background:none;cursor:pointer;font-family:inherit}
 .ctl .face{
-  width:62px;height:62px;border-radius:22px;background:#fff;
-  box-shadow:0 6px 0 rgba(36,64,44,.2);
+  width:58px;height:58px;border-radius:19px;background:#fff;
+  box-shadow:0 5px 0 rgba(36,64,44,.2);
   display:flex;align-items:center;justify-content:center;
   transition:transform .1s,box-shadow .1s,background-color .2s;
 }
-.ctl.primary-sub .face{width:66px;height:66px;background:#fffef6;border:2.5px solid #ffd45c}
-.ctl:active .face{transform:translateY(4px);box-shadow:0 2px 0 rgba(36,64,44,.2)}
+.ctl:active .face{transform:translateY(3px);box-shadow:0 2px 0 rgba(36,64,44,.2)}
 .ctl:disabled{opacity:.38;cursor:default}
-.ctl:disabled:active .face{transform:none;box-shadow:0 6px 0 rgba(36,64,44,.2)}
-.ctl > span:last-child{font-size:13px;font-weight:900;color:var(--ink);white-space:nowrap}
-.ctl.mic .face{width:76px;height:76px;border-radius:26px;background:var(--pink);color:#fff;box-shadow:0 7px 0 #c94a68}
-.ctl.mic:active .face{transform:translateY(4px);box-shadow:0 3px 0 #c94a68}
-.ctl.mic.on .face{background:var(--green);box-shadow:0 7px 0 #1f9d55;animation:pulse 1.15s infinite}
+.ctl:disabled:active .face{transform:none;box-shadow:0 5px 0 rgba(36,64,44,.2)}
+.ctl > span:last-child{font-size:12.5px;font-weight:900;color:var(--ink);white-space:nowrap;line-height:1.2}
+.ctl.mic .face{width:64px;height:64px;border-radius:21px;background:var(--pink);color:#fff;box-shadow:0 5px 0 #c94a68}
+.ctl.mic:active .face{transform:translateY(3px);box-shadow:0 2px 0 #c94a68}
+.ctl.mic.on .face{background:var(--green);box-shadow:0 5px 0 #1f9d55;animation:pulse 1.15s infinite}
 @keyframes pulse{
-  0%,100%{box-shadow:0 7px 0 #1f9d55,0 0 0 0 rgba(46,204,113,.5)}
-  50%{box-shadow:0 7px 0 #1f9d55,0 0 0 13px rgba(46,204,113,0)}
+  0%,100%{box-shadow:0 5px 0 #1f9d55,0 0 0 0 rgba(46,204,113,.5)}
+  50%{box-shadow:0 5px 0 #1f9d55,0 0 0 11px rgba(46,204,113,0)}
 }
-.flag svg{display:block;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.flag svg{display:block;border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 
 /* Splash */
 .splash{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,#d9f7c4 100%)}
 .splash.hide{display:none}
 .splash h1{font-size:32px;font-weight:900;color:#1d5a36;line-height:1.3}
-.splash-sub{font-size:15px;font-weight:800;color:#4b6b55;background:rgba(255,255,255,.75);padding:6px 14px;border-radius:999px}
-.big-start{padding:22px 44px;font-size:25px;font-weight:900;border:none;border-radius:30px;background:#ffb300;color:#3b2a00;box-shadow:0 8px 0 #c98a00;cursor:pointer;font-family:inherit}
+.big-start{padding:20px 42px;font-size:24px;font-weight:900;border:none;border-radius:28px;background:#ffb300;color:#3b2a00;box-shadow:0 8px 0 #c98a00;cursor:pointer;font-family:inherit}
 .big-start:active{transform:translateY(5px);box-shadow:0 3px 0 #c98a00}
 .msg{font-size:14px;font-weight:800;color:#c62828;min-height:20px;max-width:400px}
 
@@ -207,11 +222,11 @@ body{
 .modal-back.open{display:flex}
 .modal-back.center{align-items:center;padding:18px}
 .modal{background:#fffdf5;width:100%;max-width:520px;max-height:92dvh;border-radius:28px 28px 0 0;display:flex;flex-direction:column;overflow:hidden}
-.modal.gate-box{max-width:380px;border-radius:28px;box-shadow:0 16px 40px rgba(0,0,0,.22)}
-.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:2px solid #efe7d2}
+.modal.gate-box{max-width:360px;border-radius:26px;box-shadow:0 16px 40px rgba(0,0,0,.22)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:2px solid #efe7d2}
 .modal-head h2{font-size:18px;font-weight:900}
-.x{width:42px;height:42px;border-radius:50%;border:none;background:#f0ead8;font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}
-.modal-body{overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:16px}
+.x{width:40px;height:40px;border-radius:50%;border:none;background:#f0ead8;font-size:18px;font-weight:900;cursor:pointer;color:var(--ink)}
+.modal-body{overflow:auto;padding:15px 18px;display:flex;flex-direction:column;gap:15px}
 .flabel{display:block;font-weight:900;font-size:15px;margin-bottom:4px}
 .fhelp{display:block;font-size:12.5px;font-weight:700;color:#5f7a67;margin-top:4px;line-height:1.4}
 input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #cfe5c2;font-size:15px;font-family:inherit;background:#fff;color:var(--ink);margin-top:6px}
@@ -230,29 +245,29 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 
 /* Parental Gate */
 .gate-desc{font-size:14px;font-weight:700;color:#556f5d;text-align:center}
-.gate-q{font-size:32px;font-weight:900;color:#1d3b5c;text-align:center;padding:10px;background:#f3f9ee;border-radius:18px;border:2px solid #d5ebc9}
+.gate-q{font-size:30px;font-weight:900;color:#1d3b5c;text-align:center;padding:10px;background:#f3f9ee;border-radius:16px;border:2px solid #d5ebc9}
 .gate-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gate-opt{padding:16px;border-radius:16px;border:3px solid #dbeccd;background:#fff;font-size:22px;font-weight:900;color:var(--ink);cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(36,64,44,.12)}
+.gate-opt{padding:15px;border-radius:15px;border:3px solid #dbeccd;background:#fff;font-size:21px;font-weight:900;color:var(--ink);cursor:pointer;font-family:inherit;box-shadow:0 4px 0 rgba(36,64,44,.12)}
 .gate-opt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(36,64,44,.12)}
 .gate-err{font-size:13px;font-weight:800;color:#c62828;text-align:center;min-height:18px}
 
 /* Book List */
 .book-grid{display:flex;flex-direction:column;gap:10px}
-.book-item{width:100%;padding:16px 18px;border-radius:20px;border:3px solid #dbeccd;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;text-align:left;font-family:inherit;box-shadow:0 4px 0 rgba(36,64,44,.12)}
+.book-item{width:100%;padding:15px 16px;border-radius:18px;border:3px solid #dbeccd;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;text-align:left;font-family:inherit;box-shadow:0 4px 0 rgba(36,64,44,.12)}
 .book-item:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(36,64,44,.12)}
 .book-item.active{border-color:#ffb300;background:#fff9e6}
-.book-item-title{font-size:19px;font-weight:900;color:var(--ink);line-height:1.25}
+.book-item-title{font-size:18px;font-weight:900;color:var(--ink);line-height:1.25}
 .book-item-meta{font-size:13px;font-weight:800;color:#b25e00;background:#ffe9b8;padding:5px 11px;border-radius:999px;white-space:nowrap;flex-shrink:0}
 .filter-section{display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:2px solid #efe7d2}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap}
-.filter-chip{padding:9px 14px;border-radius:999px;border:2px solid #cfe5c2;background:#fff;font-size:14px;font-weight:800;color:var(--ink);cursor:pointer;font-family:inherit;transition:all .15s}
+.filter-chip{padding:8px 14px;border-radius:999px;border:2px solid #cfe5c2;background:#fff;font-size:14px;font-weight:800;color:var(--ink);cursor:pointer;font-family:inherit;transition:all .15s}
 .filter-chip.on{background:var(--yellow);border-color:#ffb300;color:#3b2a00}
 .filter-chip.lvl.on{background:#bff0d4;border-color:#2ecc71;color:#14532d}
 .book-item-sub{font-size:12px;font-weight:800;color:#6b8773;margin-bottom:2px}
-
 </style>
 </head>
 <body>
+
 <div class="bg"><span class="cloud c1"></span><span class="cloud c2"></span></div>
 <div class="hill"></div>
 
@@ -266,7 +281,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
     <span id="autoModeText">계속 읽기</span>
   </button>
   <button type="button" class="round-btn" id="settingsBtn" aria-label="부모님 설정">
-    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     <span class="lock-dot" aria-hidden="true">
       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#8a4b00" stroke-width="3"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
     </span>
@@ -313,7 +328,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 
 <footer class="dock">
   <button type="button" class="ctl" id="prevBtn" aria-label="이전 문장">
-    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+    <span class="face"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
     <span>이전</span>
   </button>
   <button type="button" class="ctl" id="meaningBtn" aria-label="한글로 뜻 듣기">
@@ -321,23 +336,21 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
     <span>한글</span>
   </button>
   <button type="button" class="ctl mic" id="micBtn" aria-label="마이크">
-    <span class="face"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg></span>
+    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg></span>
     <span id="micLabel">말하기</span>
   </button>
-  <button type="button" class="ctl primary-sub" id="rereadBtn" aria-label="영어로 다시 읽기">
+  <button type="button" class="ctl" id="rereadBtn" aria-label="영어로 다시 읽기">
     <span class="face flag" id="usFlag"></span>
     <span>다시읽기</span>
   </button>
   <button type="button" class="ctl" id="nextBtn" aria-label="다음 문장">
-    <span class="face"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+    <span class="face"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#24402c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
     <span>다음</span>
   </button>
 </footer>
 
-
 <section class="splash" id="splash">
   <h1>숲속 텐트 영어 친구</h1>
-  <div class="splash-sub">Gemini Live 통합 음성 모드</div>
   <button type="button" class="big-start" id="splashStart">시작하기</button>
   <div class="msg" id="splashMsg"></div>
 </section>
@@ -346,7 +359,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
   <div class="modal gate-box" role="dialog" aria-label="부모님 확인">
     <div class="modal-head">
       <h2>부모님 확인</h2>
-      <button class="x" id="closeGateBtn" aria-label="닫기">✕</button>
+      <button type="button" class="x" id="closeGateBtn" aria-label="닫기">✕</button>
     </div>
     <div class="modal-body">
       <div class="gate-desc">설정을 열려면 아래 문제의 정답을 눌러 주세요.</div>
@@ -356,7 +369,6 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
     </div>
   </div>
 </div>
-
 
 <div class="modal-back" id="settingsModal">
   <div class="modal" role="dialog" aria-label="선생님 설정">
@@ -400,7 +412,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
           <button type="button" data-mic="toggle">눌러서 켜기</button>
           <button type="button" data-mic="push">누르고 말하기</button>
         </div>
-        <span class="fhelp">'계속 듣기'는 주변 작은 소음을 자동으로 걸러내며, '눌러서 켜기'는 한 번 눌러 말하고 다시 눌러 끄는 방식입니다.</span>
+        <span class="fhelp">'계속 듣기'는 작은 소음을 자동으로 걸러내며, '눌러서 켜기'는 한 번 눌러 말하고 다시 눌러 끄는 방식입니다.</span>
       </div>
       <div>
         <span class="flabel">6. 단어 뜻 읽어주기</span>
@@ -426,7 +438,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
   <div class="modal" role="dialog" aria-label="동화책 고르기">
     <div class="modal-head">
       <h2>어떤 동화책을 읽을까?</h2>
-      <button class="x" id="closeBookListBtn" aria-label="닫기">✕</button>
+      <button type="button" class="x" id="closeBookListBtn" aria-label="닫기">✕</button>
     </div>
     <div class="modal-body">
       <div class="filter-section" id="bookFilterSection">
@@ -437,7 +449,6 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
     </div>
   </div>
 </div>
-
 
 <script>
 const MODEL = 'gemini-3.8-live';
@@ -535,7 +546,6 @@ let playAt = 0, sources = [], firstAudioStarted = false;
 let teacherText = '', newTurn = false;
 let selVoice = 'female', selSpeed = 2, selMic = 'always', selWordKo = 'tap';
 
-// Turn counter & cache management (fixes rapid-tap overlap & cache corruption)
 let reqSeq = 0;
 let pendingTurns = 0;
 let turnInFlight = false;
@@ -549,17 +559,17 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function flagKR() {
-  return `<svg width="42" height="28" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff" stroke="#ccc"/><circle cx="30" cy="20" r="9" fill="#cd2e3a"/><path d="M30 11a9 9 0 0 1 0 18a4.5 4.5 0 0 1 0-9a4.5 4.5 0 0 0 0-9z" fill="#0047a0"/><path d="M6 7h9M6 10h9M6 13h9M45 7h9M45 10h9M45 13h9M6 27h9M6 30h9M6 33h9M45 27h9M45 30h9M45 33h9" stroke="#000" stroke-width="1.6"/></svg>`;
+  return `<svg width="38" height="26" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff" stroke="#ccc"/><circle cx="30" cy="20" r="9" fill="#cd2e3a"/><path d="M30 11a9 9 0 0 1 0 18a4.5 4.5 0 0 1 0-9a4.5 4.5 0 0 0 0-9z" fill="#0047a0"/><path d="M6 7h9M6 10h9M6 13h9M45 7h9M45 10h9M45 13h9M6 27h9M6 30h9M6 33h9M45 27h9M45 30h9M45 33h9" stroke="#000" stroke-width="1.6"/></svg>`;
 }
 function flagUS() {
-  let s = '<svg width="42" height="28" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff"/>';
+  let s = '<svg width="38" height="26" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff"/>';
   for (let i = 0; i < 13; i += 2) s += `<rect y="${i * 40 / 13}" width="60" height="${40 / 13}" fill="#d22b3a"/>`;
   s += '<rect width="26" height="21.5" fill="#3c3b6e"/>';
   for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) s += `<circle cx="${3.5 + c * 5}" cy="${3 + r * 5}" r="1" fill="#fff"/>`;
   return s + '</svg>';
 }
 function speakerIconSvg() {
-  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+  return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
 }
 
 // ---------- WakeLock ----------
@@ -765,14 +775,13 @@ async function startMic() {
       const rms = Math.sqrt(sum / input.length);
 
       if (canListen) {
-        const scale = Math.min(1.26, 1.04 + rms * 2.4);
+        const scale = Math.min(1.24, 1.04 + rms * 2.2);
         $('teacherWrap').style.setProperty('--mic-scale', scale.toFixed(3));
       } else {
         $('teacherWrap').style.setProperty('--mic-scale', '1');
         return;
       }
 
-      // 'always' 모드에서는 배경 소음에 의한 오인식 자동 스킵 방지용 임계값 게이트 적용
       const nowMs = performance.now();
       if (cfg.micMode === 'always') {
         if (rms > 0.016) voiceActiveUntil = nowMs + 950;
@@ -893,7 +902,6 @@ async function startSession(preserveState = false) {
     if (ws !== sock) return;
     connected = false;
     setupDone = false;
-    // 예기치 않게 끊어졌고 사용자가 끄지 않았다면 1회 자동 재연결 시도 (현재 문장 유지)
     if (phase === 'ready' && reconnectAttempts < 2 && e.code !== 1000) {
       reconnectAttempts += 1;
       setTurnBanner('잠시 연결을 다시 잇고 있어요...', 'talking');
@@ -938,7 +946,6 @@ function fail(msg) {
   $('splashMsg').textContent = msg;
 }
 
-// 긴 세션의 화자 표류(Speaker Drift) 예방: 일정 턴 초과 시 유휴 상태에서 조용히 세션 갱신
 function maybeRefreshSession() {
   if (turnCountInSession >= MAX_TURNS_BEFORE_REFRESH && !sources.length && !turnInFlight && connected && phase === 'ready') {
     turnCountInSession = 0;
@@ -1011,7 +1018,6 @@ function handle(msg) {
     stopPlayback();
   }
 
-  // 연타 시 이전 턴의 남은 오디오/자막 패킷을 카운터 기반으로 완전히 폐기
   if (pendingTurns > 1) {
     if (sc.turnComplete) {
       pendingTurns = Math.max(0, pendingTurns - 1);
@@ -1052,7 +1058,6 @@ function handle(msg) {
     newTurn = true;
     $('childLine').textContent = '';
 
-    // 'toggle' 모드였다면 아이 발화 응답이 끝났을 때 마이크를 자동으로 잠시 꺼서 오동작 방지
     if (cfg.micMode === 'toggle' && micOn && !wordMode && !suppressCaption) {
       micOn = false;
       renderDock();
@@ -1334,8 +1339,13 @@ function renderDots() {
 function renderWordMeaningBox() {
   const box = $('wordMeaningBox');
   if (!box) return;
-  if (!selectedWord) { box.innerHTML = ''; return; }
+  if (!selectedWord) {
+    box.classList.remove('show');
+    box.innerHTML = '';
+    return;
+  }
   const cleanLabel = selectedWord.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, '') || selectedWord;
+  box.classList.add('show');
   box.innerHTML = `<button type="button" class="word-meaning-pill" data-act="speak-meaning" title="눌러서 한글 뜻 듣기"><span class="spk-ic">${speakerIconSvg()}</span><strong>${esc(cleanLabel)}</strong> : ${esc(selectedWordMeaning)}</button>`;
 }
 function renderCard() {
@@ -1346,7 +1356,7 @@ function renderCard() {
     el.className = 'card finish';
     el.innerHTML = `
       <div class="trophy-badge" aria-hidden="true">
-        <svg width="42" height="42" viewBox="0 0 24 24" fill="#ff9f00" stroke="#b25e00" stroke-width="1.8" stroke-linejoin="round">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#ff9f00" stroke="#b25e00" stroke-width="1.8" stroke-linejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
         </svg>
       </div>
@@ -1370,7 +1380,7 @@ function renderCard() {
     const isSel = selectedWord && selectedWord === tok;
     return `<span class="word-btn${isSel ? ' active' : ''}" data-word="${esc(clean || tok)}" data-raw="${esc(tok)}">${esc(tok)}</span>`;
   }).join('');
-  el.innerHTML = `<div class="en">${wordsHtml}</div><div class="word-meaning-box" id="wordMeaningBox"></div><div class="hint">단어를 누르면 발음과 뜻이 나와요 · 뜻 말풍선을 누르면 한글로 읽어줘요</div>`;
+  el.innerHTML = `<div class="en">${wordsHtml}</div><div class="word-meaning-box" id="wordMeaningBox"></div><div class="hint">단어를 누르면 발음과 뜻이 나와요</div>`;
   renderWordMeaningBox();
 }
 function renderDock() {
@@ -1392,7 +1402,6 @@ function renderDock() {
 // ---------- 부모 잠금 (Parental Gate) ----------
 let gateAnswer = 0;
 function openParentalGate() {
-  // 최초 설정(API 키 미입력) 시에는 바로 설정창 오픈
   if (!cfg.apiKey.trim()) { openSettings(); return; }
   const a = 3 + Math.floor(Math.random() * 7);
   const b = 3 + Math.floor(Math.random() * 7);
@@ -1591,7 +1600,6 @@ function renderBookShelf() {
       saveCfg();
       closeBookList();
       renderAll();
-      // 책 전환 시 누적 컨텍스트가 많았다면 조용히 갱신해 목소리 표류 방지
       if (turnCountInSession >= 8 && connected) startSession(true);
       if (autoReadMode && canUse()) startBook();
       else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
@@ -1631,7 +1639,7 @@ $('card').addEventListener('click', e => {
 $('prevBtn').addEventListener('click', () => go(-1));
 $('nextBtn').addEventListener('click', () => go(1));
 $('meaningBtn').addEventListener('click', meaning);
-$('rereadBtn').addEventListener('click', () => readSentence()); // 수정: MouseEvent 전달 버그 해결
+$('rereadBtn').addEventListener('click', () => readSentence());
 $('micBtn').addEventListener('click', () => {
   if (!connected || autoReadMode) return;
   if (cfg.micMode === 'always' || cfg.micMode === 'toggle') {
