@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>숲속 텐트 영어 친구 (정적 TTS + Live 분리판)</title>
+<title>숲속 텐트 영어 친구</title>
 <style>
 :root{
   --ink:#24402c;
@@ -250,8 +250,6 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 .filter-chip.lvl.on{background:#bff0d4;border-color:#2ecc71;color:#14532d}
 .book-item-sub{font-size:12px;font-weight:800;color:#6b8773;margin-bottom:2px}
 
-.engine-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#14532d;background:#dff7e8;padding:4px 10px;border-radius:999px;margin-top:6px}
-.hidden-group{display:none}
 </style>
 </head>
 <body>
@@ -339,7 +337,7 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 
 <section class="splash" id="splash">
   <h1>숲속 텐트 영어 친구</h1>
-  <div class="splash-sub">정적 TTS (목소리·속도 고정) + Gemini Live 대화 분리 모드</div>
+  <div class="splash-sub">Gemini Live 통합 음성 모드</div>
   <button type="button" class="big-start" id="splashStart">시작하기</button>
   <div class="msg" id="splashMsg"></div>
 </section>
@@ -368,56 +366,35 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
     </div>
     <div class="modal-body">
       <div>
-        <span class="flabel">1. Gemini API 키 (대화·칭찬·뜻 풀이)</span>
+        <span class="flabel">1. Gemini API 키</span>
         <input id="apiKeyInput" type="password" placeholder="AIza..." autocomplete="off" />
-        <div class="row"><button type="button" class="sub" id="testBtn">Live 연결 확인</button><span class="res" id="testResult"></span></div>
+        <div class="row"><button type="button" class="sub" id="testBtn">연결 확인</button><span class="res" id="testResult"></span></div>
       </div>
       <div>
-        <span class="flabel">2. 읽기 전용 정적 TTS 엔진 (100% 목소리·속도 고정)</span>
-        <div class="seg2">
-          <button type="button" data-tts="browser">브라우저 고정 TTS</button>
-          <button type="button" data-tts="cloud">Google Cloud TTS</button>
-        </div>
-        <span class="fhelp">문장·단어·다시읽기는 정적 TTS로 100% 일정하게 재생하고, 아이가 따라 말할 때의 칭찬과 질문 응답만 Gemini Live가 담당합니다.</span>
-        <div id="browserVoiceGroup" style="margin-top:8px">
-          <span class="flabel" style="font-size:13.5px">기기 영어 음성 직접 지정 (선택)</span>
-          <select id="browserEnVoiceSelect"></select>
-        </div>
-        <div id="cloudTtsGroup" class="hidden-group" style="margin-top:8px">
-          <span class="flabel" style="font-size:13.5px">Google Cloud TTS API 키 (비우면 위 Gemini 키 사용)</span>
-          <input id="ttsKeyInput" type="password" placeholder="AIza... (선택 입력)" autocomplete="off" />
-          <span class="fhelp">Google Cloud 콘솔에서 Cloud Text-to-Speech API가 활성화된 키가 필요합니다. 오류 시 브라우저 고정 TTS로 자동 전환됩니다.</span>
-        </div>
-        <div class="row">
-          <button type="button" class="sub" id="testTtsBtn">고정 목소리 미리듣기</button>
-          <span class="res" id="testTtsResult"></span>
-        </div>
-      </div>
-      <div>
-        <span class="flabel">3. 동화책 선택</span>
+        <span class="flabel">2. 동화책 선택</span>
         <select id="bookSelect"></select>
         <span class="flabel" style="margin-top:12px">책 목록 주소 (구글 시트, 웹에 게시한 CSV 주소)</span>
         <input id="sheetInput" placeholder="https://docs.google.com/spreadsheets/.../pub?output=csv" />
         <div class="row"><button type="button" class="sub" id="reloadBtn">책 목록 새로고침</button></div>
       </div>
       <div>
-        <span class="flabel">4. 선생님 목소리 성별 (100% 고정)</span>
+        <span class="flabel">3. 선생님 목소리</span>
         <div class="seg2">
           <button type="button" data-voice="female">여자 선생님</button>
           <button type="button" data-voice="male">남자 선생님</button>
         </div>
       </div>
       <div>
-        <span class="flabel">5. 말하기 속도 (정확한 배속 고정)</span>
+        <span class="flabel">4. 말하기 속도</span>
         <div class="seg4">
-          <button type="button" data-speed="0">아주 천천히 (0.65x)</button>
-          <button type="button" data-speed="1">천천히 (0.80x)</button>
-          <button type="button" data-speed="2">보통 (0.95x)</button>
-          <button type="button" data-speed="3">조금 빠르게 (1.10x)</button>
+          <button type="button" data-speed="0">아주 천천히</button>
+          <button type="button" data-speed="1">천천히</button>
+          <button type="button" data-speed="2">보통</button>
+          <button type="button" data-speed="3">조금 빠르게</button>
         </div>
       </div>
       <div>
-        <span class="flabel">6. 마이크 방식</span>
+        <span class="flabel">5. 마이크 방식</span>
         <div class="seg3">
           <button type="button" data-mic="always">계속 듣기</button>
           <button type="button" data-mic="toggle">눌러서 켜기</button>
@@ -426,14 +403,14 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
         <span class="fhelp">'계속 듣기'는 주변 작은 소음을 자동으로 걸러내며, '눌러서 켜기'는 한 번 눌러 말하고 다시 눌러 끄는 방식입니다.</span>
       </div>
       <div>
-        <span class="flabel">7. 단어 뜻 읽어주기</span>
+        <span class="flabel">6. 단어 뜻 읽어주기</span>
         <div class="seg2">
           <button type="button" data-wordko="tap">뜻 누를 때만 듣기</button>
           <button type="button" data-wordko="auto">영어+한글 바로 듣기</button>
         </div>
       </div>
       <div>
-        <span class="flabel">8. 아이 이름 (인사말에 넣어요)</span>
+        <span class="flabel">7. 아이 이름 (인사말에 넣어요)</span>
         <input id="childInput" placeholder="예: 시율" />
       </div>
       <div class="msg" id="settingsMsg"></div>
@@ -464,38 +441,24 @@ input,select{width:100%;padding:12px 14px;border-radius:14px;border:2px solid #c
 
 <script>
 const MODEL = 'gemini-3.8-live';
-const TEXT_MODEL = 'gemini-2.5-flash';
-const STORE_KEY = 'tent_reader_hybrid_v3';
-
+const STORE_KEY = 'tent_reader_live_v3';
+const MAX_TURNS_BEFORE_REFRESH = 18;
 const VOICES = {
-  female: {
-    label: '여자 선생님',
-    liveVoice: 'Aoede',
-    cloudEn: { languageCode: 'en-US', name: 'en-US-Neural2-F', ssmlGender: 'FEMALE' },
-    cloudKo: { languageCode: 'ko-KR', name: 'ko-KR-Neural2-A', ssmlGender: 'FEMALE' }
-  },
-  male: {
-    label: '남자 선생님',
-    liveVoice: 'Puck',
-    cloudEn: { languageCode: 'en-US', name: 'en-US-Neural2-D', ssmlGender: 'MALE' },
-    cloudKo: { languageCode: 'ko-KR', name: 'ko-KR-Neural2-C', ssmlGender: 'MALE' }
-  }
+  female: { label: '여자 선생님', voice: 'Aoede', desc: '친절하고 상냥한 젊은 여자 영어 선생님 (목소리: Aoede, 차분하고 맑은 여성 톤 고정)' },
+  male:   { label: '남자 선생님', voice: 'Puck',  desc: '친절하고 부드러운 젊은 남자 영어 선생님 (목소리: Puck, 차분하고 따뜻한 남성 톤 고정)' }
 };
-
 const SPEEDS = [
-  { label: '아주 천천히', rate: 0.65, koRate: 0.85 },
-  { label: '천천히',     rate: 0.80, koRate: 0.92 },
-  { label: '보통',       rate: 0.95, koRate: 1.00 },
-  { label: '조금 빠르게', rate: 1.10, koRate: 1.08 }
+  { label: '아주 천천히', text: '아주 천천히, 한 단어씩 또박또박 끊어서 (약 0.7배속)' },
+  { label: '천천히',     text: '천천히, 단어 사이를 살짝 쉬면서 (약 0.85배속)' },
+  { label: '보통',       text: '아이가 듣기 편한 일정한 보통 빠르기로 (1.0배속)' },
+  { label: '조금 빠르게', text: '조금 빠르지만 또렷하고 일정한 빠르기로 (1.15배속)' }
 ];
-
 const INTROS = [
   t => `오늘 같이 읽어볼 책은 "${t}"이라는 책이야. 선생님이 먼저 읽어 줄 테니까 잘 들어주렴.`,
   t => `오늘은 "${t}" 책을 함께 읽어 볼 거야. 선생님 목소리를 잘 들어 주렴!`,
   t => `오늘 읽을 책은 "${t}"이야. 선생님이 한 문장씩 읽어 줄게, 귀 기울여 들어 봐.`,
   t => `"${t}" 책 같이 읽어 볼까? 선생님이 먼저 읽어 줄 테니 잘 들어주렴.`
 ];
-
 const SAMPLE_BOOK = {
   series: 'First Little Readers',
   level: 'levelA',
@@ -521,19 +484,30 @@ function pickTimeGreeting(namePrefix) {
   return pick(pool);
 }
 
-function buildLiveSystemPrompt() {
+function buildSystemPrompt() {
+  const speedDesc = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
   const v = VOICES[cfg.voice] || VOICES.female;
-  return `너는 미취학 아이와 실물 영어 동화책을 함께 읽는 친절한 ${v.label}(목소리: ${v.liveVoice})이야.
-- 책 문장 낭독은 별도의 고정 TTS 엔진이 이미 읽어주었다. 너는 오직 아이가 마이크에 대고 따라 읽거나 질문했을 때만 따뜻하게 반응하는 대화·칭찬 담당 선생님이야.
-- [절대 목소리 고정] 항상 ${v.label}(${v.liveVoice})의 부드럽고 일관된 톤만 유지한다. 한국어와 영어 외 제3국 언어는 절대 말하지 않는다.
-- "[CURRENT_SENTENCE]"로 전달되는 문장은 지금 아이가 연습 중인 문장 정보이다. 이 정보에 대해서는 절대 먼저 말하지 말고 기억만 해 둔다.
-- 아이가 현재 영어 문장을 따라 읽으려고 시도하면(일부만 말하거나 발음이 서툴러도) 절대 지적하지 말고, 짧고 신나게 칭찬("정말 잘했어! Great job!" 등 1문장)한 뒤 반드시 \`move_to_next_sentence\` 도구를 호출한다.
-- 아이가 책 내용이나 궁금한 것을 질문하면 미취학 아동 눈높이로 한두 문장만 짧게 답하고 "그럼 우리 읽던 문장을 한 번 따라 읽어 볼까?"라고 말한다.`;
+  const wordRule = cfg.wordKoMode === 'auto'
+    ? `  1) 음성으로는 해당 영어 단어를 "${speedDesc}" 속도로 또박또박 한 번 읽은 뒤, 짧은 숨을 쉬고 한국어 뜻(1~3단어)만 부드럽게 덧붙이고 바로 멈춘다.`
+    : `  1) 음성으로는 해당 영어 단어 하나만 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다. (한국어는 말하지 않는다.)`;
+  return `너는 미취학 아이와 실물 영어 동화책을 함께 읽는 ${v.desc}이야.
+- [절대 목소리·속도 고정 규칙] 첫 인사부터 마지막 문장까지 반드시 위에서 정한 단 한 명의 ${v.label}(${v.voice}) 성별, 음높이, 말투를 절대 바꾸지 않는다. 한국어와 영어를 오갈 때나 단어 하나만 짧게 읽을 때도 절대 반대 성별이나 다른 화자 톤으로 바뀌지 않는다.
+- [일정한 속도 규칙] 모든 영어 문장과 영어 단어는 반드시 "${speedDesc}" 속도로 동일하게 읽는다. 단어 하나를 읽을 때 갑자기 빨라지거나 느려지지 않도록 문장 읽기와 동일한 템포를 유지한다.
+- [언어 제한] 한국어(Korean)와 영어(English)만 사용한다. 제3국 언어는 절대 출력하지 않는다.
+- "GREET:"으로 시작하면 뒤에 적힌 인사말만 자연스럽게 한 번 읽고 멈춘다.
+- "READ_SENTENCE:"로 시작하면 뒤에 적힌 영어 문장만 원문 그대로 "${speedDesc}" 속도로 한 번 읽고 바로 멈춘다. ("따라 해 봐" 등 질문 금지)
+- "READ_WORD:"로 시작하면:
+${wordRule}
+  2) 동시에 \`show_word_meaning\` 도구를 호출하여 문맥에 맞는 쉬운 한국어 뜻(1~3단어)만 전달한다.
+- "SPEAK_KO:"로 시작하면 뒤에 적힌 한국어 짧은 뜻만 따뜻하게 한 번 읽어주고 바로 멈춘다.
+- "MEANING:"으로 시작하면 해당 영어 문장의 뜻을 한국어로 한두 문장만 짧게 말하고 멈춘다.
+- "CELEBRATE:"로 시작하면 뒤에 적힌 완독 축하 인사를 따뜻하게 한 번 말하고 멈춘다.
+- 아이가 영어를 따라 읽으려고 시도하면(일부만 말하거나 발음이 서툴러도) 지적하지 말고 짧게 칭찬("정말 잘했어! Great job!") 한 마디만 하고 \`move_to_next_sentence\` 도구를 호출한다.
+- 아이가 책 내용이나 다른 질문을 할 때만 짧게 답하고 "그럼 우리 읽던 문장으로 돌아가 볼까?"라고 말한다.`;
 }
 
 const DEFAULTS = {
-  apiKey: '', ttsApiKey: '', ttsEngine: 'browser', browserEnVoice: '',
-  sheetUrl: '', bookTitle: '',
+  apiKey: '', sheetUrl: '', bookTitle: '',
   voice: 'female', speed: 2, micMode: 'always', wordKoMode: 'tap', childName: ''
 };
 
@@ -548,28 +522,27 @@ let pendingAutoNext = false;
 let selectedWord = '';
 let selectedWordMeaning = '';
 let wordMode = false;
+let suppressCaption = false;
 let phase = 'splash';
 
-let ws = null, connected = false, setupDone = false, introPending = false;
-let silentReconnect = false, reconnectAttempts = 0;
+let ws = null, connected = false, setupDone = false, introPending = false, introTimer = null;
+let silentReconnect = false, turnCountInSession = 0, reconnectAttempts = 0;
 let wakeLock = null;
 
-// Static TTS state
-let staticSpeakSeq = 0;
-let isStaticSpeaking = false;
-let activeStaticAudio = null;
-const ttsBlobCache = new Map();     // key -> objectURL (Cloud TTS mp3)
-const meaningCache = new Map();     // key -> Korean string
-let browserVoices = [];
-
-// Live Audio / Mic state
 let outCtx = null, inCtx = null, micStream = null, micNode = null;
 let micOn = false, pushing = false, voiceActiveUntil = 0;
 let playAt = 0, sources = [], firstAudioStarted = false;
-let teacherText = '', newTurn = false, turnInFlight = false;
-let captionTimer = null;
+let teacherText = '', newTurn = false;
+let selVoice = 'female', selSpeed = 2, selMic = 'always', selWordKo = 'tap';
 
-let selVoice = 'female', selSpeed = 2, selMic = 'always', selWordKo = 'tap', selTts = 'browser';
+// Turn counter & cache management (fixes rapid-tap overlap & cache corruption)
+let reqSeq = 0;
+let pendingTurns = 0;
+let turnInFlight = false;
+let captionTimer = null;
+let currentTurnChunks = [];
+let activeCacheKey = '';
+const audioCache = new Map();
 
 const $ = id => document.getElementById(id);
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -672,214 +645,7 @@ async function fetchBooks(url) {
   return list;
 }
 
-// ---------- 정적 TTS 엔진 (100% 목소리·속도 고정) ----------
-function refreshBrowserVoices() {
-  if (!('speechSynthesis' in window)) return;
-  browserVoices = window.speechSynthesis.getVoices() || [];
-  renderBrowserVoiceSelect();
-}
-if ('speechSynthesis' in window) {
-  refreshBrowserVoices();
-  window.speechSynthesis.onvoiceschanged = refreshBrowserVoices;
-}
-
-function renderBrowserVoiceSelect() {
-  const sel = $('browserEnVoiceSelect');
-  if (!sel) return;
-  const enVoices = browserVoices.filter(v => /^en[-_]/i.test(v.lang));
-  sel.innerHTML = '<option value="">자동 선택 (설정된 성별에 맞춰 고정)</option>';
-  enVoices.forEach(v => {
-    const o = document.createElement('option');
-    o.value = v.name;
-    o.textContent = `${v.name} (${v.lang})`;
-    sel.appendChild(o);
-  });
-  sel.value = cfg.browserEnVoice || '';
-}
-
-function pickBrowserVoice(lang, gender) {
-  if (!browserVoices.length && 'speechSynthesis' in window) {
-    browserVoices = window.speechSynthesis.getVoices() || [];
-  }
-  if (lang === 'en' && cfg.browserEnVoice) {
-    const exact = browserVoices.find(v => v.name === cfg.browserEnVoice);
-    if (exact) return exact;
-  }
-  const isEn = lang === 'en';
-  const pool = browserVoices.filter(v => isEn ? /^en[-_](US|GB|AU)/i.test(v.lang) : /^ko/i.test(v.lang));
-  const fallbackPool = pool.length ? pool : browserVoices.filter(v => isEn ? /^en/i.test(v.lang) : /^ko/i.test(v.lang));
-  if (!fallbackPool.length) return null;
-
-  const femaleHints = /female|samantha|zira|aria|jenny|ava|allison|susan|victoria|karen|tessa|yuna|sora|heami|sunhi|google us english(?!.*male)|x-sfg|x-tpf|x-iob|x-ism|x-koc/i;
-  const maleHints   = /male|alex|daniel|david|guy|ryan|mark|george|fred|arthur|injoon|minsu|x-tpd|x-iom|x-iol|x-kod|x-koe/i;
-
-  // Prefer US English first for en
-  const ordered = isEn
-    ? [...fallbackPool.filter(v => /en[-_]US/i.test(v.lang)), ...fallbackPool.filter(v => !/en[-_]US/i.test(v.lang))]
-    : fallbackPool;
-
-  if (gender === 'male') {
-    const m = ordered.find(v => maleHints.test(v.name) && !/female/i.test(v.name));
-    if (m) return m;
-    // 남성 음성이 하나도 구분되지 않으면 두 번째 음성 또는 기본 음성 고정
-    return ordered.length > 1 ? ordered[ordered.length - 1] : ordered[0];
-  } else {
-    const f = ordered.find(v => femaleHints.test(v.name));
-    if (f) return f;
-    return ordered[0];
-  }
-}
-
-function stopStaticTts() {
-  staticSpeakSeq += 1;
-  isStaticSpeaking = false;
-  if (activeStaticAudio) {
-    try { activeStaticAudio.pause(); activeStaticAudio.currentTime = 0; } catch (e) {}
-    activeStaticAudio = null;
-  }
-  if ('speechSynthesis' in window) {
-    try { window.speechSynthesis.cancel(); } catch (e) {}
-  }
-}
-
-async function synthesizeCloudTts(text, lang, voiceGender, speedIdx) {
-  const key = (cfg.ttsApiKey || cfg.apiKey || '').trim();
-  if (!key) throw new Error('API 키 없음');
-  const sp = SPEEDS[speedIdx] || SPEEDS[2];
-  const vSpec = (VOICES[voiceGender] || VOICES.female)[lang === 'en' ? 'cloudEn' : 'cloudKo'];
-  const rate = lang === 'en' ? sp.rate : sp.koRate;
-  const cacheKey = `C:${lang}:${voiceGender}:${speedIdx}:${text}`;
-  if (ttsBlobCache.has(cacheKey)) return ttsBlobCache.get(cacheKey);
-
-  const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(key)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      input: { text },
-      voice: vSpec,
-      audioConfig: { audioEncoding: 'MP3', speakingRate: rate }
-    })
-  });
-  if (!res.ok) throw new Error('Cloud TTS HTTP ' + res.status);
-  const data = await res.json();
-  if (!data.audioContent) throw new Error('빈 오디오 응답');
-  const bin = atob(data.audioContent);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  const blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' }));
-  ttsBlobCache.set(cacheKey, blobUrl);
-  return blobUrl;
-}
-
-function playBrowserTts(text, lang, voiceGender, speedIdx, mySeq) {
-  return new Promise((resolve, reject) => {
-    if (!('speechSynthesis' in window)) { reject(new Error('브라우저 TTS 미지원')); return; }
-    try { window.speechSynthesis.cancel(); } catch (e) {}
-    setTimeout(() => {
-      if (mySeq !== staticSpeakSeq) { resolve(false); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      const sp = SPEEDS[speedIdx] || SPEEDS[2];
-      u.lang = lang === 'en' ? 'en-US' : 'ko-KR';
-      u.rate = lang === 'en' ? sp.rate : sp.koRate;
-      u.pitch = voiceGender === 'male' ? 0.92 : 1.04;
-      const lockedVoice = pickBrowserVoice(lang, voiceGender);
-      if (lockedVoice) u.voice = lockedVoice;
-      u.onstart = () => {
-        if (mySeq !== staticSpeakSeq) return;
-        isStaticSpeaking = true;
-        updateVisualState(true);
-      };
-      u.onend = () => {
-        if (mySeq !== staticSpeakSeq) { resolve(false); return; }
-        isStaticSpeaking = false;
-        updateVisualState(sources.length > 0);
-        resolve(true);
-      };
-      u.onerror = () => {
-        if (mySeq !== staticSpeakSeq) { resolve(false); return; }
-        isStaticSpeaking = false;
-        updateVisualState(sources.length > 0);
-        resolve(false);
-      };
-      window.speechSynthesis.speak(u);
-    }, 35);
-  });
-}
-
-function playAudioUrl(url, mySeq) {
-  return new Promise((resolve, reject) => {
-    if (mySeq !== staticSpeakSeq) { resolve(false); return; }
-    const audio = new Audio(url);
-    activeStaticAudio = audio;
-    audio.onplay = () => {
-      if (mySeq !== staticSpeakSeq) return;
-      isStaticSpeaking = true;
-      updateVisualState(true);
-    };
-    audio.onended = () => {
-      if (activeStaticAudio === audio) activeStaticAudio = null;
-      if (mySeq !== staticSpeakSeq) { resolve(false); return; }
-      isStaticSpeaking = false;
-      updateVisualState(sources.length > 0);
-      resolve(true);
-    };
-    audio.onerror = () => {
-      if (activeStaticAudio === audio) activeStaticAudio = null;
-      isStaticSpeaking = false;
-      updateVisualState(sources.length > 0);
-      reject(new Error('오디오 재생 오류'));
-    };
-    audio.play().catch(err => {
-      if (activeStaticAudio === audio) activeStaticAudio = null;
-      isStaticSpeaking = false;
-      updateVisualState(sources.length > 0);
-      reject(err);
-    });
-  });
-}
-
-async function speakStatic(text, lang = 'en', opts = {}) {
-  const engine = opts.engine || cfg.ttsEngine || 'browser';
-  const voiceGender = opts.voice || cfg.voice;
-  const speedIdx = opts.speed !== undefined ? opts.speed : cfg.speed;
-  stopAllPlayback();
-  const mySeq = ++staticSpeakSeq;
-  isStaticSpeaking = true;
-  updateVisualState(true);
-
-  if (engine === 'cloud') {
-    try {
-      const url = await synthesizeCloudTts(text, lang, voiceGender, speedIdx);
-      if (mySeq !== staticSpeakSeq) return false;
-      return await playAudioUrl(url, mySeq);
-    } catch (e) {
-      // Cloud TTS 키 미설정/오류 시 브라우저 고정 TTS로 안전하게 자동 폴백
-      if (mySeq !== staticSpeakSeq) return false;
-      return await playBrowserTts(text, lang, voiceGender, speedIdx, mySeq);
-    }
-  }
-  return await playBrowserTts(text, lang, voiceGender, speedIdx, mySeq);
-}
-
-// ---------- 단발성 Gemini 텍스트 API (단어/문장 뜻 풀이, Live 세션 오염 방지) ----------
-async function askGeminiText(promptText) {
-  const key = cfg.apiKey.trim();
-  if (!key) return '';
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${TEXT_MODEL}:generateContent?key=${encodeURIComponent(key)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: promptText }] }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 80 }
-    })
-  });
-  if (!res.ok) throw new Error('Text API ' + res.status);
-  const data = await res.json();
-  const txt = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  return txt.trim().replace(/^["'「」]+|["'「」]+$/g, '');
-}
-
-// ---------- Live 오디오 출력 (칭찬 및 아이 질문 응답 전용) ----------
+// ---------- 오디오 출력 ----------
 function ensureOut() {
   if (!outCtx) outCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
   if (outCtx.state === 'suspended') outCtx.resume();
@@ -913,10 +679,10 @@ function playFanfare() {
     osc.stop(now + idx * 0.11 + (idx === 3 ? 0.6 : 0.25));
   });
 }
-function showCaption(text) {
+function flushCaption() {
+  if (!teacherText || wordMode || suppressCaption) return;
   const cap = $('caption');
-  if (!text) { cap.classList.remove('show'); cap.textContent = ''; return; }
-  cap.textContent = text;
+  cap.textContent = teacherText;
   cap.classList.add('show');
 }
 function scheduleFloat32Chunk(f32) {
@@ -936,9 +702,9 @@ function scheduleFloat32Chunk(f32) {
     firstAudioStarted = true;
     const delayMs = Math.max(0, (startAt - now) * 1000);
     clearTimeout(captionTimer);
-    captionTimer = setTimeout(() => { if (teacherText) showCaption(teacherText); updateVisualState(true); }, delayMs);
+    captionTimer = setTimeout(() => { flushCaption(); updateVisualState(true); }, delayMs);
   } else {
-    if (teacherText) showCaption(teacherText);
+    flushCaption();
     updateVisualState(true);
   }
 
@@ -947,7 +713,7 @@ function scheduleFloat32Chunk(f32) {
     sources = sources.filter(s => s !== src);
     if (!sources.length) {
       firstAudioStarted = false;
-      updateVisualState(isStaticSpeaking);
+      updateVisualState(false);
     }
   };
 }
@@ -958,23 +724,31 @@ function playPcm(b64) {
     if (v >= 0x8000) v -= 0x10000;
     f[i] = v / 32768;
   }
+  if (activeCacheKey) currentTurnChunks.push(f);
   scheduleFloat32Chunk(f);
 }
-function stopLivePlayback() {
+function playCachedChunks(chunks, triggerAutoNext = false) {
+  stopPlayback();
+  firstAudioStarted = false;
+  if (outCtx) playAt = outCtx.currentTime;
+  for (const f of chunks) {
+    scheduleFloat32Chunk(f);
+  }
+  if (triggerAutoNext && autoReadMode && index >= 0 && !finished && !wordMode) {
+    scheduleNextStep(1500);
+  }
+}
+function stopPlayback() {
+  clearTimeout(autoReadTimer);
   clearTimeout(captionTimer);
   sources.forEach(s => { try { s.stop(); } catch (e) {} });
   sources = [];
   firstAudioStarted = false;
   if (outCtx) playAt = outCtx.currentTime;
-}
-function stopAllPlayback() {
-  clearTimeout(autoReadTimer);
-  stopStaticTts();
-  stopLivePlayback();
   updateVisualState(false);
 }
 
-// ---------- 마이크 + 소음 게이트 + 시각 피드백 ----------
+// ---------- 마이크 + 소음 게이트 + 시각 음량 피드백 ----------
 async function startMic() {
   try {
     micStream = await navigator.mediaDevices.getUserMedia({
@@ -998,6 +772,7 @@ async function startMic() {
         return;
       }
 
+      // 'always' 모드에서는 배경 소음에 의한 오인식 자동 스킵 방지용 임계값 게이트 적용
       const nowMs = performance.now();
       if (cfg.micMode === 'always') {
         if (rms > 0.016) voiceActiveUntil = nowMs + 950;
@@ -1028,39 +803,41 @@ function stopMic() {
   if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
 }
 function isMicListeningNow() {
-  if (!connected || !setupDone || introPending || isStaticSpeaking || sources.length || turnInFlight || autoReadMode) return false;
+  if (!connected || !setupDone || introPending || sources.length || turnInFlight || autoReadMode) return false;
   if (cfg.micMode === 'always' || cfg.micMode === 'toggle') return micOn;
   return pushing;
 }
 
-// ---------- Gemini Live 연결 (칭찬·대화 전용) ----------
+// ---------- Gemini Live 연결 ----------
 function wsUrl(key) {
   return `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(key)}`;
 }
 function send(obj) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
-function syncSentenceContextToLive(sentence) {
-  if (!connected || !setupDone || !sentence) return;
-  // turnComplete: false 로 전송하여 AI가 먼저 말하지 않고 현재 문장 문맥만 기억하도록 함
-  send({
-    clientContent: {
-      turns: [{ role: 'user', parts: [{ text: `[CURRENT_SENTENCE] 지금 화면의 영어 문장: "${sentence}". 대답하지 말고 아이가 따라 말할 때까지 기다려.` }] }],
-      turnComplete: false
-    }
-  });
-}
 function setupMessage() {
   return { setup: {
     model: 'models/' + MODEL,
     generationConfig: {
       responseModalities: ['AUDIO'],
-      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: (VOICES[cfg.voice] || VOICES.female).liveVoice } } }
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: (VOICES[cfg.voice] || VOICES.female).voice } } }
     },
-    systemInstruction: { parts: [{ text: buildLiveSystemPrompt() }] },
+    systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
     tools: [{
       functionDeclarations: [
         {
           name: 'move_to_next_sentence',
-          description: '아이가 현재 영어 문장을 따라 읽었을 때, 칭찬을 한 뒤 자동으로 다음 문장으로 넘어가기 위해 호출합니다.'
+          description: '아이가 방금 들은 영어 문장을 따라 읽었을 때, 칭찬을 한 뒤 자동으로 다음 문장(또는 완독 화면)으로 넘어가기 위해 호출합니다.'
+        },
+        {
+          name: 'show_word_meaning',
+          description: '아이가 특정 영어 단어를 눌렀을 때, 해당 단어의 짧은 한국어 뜻을 카드 화면에 텍스트로 보여주기 위해 호출합니다.',
+          parameters: {
+            type: 'OBJECT',
+            properties: {
+              word: { type: 'STRING', description: '요청된 영어 단어' },
+              meaning: { type: 'STRING', description: '문맥에 맞는 쉬운 한국어 뜻 (1~3단어 이내, 예: 바다표범)' }
+            },
+            required: ['word', 'meaning']
+          }
         }
       ]
     }],
@@ -1071,7 +848,7 @@ function setupMessage() {
 function canUse() { return connected && setupDone && !introPending && !!book; }
 
 async function startSession(preserveState = false) {
-  if (!cfg.apiKey.trim()) { openSettings('먼저 Gemini API 키를 넣어 주세요.'); return; }
+  if (!cfg.apiKey.trim()) { openSettings('먼저 API 키를 넣어 주세요.'); return; }
   const savedIdx = preserveState ? index : -1;
   const savedFin = preserveState ? finished : false;
   silentReconnect = preserveState;
@@ -1099,6 +876,7 @@ async function startSession(preserveState = false) {
     if (ws !== sock) return;
     connected = true;
     reconnectAttempts = 0;
+    turnCountInSession = 0;
     sock.send(JSON.stringify(setupMessage()));
     renderDock();
   };
@@ -1108,13 +886,14 @@ async function startSession(preserveState = false) {
     if (raw instanceof Blob) raw = await raw.text();
     let msg;
     try { msg = JSON.parse(raw); } catch (e) { return; }
-    handleLive(msg);
+    handle(msg);
   };
   sock.onerror = () => { if (ws === sock && !silentReconnect) fail('연결에 실패했어요. 인터넷과 API 키를 확인해 주세요.'); };
   sock.onclose = e => {
     if (ws !== sock) return;
     connected = false;
     setupDone = false;
+    // 예기치 않게 끊어졌고 사용자가 끄지 않았다면 1회 자동 재연결 시도 (현재 문장 유지)
     if (phase === 'ready' && reconnectAttempts < 2 && e.code !== 1000) {
       reconnectAttempts += 1;
       setTurnBanner('잠시 연결을 다시 잇고 있어요...', 'talking');
@@ -1130,22 +909,25 @@ async function startSession(preserveState = false) {
 function closeSession(keepProgress = false) {
   const s = ws;
   ws = null; connected = false; setupDone = false; introPending = false; pendingAutoNext = false;
-  turnInFlight = false;
+  pendingTurns = 0; turnInFlight = false; activeCacheKey = ''; currentTurnChunks = [];
   if (!keepProgress) {
     index = -1;
     finished = false;
+    audioCache.clear();
     selectedWord = ''; selectedWordMeaning = ''; wordMode = false;
     stopMic();
     releaseWakeLock();
   }
+  clearTimeout(introTimer);
   clearTimeout(autoReadTimer);
   clearTimeout(captionTimer);
   pushing = false;
   if (!keepProgress) micOn = false;
   if (s) { try { s.close(1000); } catch (e) {} }
-  stopAllPlayback();
+  stopPlayback();
   teacherText = '';
-  showCaption('');
+  $('caption').classList.remove('show');
+  $('caption').textContent = '';
   $('childLine').textContent = '';
 }
 
@@ -1156,10 +938,18 @@ function fail(msg) {
   $('splashMsg').textContent = msg;
 }
 
+// 긴 세션의 화자 표류(Speaker Drift) 예방: 일정 턴 초과 시 유휴 상태에서 조용히 세션 갱신
+function maybeRefreshSession() {
+  if (turnCountInSession >= MAX_TURNS_BEFORE_REFRESH && !sources.length && !turnInFlight && connected && phase === 'ready') {
+    turnCountInSession = 0;
+    startSession(true);
+  }
+}
+
 function scheduleNextStep(delayAfterAudioMs) {
   const waitAndGo = () => {
     if (!pendingAutoNext && !autoReadMode) return;
-    if (isStaticSpeaking || sources.length > 0 || turnInFlight) {
+    if (sources.length > 0 || turnInFlight) {
       autoReadTimer = setTimeout(waitAndGo, 150);
       return;
     }
@@ -1168,29 +958,42 @@ function scheduleNextStep(delayAfterAudioMs) {
       if (canUse() && index >= 0 && !finished) go(1);
     }, delayAfterAudioMs);
   };
-  autoReadTimer = setTimeout(waitAndGo, 180);
+  autoReadTimer = setTimeout(waitAndGo, 200);
 }
 
-function handleLive(msg) {
+function handle(msg) {
   if (msg.error) return fail('선생님 연결에 문제가 생겼어요: ' + (msg.error.message || '알 수 없는 오류'));
   if (msg.setupComplete) {
     setupDone = true;
     if (silentReconnect) {
       silentReconnect = false;
       setPhase('ready');
-      if (index >= 0 && !finished && book) syncSentenceContextToLive(book.sentences[index]);
-      updateVisualState(isStaticSpeaking);
+      updateVisualState(false);
       return;
     }
     sayIntro();
     return;
   }
 
+  const isStaleTurn = pendingTurns > 1;
+
   if (msg.toolCall && Array.isArray(msg.toolCall.functionCalls)) {
     const responses = [];
     for (const fc of msg.toolCall.functionCalls) {
       if (fc.name === 'move_to_next_sentence') {
-        pendingAutoNext = true;
+        if (!isStaleTurn) pendingAutoNext = true;
+        responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
+      } else if (fc.name === 'show_word_meaning') {
+        const args = fc.args || {};
+        if (!isStaleTurn && args.meaning) {
+          selectedWordMeaning = String(args.meaning).trim();
+          if (activeCacheKey) {
+            const existing = audioCache.get(activeCacheKey) || { chunks: [] };
+            existing.meaning = selectedWordMeaning;
+            audioCache.set(activeCacheKey, existing);
+          }
+          renderWordMeaningBox();
+        }
         responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
       }
     }
@@ -1203,58 +1006,112 @@ function handleLive(msg) {
 
   if (sc.interrupted) {
     pendingAutoNext = false;
-    turnInFlight = false;
-    stopLivePlayback();
+    if (pendingTurns > 0) pendingTurns -= 1;
+    turnInFlight = pendingTurns > 0;
+    stopPlayback();
   }
+
+  // 연타 시 이전 턴의 남은 오디오/자막 패킷을 카운터 기반으로 완전히 폐기
+  if (pendingTurns > 1) {
+    if (sc.turnComplete) {
+      pendingTurns = Math.max(0, pendingTurns - 1);
+      turnInFlight = pendingTurns > 0;
+    }
+    return;
+  }
+
   if (sc.inputTranscription && sc.inputTranscription.text) {
     $('childLine').textContent = '내 목소리: ' + sc.inputTranscription.text;
   }
   if (sc.outputTranscription && sc.outputTranscription.text) {
     if (newTurn) { teacherText = ''; newTurn = false; }
     teacherText += sc.outputTranscription.text;
-    if (firstAudioStarted) showCaption(teacherText);
+    if (firstAudioStarted) flushCaption();
   }
   for (const part of (sc.modelTurn && sc.modelTurn.parts) || []) {
     if (part.inlineData && String(part.inlineData.mimeType || '').startsWith('audio/pcm')) {
-      turnInFlight = true;
       playPcm(part.inlineData.data);
     }
   }
   if (sc.turnComplete) {
-    turnInFlight = false;
-    if (teacherText && !firstAudioStarted) showCaption(teacherText);
+    pendingTurns = Math.max(0, pendingTurns - 1);
+    turnInFlight = pendingTurns > 0;
+    turnCountInSession += 1;
+
+    if (activeCacheKey && currentTurnChunks.length > 0) {
+      const prev = audioCache.get(activeCacheKey) || {};
+      audioCache.set(activeCacheKey, {
+        chunks: currentTurnChunks.slice(),
+        meaning: prev.meaning || selectedWordMeaning || ''
+      });
+    }
+    activeCacheKey = '';
+    currentTurnChunks = [];
+
+    if (teacherText && !firstAudioStarted) flushCaption();
     newTurn = true;
     $('childLine').textContent = '';
 
-    if (cfg.micMode === 'toggle' && micOn) {
+    // 'toggle' 모드였다면 아이 발화 응답이 끝났을 때 마이크를 자동으로 잠시 꺼서 오동작 방지
+    if (cfg.micMode === 'toggle' && micOn && !wordMode && !suppressCaption) {
       micOn = false;
       renderDock();
     }
 
-    if (pendingAutoNext) {
+    if (introPending) {
+      introPending = false;
+      clearTimeout(introTimer);
+      setPhase('ready');
+      if (autoReadMode) startBook();
+      else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+    } else if (pendingAutoNext) {
       scheduleNextStep(450);
+    } else if (autoReadMode && index >= 0 && !finished && !wordMode) {
+      scheduleNextStep(1500);
     } else {
-      updateVisualState(isStaticSpeaking || sources.length > 0);
+      updateVisualState(sources.length > 0);
+      if (!sources.length) maybeRefreshSession();
     }
   }
 }
 
-async function sayIntro() {
+function sendText(text, isWordReq = false, cacheKey = '', hideCap = false) {
+  clearTimeout(autoReadTimer);
+  pendingTurns += 1;
+  turnInFlight = true;
+  activeCacheKey = cacheKey;
+  currentTurnChunks = [];
+  wordMode = isWordReq;
+  suppressCaption = hideCap;
+  teacherText = ''; newTurn = false; firstAudioStarted = false;
+  $('caption').classList.remove('show');
+  $('caption').textContent = '';
+  reqSeq += 1;
+  const v = VOICES[cfg.voice] || VOICES.female;
+  const sp = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
+  const voiceTag = `[#${reqSeq} | 고정화자:${v.voice}(${v.label}) | 고정속도:${sp}]`;
+  send({ clientContent: { turns: [{ role: 'user', parts: [{ text: `${voiceTag} ${text}` }] }], turnComplete: true } });
+}
+
+function sayIntro() {
   const nm = cfg.childName.trim();
   const greet = pickTimeGreeting(nm ? nm + '! ' : '');
   const intro = pick(INTROS)(book ? book.title : '오늘의 책');
-  const fullMsg = `${greet} ${intro}`;
   introPending = true;
   setPhase('loading');
   setTurnBanner('선생님이 인사하고 있어요', 'talking');
-  showCaption(fullMsg);
-  await speakStatic(fullMsg, 'ko');
-  if (!connected) return;
-  introPending = false;
-  showCaption('');
-  setPhase('ready');
-  if (autoReadMode) startBook();
-  else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+  clearTimeout(introTimer);
+  introTimer = setTimeout(() => {
+    if (introPending) {
+      introPending = false;
+      pendingTurns = 0;
+      turnInFlight = false;
+      setPhase('ready');
+      if (autoReadMode) startBook();
+      else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+    }
+  }, 18000);
+  sendText(`GREET: ${greet} ${intro}`, false, '', false);
 }
 
 // ---------- 계속 읽기 모드 토글 ----------
@@ -1271,10 +1128,10 @@ function toggleAutoRead() {
     setTurnBanner('계속 읽기 모드예요. 쭉 읽어줄게요!', 'auto');
     if (canUse() && !finished) {
       if (index < 0) startBook();
-      else if (!isStaticSpeaking && !sources.length) readSentence();
+      else if (!sources.length) readSentence();
     }
   } else {
-    updateVisualState(isStaticSpeaking || sources.length > 0);
+    updateVisualState(sources.length > 0);
   }
 }
 function renderAutoButton() {
@@ -1284,7 +1141,7 @@ function renderAutoButton() {
   $('autoModeText').textContent = autoReadMode ? '계속 읽는 중' : '계속 읽기';
 }
 
-// ---------- 읽기 흐름 (100% 정적 TTS 사용) ----------
+// ---------- 읽기 흐름 ----------
 function clearWordSelection() {
   selectedWord = '';
   selectedWordMeaning = '';
@@ -1297,93 +1154,62 @@ function startBook() {
   clearWordSelection();
   readSentence();
 }
-async function readSentence() {
+function readSentence(forceFresh = false) {
   if (!canUse() || index < 0 || finished) return;
+  stopPlayback();
   clearWordSelection();
-  showCaption('');
   const sentence = book.sentences[index];
-  syncSentenceContextToLive(sentence);
-  renderAll();
-  const done = await speakStatic(sentence, 'en');
-  if (done && autoReadMode && index >= 0 && !finished && !wordMode) {
-    scheduleNextStep(1500);
+  const cacheKey = `S:${cfg.voice}:${cfg.speed}:${sentence}`;
+  const cached = audioCache.get(cacheKey);
+  if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
+    suppressCaption = true;
+    $('caption').classList.remove('show');
+    renderAll();
+    playCachedChunks(cached.chunks, true);
+    return;
   }
+  sendText(`READ_SENTENCE: ${sentence}`, false, cacheKey, true);
+  renderAll();
 }
-async function readWord(cleanWord, displayWord) {
+function readWord(cleanWord, displayWord) {
   if (!canUse() || index < 0 || finished || !cleanWord) return;
+  stopPlayback();
   if (autoReadMode) {
     autoReadMode = false;
     renderAutoButton();
     renderDock();
   }
-  showCaption('');
   const sentence = book.sentences[index];
+  const cacheKey = `W:${cfg.voice}:${cfg.speed}:${cfg.wordKoMode}:${sentence}:${cleanWord.toLowerCase()}`;
+  const cached = audioCache.get(cacheKey);
   selectedWord = displayWord;
   wordMode = true;
 
-  const mKey = `W:${sentence}:${cleanWord.toLowerCase()}`;
-  const cachedMeaning = meaningCache.get(mKey);
-  selectedWordMeaning = cachedMeaning || '뜻 찾는 중...';
+  if (cached && cached.chunks && cached.chunks.length > 0) {
+    selectedWordMeaning = cached.meaning || '';
+    renderCard();
+    playCachedChunks(cached.chunks, false);
+    return;
+  }
+
+  selectedWordMeaning = '뜻 찾는 중...';
   renderCard();
-
-  // 1) 정적 TTS로 영어 단어를 문장과 완전히 같은 목소리·속도로 즉시 낭독
-  const speakPromise = speakStatic(cleanWord, 'en');
-
-  // 2) 동시에 단발성 텍스트 API로 문맥에 맞는 쉬운 한국어 뜻 조회
-  let koMeaning = cachedMeaning || '';
-  if (!koMeaning) {
-    try {
-      koMeaning = await askGeminiText(
-        `문장 "${sentence}"에서 영어 단어 "${cleanWord}"의 미취학 아이 눈높이 한국어 뜻만 1~3단어로 아주 짧게 답해줘. 설명이나 따옴표 없이 뜻만 출력해.`
-      );
-      if (koMeaning) meaningCache.set(mKey, koMeaning);
-    } catch (e) {
-      koMeaning = '';
-    }
-    if (selectedWord === displayWord) {
-      selectedWordMeaning = koMeaning || '뜻을 찾지 못했어요';
-      renderWordMeaningBox();
-    }
-  }
-
-  const finishedEn = await speakPromise;
-  if (finishedEn && cfg.wordKoMode === 'auto' && koMeaning && selectedWord === displayWord) {
-    await speakStatic(koMeaning, 'ko');
-  }
+  sendText(`READ_WORD: "${cleanWord}" (문맥: "${sentence}")`, true, cacheKey, true);
 }
-async function speakWordMeaning() {
-  if (!canUse() || !selectedWordMeaning || selectedWordMeaning === '뜻 찾는 중...' || selectedWordMeaning === '뜻을 찾지 못했어요') return;
-  await speakStatic(selectedWordMeaning, 'ko');
-}
-async function meaning() {
-  if (!canUse() || index < 0 || finished) return;
-  clearWordSelection();
-  if (autoReadMode) {
-    autoReadMode = false;
-    renderAutoButton();
-    renderDock();
+function speakWordMeaning() {
+  if (!canUse() || !selectedWordMeaning || selectedWordMeaning === '뜻 찾는 중...') return;
+  stopPlayback();
+  const cacheKey = `WK:${cfg.voice}:${selectedWordMeaning}`;
+  const cached = audioCache.get(cacheKey);
+  if (cached && cached.chunks && cached.chunks.length > 0) {
+    playCachedChunks(cached.chunks, false);
+    return;
   }
-  const sentence = book.sentences[index];
-  const mKey = `S:${sentence}`;
-  let koText = meaningCache.get(mKey);
-  showCaption(koText || '한글 뜻을 준비하고 있어요...');
-  renderAll();
-  if (!koText) {
-    try {
-      koText = await askGeminiText(
-        `미취학 아이에게 영어 동화 문장 "${sentence}"의 뜻을 따뜻하고 쉬운 한국어 한 문장으로 번역해줘. 반말(해요체 말고 다정한 반말)로 뜻만 짧게 말해줘.`
-      );
-      if (koText) meaningCache.set(mKey, koText);
-    } catch (e) {
-      koText = '한글 뜻을 불러오지 못했어요.';
-    }
-  }
-  showCaption(koText);
-  await speakStatic(koText, 'ko');
+  sendText(`SPEAK_KO: ${selectedWordMeaning}`, true, cacheKey, true);
 }
 function finishBook() {
   if (!canUse()) return;
-  stopAllPlayback();
+  stopPlayback();
   clearWordSelection();
   finished = true;
   playFanfare();
@@ -1391,11 +1217,9 @@ function finishBook() {
   $('teacherWrap').classList.add('happy');
   const nm = cfg.childName.trim();
   const who = nm ? `${nm}! ` : '';
-  const celeb = `${who}우와, "${book.title}" 책을 끝까지 다 읽었어! 정말 최고야, 참 잘했어!`;
-  showCaption(celeb);
   setTimeout(() => {
     if (!finished) return;
-    speakStatic(celeb, 'ko');
+    sendText(`CELEBRATE: ${who}우와, "${book.title}" 책을 끝까지 다 읽었어! 정말 최고야, 참 잘했어!`, false, '', false);
   }, 650);
 }
 function go(delta) {
@@ -1414,10 +1238,35 @@ function go(delta) {
   }
   if (index < 0) { if (delta > 0) startBook(); return; }
   const next = index + delta;
-  if (next < 0) { setTurnBanner('첫 문장이에요', 'auto'); return; }
-  if (next >= book.sentences.length) { finishBook(); return; }
+  if (next < 0) {
+    setTurnBanner('첫 문장이에요', 'auto');
+    return;
+  }
+  if (next >= book.sentences.length) {
+    finishBook();
+    return;
+  }
   index = next;
   readSentence();
+}
+function meaning() {
+  if (!canUse() || index < 0 || finished) return;
+  stopPlayback();
+  clearWordSelection();
+  if (autoReadMode) {
+    autoReadMode = false;
+    renderAutoButton();
+  }
+  const sentence = book.sentences[index];
+  const cacheKey = `M:${cfg.voice}:${sentence}`;
+  const cached = audioCache.get(cacheKey);
+  if (cached && cached.chunks && cached.chunks.length > 0) {
+    renderAll();
+    playCachedChunks(cached.chunks, false);
+    return;
+  }
+  sendText(`MEANING: "${sentence}"`, false, cacheKey, false);
+  renderAll();
 }
 
 // ---------- 화면 및 시각 피드백 ----------
@@ -1429,7 +1278,11 @@ function setPhase(p) {
 function setTurnBanner(text, mode) {
   const pill = $('turnPill');
   const label = $('turnText');
-  if (!text) { pill.className = 'turn-pill hidden'; label.textContent = ''; return; }
+  if (!text) {
+    pill.className = 'turn-pill hidden';
+    label.textContent = '';
+    return;
+  }
   pill.className = 'turn-pill ' + (mode || '');
   label.textContent = text;
 }
@@ -1468,7 +1321,7 @@ function renderAll() {
   renderCard();
   renderDots();
   renderDock();
-  updateVisualState(isStaticSpeaking || sources.length > 0);
+  updateVisualState(sources.length > 0);
 }
 function renderDots() {
   const wrap = $('dots');
@@ -1517,7 +1370,7 @@ function renderCard() {
     const isSel = selectedWord && selectedWord === tok;
     return `<span class="word-btn${isSel ? ' active' : ''}" data-word="${esc(clean || tok)}" data-raw="${esc(tok)}">${esc(tok)}</span>`;
   }).join('');
-  el.innerHTML = `<div class="en">${wordsHtml}</div><div class="word-meaning-box" id="wordMeaningBox"></div><div class="hint">단어를 누르면 고정된 목소리로 읽어줘요 · 뜻 말풍선을 누르면 한글로 들려요</div>`;
+  el.innerHTML = `<div class="en">${wordsHtml}</div><div class="word-meaning-box" id="wordMeaningBox"></div><div class="hint">단어를 누르면 발음과 뜻이 나와요 · 뜻 말풍선을 누르면 한글로 읽어줘요</div>`;
   renderWordMeaningBox();
 }
 function renderDock() {
@@ -1539,6 +1392,7 @@ function renderDock() {
 // ---------- 부모 잠금 (Parental Gate) ----------
 let gateAnswer = 0;
 function openParentalGate() {
+  // 최초 설정(API 키 미입력) 시에는 바로 설정창 오픈
   if (!cfg.apiKey.trim()) { openSettings(); return; }
   const a = 3 + Math.floor(Math.random() * 7);
   const b = 3 + Math.floor(Math.random() * 7);
@@ -1559,8 +1413,12 @@ function openParentalGate() {
     btn.className = 'gate-opt';
     btn.textContent = num;
     btn.addEventListener('click', () => {
-      if (num === gateAnswer) { closeParentalGate(); openSettings(); }
-      else $('gateErr').textContent = '어른과 함께 다시 풀어 주세요.';
+      if (num === gateAnswer) {
+        closeParentalGate();
+        openSettings();
+      } else {
+        $('gateErr').textContent = '어른과 함께 다시 풀어 주세요.';
+      }
     });
     grid.appendChild(btn);
   });
@@ -1570,26 +1428,20 @@ function closeParentalGate() { $('gateModal').classList.remove('open'); }
 
 // ---------- 설정창 ----------
 function openSettings(msg = '') {
-  refreshBrowserVoices();
   fillForm();
   $('settingsMsg').textContent = msg;
   $('testResult').textContent = '';
   $('testResult').className = 'res';
-  $('testTtsResult').textContent = '';
-  $('testTtsResult').className = 'res';
   $('settingsModal').classList.add('open');
 }
 function closeSettings() { $('settingsModal').classList.remove('open'); }
 function fillForm() {
   $('apiKeyInput').value = cfg.apiKey;
-  $('ttsKeyInput').value = cfg.ttsApiKey || '';
   $('sheetInput').value = cfg.sheetUrl;
   $('childInput').value = cfg.childName;
-  selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode;
-  selWordKo = cfg.wordKoMode || 'tap'; selTts = cfg.ttsEngine || 'browser';
+  selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode; selWordKo = cfg.wordKoMode || 'tap';
   paintSegs();
   renderBookSelect();
-  renderBrowserVoiceSelect();
 }
 function renderBookSelect() {
   const sel = $('bookSelect');
@@ -1608,26 +1460,23 @@ function paintSegs() {
   document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', Number(b.dataset.speed) === selSpeed));
   document.querySelectorAll('[data-mic]').forEach(b => b.classList.toggle('on', b.dataset.mic === selMic));
   document.querySelectorAll('[data-wordko]').forEach(b => b.classList.toggle('on', b.dataset.wordko === selWordKo));
-  document.querySelectorAll('[data-tts]').forEach(b => b.classList.toggle('on', b.dataset.tts === selTts));
-  $('browserVoiceGroup').classList.toggle('hidden-group', selTts !== 'browser');
-  $('cloudTtsGroup').classList.toggle('hidden-group', selTts !== 'cloud');
 }
-function showTest(elId, text, bad) {
-  const o = $(elId);
+function showTest(text, bad) {
+  const o = $('testResult');
   o.textContent = text;
   o.className = 'res ' + (bad ? 'bad' : 'ok');
 }
 function testConnection() {
   const key = $('apiKeyInput').value.trim();
-  if (!key) { showTest('testResult', 'API 키를 먼저 넣어 주세요.', true); return; }
-  showTest('testResult', '연결을 확인하는 중...', false);
+  if (!key) { showTest('API 키를 먼저 넣어 주세요.', true); return; }
+  showTest('연결을 확인하는 중...', false);
   let done = false, t = null, timer = null;
   const finish = (text, bad) => {
     if (done) return;
     done = true;
     clearTimeout(timer);
     if (t) { try { t.close(); } catch (e) {} }
-    showTest('testResult', text, bad);
+    showTest(text, bad);
   };
   t = new WebSocket(wsUrl(key));
   timer = setTimeout(() => finish('응답이 없어요. 인터넷 연결을 확인해 주세요.', true), 10000);
@@ -1636,51 +1485,18 @@ function testConnection() {
     let raw = ev.data;
     if (raw instanceof Blob) raw = await raw.text();
     const m = JSON.parse(raw);
-    if (m.setupComplete) finish('Live 연결 성공!', false);
-    else if (m.error) finish('연결 실패: ' + (m.error.message || '키 권한을 확인해 주세요.'), true);
+    if (m.setupComplete) finish('연결 성공! 선생님 목소리를 쓸 수 있어요.', false);
+    else if (m.error) finish('연결 실패: ' + (m.error.message || '키나 모델 권한을 확인해 주세요.'), true);
   };
   t.onerror = () => finish('연결에 실패했어요. 키와 인터넷을 확인해 주세요.', true);
   t.onclose = e => finish('연결이 닫혔어요 (코드 ' + e.code + ').', true);
 }
-async function testStaticTts() {
-  const sample = 'I can draw a seal.';
-  const prevKey = cfg.ttsApiKey;
-  const prevApiKey = cfg.apiKey;
-  const prevBrowserVoice = cfg.browserEnVoice;
-  cfg.ttsApiKey = $('ttsKeyInput').value.trim();
-  cfg.apiKey = $('apiKeyInput').value.trim();
-  cfg.browserEnVoice = $('browserEnVoiceSelect').value;
-
-  showTest('testTtsResult', '재생 중...', false);
-  if (selTts === 'cloud') {
-    try {
-      const url = await synthesizeCloudTts(sample, 'en', selVoice, selSpeed);
-      const mySeq = ++staticSpeakSeq;
-      await playAudioUrl(url, mySeq);
-      showTest('testTtsResult', 'Google Cloud TTS 정상 재생!', false);
-    } catch (e) {
-      showTest('testTtsResult', 'Cloud TTS 키 오류 (브라우저 TTS로 대체됨)', true);
-      await speakStatic(sample, 'en', { engine: 'browser', voice: selVoice, speed: selSpeed });
-    }
-  } else {
-    const v = pickBrowserVoice('en', selVoice);
-    showTest('testTtsResult', v ? `고정 음성: ${v.name}` : '기본 영어 음성 재생', false);
-    await speakStatic(sample, 'en', { engine: 'browser', voice: selVoice, speed: selSpeed });
-  }
-  cfg.ttsApiKey = prevKey;
-  cfg.apiKey = prevApiKey;
-  cfg.browserEnVoice = prevBrowserVoice;
-}
 async function saveSettings() {
-  const before = { key: cfg.apiKey, voice: cfg.voice, mic: cfg.micMode, sheet: cfg.sheetUrl };
+  const before = { key: cfg.apiKey, voice: cfg.voice, speed: cfg.speed, mic: cfg.micMode, sheet: cfg.sheetUrl, wordKo: cfg.wordKoMode };
   cfg.apiKey = $('apiKeyInput').value.trim();
-  cfg.ttsApiKey = $('ttsKeyInput').value.trim();
-  cfg.ttsEngine = selTts;
-  cfg.browserEnVoice = $('browserEnVoiceSelect').value;
   cfg.sheetUrl = $('sheetInput').value.trim();
   cfg.childName = $('childInput').value.trim();
   cfg.voice = selVoice; cfg.speed = selSpeed; cfg.micMode = selMic; cfg.wordKoMode = selWordKo;
-
   if (cfg.sheetUrl !== before.sheet || !books.length) {
     try { books = await fetchBooks(cfg.sheetUrl); }
     catch (e) { saveCfg(); $('settingsMsg').textContent = e.message; return; }
@@ -1691,8 +1507,9 @@ async function saveSettings() {
   cfg.bookTitle = book.title;
   if (changed) { index = -1; finished = false; clearWordSelection(); }
   saveCfg();
-  const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.micMode !== before.mic);
+  const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.speed !== before.speed || cfg.micMode !== before.mic || cfg.wordKoMode !== before.wordKo);
   closeSettings();
+  audioCache.clear();
   if (needRestart) {
     closeSession(false);
     setPhase('splash');
@@ -1763,11 +1580,10 @@ function renderBookShelf() {
     const badgeText = (isCurrent && finished) ? `완독! · ${b.sentences.length}문장` : `${b.sentences.length}문장`;
     btn.innerHTML = `<div><div class="book-item-sub">${esc(b.series)} · ${esc(b.level)}</div><div class="book-item-title">${esc(b.title)}</div></div><span class="book-item-meta">${badgeText}</span>`;
     btn.addEventListener('click', () => {
-      stopAllPlayback();
+      stopPlayback();
       pendingAutoNext = false;
       clearWordSelection();
       $('teacherWrap').classList.remove('happy');
-      showCaption('');
       book = b;
       cfg.bookTitle = b.title;
       index = -1;
@@ -1775,6 +1591,8 @@ function renderBookShelf() {
       saveCfg();
       closeBookList();
       renderAll();
+      // 책 전환 시 누적 컨텍스트가 많았다면 조용히 갱신해 목소리 표류 방지
+      if (turnCountInSession >= 8 && connected) startSession(true);
       if (autoReadMode && canUse()) startBook();
       else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
     });
@@ -1792,7 +1610,6 @@ $('gateModal').addEventListener('click', e => { if (e.target === $('gateModal'))
 $('closeSettingsBtn').addEventListener('click', closeSettings);
 $('settingsModal').addEventListener('click', e => { if (e.target === $('settingsModal')) closeSettings(); });
 $('testBtn').addEventListener('click', testConnection);
-$('testTtsBtn').addEventListener('click', testStaticTts);
 $('reloadBtn').addEventListener('click', reloadBooks);
 $('saveBtn').addEventListener('click', saveSettings);
 $('stopTeacherBtn').addEventListener('click', () => { closeSession(false); closeSettings(); setPhase('splash'); $('splashMsg').textContent = ''; });
@@ -1800,7 +1617,6 @@ document.querySelectorAll('[data-voice]').forEach(b => b.addEventListener('click
 document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => { selSpeed = Number(b.dataset.speed); paintSegs(); }));
 document.querySelectorAll('[data-mic]').forEach(b => b.addEventListener('click', () => { selMic = b.dataset.mic; paintSegs(); }));
 document.querySelectorAll('[data-wordko]').forEach(b => b.addEventListener('click', () => { selWordKo = b.dataset.wordko; paintSegs(); }));
-document.querySelectorAll('[data-tts]').forEach(b => b.addEventListener('click', () => { selTts = b.dataset.tts; paintSegs(); }));
 $('closeBookListBtn').addEventListener('click', closeBookList);
 $('bookListModal').addEventListener('click', e => { if (e.target === $('bookListModal')) closeBookList(); });
 $('bookPillBtn').addEventListener('click', openBookList);
@@ -1815,27 +1631,27 @@ $('card').addEventListener('click', e => {
 $('prevBtn').addEventListener('click', () => go(-1));
 $('nextBtn').addEventListener('click', () => go(1));
 $('meaningBtn').addEventListener('click', meaning);
-$('rereadBtn').addEventListener('click', () => readSentence());
+$('rereadBtn').addEventListener('click', () => readSentence()); // 수정: MouseEvent 전달 버그 해결
 $('micBtn').addEventListener('click', () => {
   if (!connected || autoReadMode) return;
   if (cfg.micMode === 'always' || cfg.micMode === 'toggle') {
     micOn = !micOn;
     renderDock();
-    updateVisualState(isStaticSpeaking || sources.length > 0);
+    updateVisualState(sources.length > 0);
   }
 });
 $('micBtn').addEventListener('pointerdown', () => {
   if (connected && !autoReadMode && cfg.micMode === 'push') {
     pushing = true;
     renderDock();
-    updateVisualState(isStaticSpeaking || sources.length > 0);
+    updateVisualState(sources.length > 0);
   }
 });
 ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $('micBtn').addEventListener(ev, () => {
   if (cfg.micMode === 'push' && pushing) {
     pushing = false;
     renderDock();
-    updateVisualState(isStaticSpeaking || sources.length > 0);
+    updateVisualState(sources.length > 0);
   }
 }));
 $('krFlag').innerHTML = flagKR();
