@@ -1041,13 +1041,17 @@ input,select{
         </div>
       </div>
       <div>
-        <span class="flabel">5. 마이크 방식</span>
+        <span class="flabel">5. 마이크 방식 &amp; AI 음성 감지 (Silero VAD)</span>
         <div class="seg3">
           <button type="button" data-mic="always">계속 듣기</button>
           <button type="button" data-mic="toggle">눌러서 켜기</button>
           <button type="button" data-mic="push">누르고 말하기</button>
         </div>
-        <span class="fhelp">'계속 듣기'는 작은 소음을 자동으로 걸러내며, '눌러서 켜기'는 한 번 눌러 말하고 다시 눌러 끄는 방식입니다.</span>
+        <div class="seg2" style="margin-top:8px">
+          <button type="button" data-vad="silero">AI 목소리 감지 (추천)</button>
+          <button type="button" data-vad="rms">기본 음량 감지</button>
+        </div>
+        <span class="fhelp" id="vadStatusHelp">AudioWorklet + Silero AI VAD가 주변 TV·장난감 소음을 걸러내고 아이 목소리만 전달합니다.</span>
       </div>
       <div>
         <span class="flabel">6. 단어 뜻 읽어주기</span>
@@ -1087,6 +1091,8 @@ input,select{
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.0/dist/ort.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.19/dist/bundle.min.js"></script>
 <script>
 // ========== 3D Bear Character Controller (Three.js Hybrid) ==========
 const Bear3D = (() => {
@@ -1372,7 +1378,7 @@ const Bear3D = (() => {
 // ========== App Logic (Gemini Live 통합판) ==========
 const MODEL = 'gemini-3.8-live';
 const STORE_KEY = 'tent_reader_live_v3';
-const MAX_TURNS_BEFORE_REFRESH = 18;
+const MAX_TURNS_BEFORE_REFRESH = 24;
 const VOICES = {
   female: { label: '여자 선생님', voice: 'Aoede', desc: '친절하고 상냥한 젊은 여자 영어 선생님 (목소리: Aoede, 차분하고 맑은 여성 톤 고정)' },
   male:   { label: '남자 선생님', voice: 'Puck',  desc: '친절하고 부드러운 젊은 남자 영어 선생님 (목소리: Puck, 차분하고 따뜻한 남성 톤 고정)' }
@@ -1639,35 +1645,103 @@ const PhonicsEngine = (() => {
   return { analyze, cleanWord, toSafeCue };
 })();
 
+
+// ========== Shared Vocab Cache & Fast Meaning Lookup (Decoupled from Live Audio) ==========
+const VOCAB_STORE_KEY = 'tent_vocab_cache_v1';
+const BUILTIN_DICT = {
+  seal:'바다표범', clown:'광대', king:'왕', crown:'왕관', sheep:'양', bed:'침대',
+  sleep:'자다', draw:'그리다', myself:'나 자신', monster:'괴물', rabbit:'토끼',
+  hamster:'햄스터', blanket:'담요', pillow:'베개', turtle:'거북이', frog:'개구리',
+  snake:'뱀', mouse:'생쥐', fish:'물고기', bear:'곰', cat:'고양이', dog:'강아지',
+  pig:'돼지', duck:'오리', bird:'새', lion:'사자', tiger:'호랑이', zebra:'얼룩말',
+  owl:'부엉이', bat:'박쥐', bee:'꿀벌', ant:'개미', ladybug:'무당벌레', firefly:'반딧불이',
+  sun:'해', moon:'달', star:'별', tree:'나무', flower:'꽃', leaf:'나뭇잎', stone:'돌',
+  stick:'나뭇가지', feather:'깃털', acorn:'도토리', snow:'눈', wind:'바람', spring:'봄',
+  winter:'겨울', night:'밤', apple:'사과', banana:'바나나', strawberry:'딸기',
+  chocolate:'초콜릿', cake:'케이크', cookie:'쿠키', donut:'도넛', muffin:'머핀',
+  bread:'빵', pizza:'피자', pasta:'파스타', milk:'우유', water:'물', soup:'수프',
+  book:'책', paper:'종이', scissors:'가위', glue:'풀', crayon:'크레용', sticker:'스티커',
+  ribbon:'리본', hat:'모자', shoes:'신발', dress:'드레스', ring:'반지', ball:'공',
+  car:'자동차', bus:'버스', house:'집', tent:'텐트', table:'탁자', chair:'의자',
+  door:'문', rug:'양탄자', tub:'욕조', sink:'세면대', bath:'목욕', beach:'바닷가',
+  school:'학교', playground:'놀이터', flashlight:'손전등', bubbles:'비눗방울',
+  birthday:'생일', friend:'친구', happy:'행복한', big:'큰', small:'작은', tall:'키가 큰',
+  red:'빨간색', blue:'파란색', green:'초록색', yellow:'노란색', hot:'뜨거운',
+  jump:'뛰다', run:'달리다', eat:'먹다', play:'놀다', read:'읽다', write:'쓰다',
+  paint:'색칠하다', cut:'자르다', count:'세다', hide:'숨다', find:'찾다', shine:'빛나다',
+  blow:'불다', swim:'수영하다', hop:'깡충 뛰다', smile:'웃다', hug:'포옹',
+  square:'네모', triangle:'세모', circle:'동그라미', oval:'타원', rectangle:'직사각형',
+  stripes:'줄무늬', spots:'점박이', can:'할 수 있다', need:'필요하다', like:'좋아하다'
+};
+let sharedVocabCache = {};
+function loadSharedVocab() {
+  try { sharedVocabCache = JSON.parse(localStorage.getItem(VOCAB_STORE_KEY) || '{}'); } catch (e) { sharedVocabCache = {}; }
+}
+function saveSharedVocab() {
+  try { localStorage.setItem(VOCAB_STORE_KEY, JSON.stringify(sharedVocabCache)); } catch (e) {}
+}
+const ctxWordMeaningCache = new Map();
+
+async function fetchWordMeaningFast(word, sentence) {
+  const low = String(word || '').toLowerCase();
+  if (!low) return '';
+  const ctxKey = `${sentence}||${low}`;
+  if (ctxWordMeaningCache.has(ctxKey)) return ctxWordMeaningCache.get(ctxKey);
+  if (sharedVocabCache[low]) {
+    ctxWordMeaningCache.set(ctxKey, sharedVocabCache[low]);
+    return sharedVocabCache[low];
+  }
+  if (BUILTIN_DICT[low]) {
+    ctxWordMeaningCache.set(ctxKey, BUILTIN_DICT[low]);
+    return BUILTIN_DICT[low];
+  }
+  const key = cfg.apiKey.trim();
+  if (!key) return '';
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `문장 "${sentence}"에서 영어 단어 "${word}"의 미취학 아이 눈높이 한국어 뜻만 1~2단어로 아주 짧게 답해줘. 따옴표나 설명 없이 뜻만 출력.` }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 32 }
+      })
+    });
+    if (!res.ok) return '';
+    const data = await res.json();
+    const txt = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["'「」`]+|["'「」`.]+$/g, '');
+    if (txt) {
+      ctxWordMeaningCache.set(ctxKey, txt);
+      sharedVocabCache[low] = txt;
+      saveSharedVocab();
+    }
+    return txt;
+  } catch (e) {
+    return '';
+  }
+}
+
 function buildSystemPrompt() {
   const speedDesc = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
   const v = VOICES[cfg.voice] || VOICES.female;
-  const wordRule = cfg.wordKoMode === 'auto'
-    ? `  1) 음성으로는 해당 영어 단어를 "${speedDesc}" 속도로 또박또박 한 번 읽은 뒤, 짧은 숨을 쉬고 한국어 뜻(1~3단어)만 부드럽게 덧붙이고 바로 멈춘다.`
-    : `  1) 음성으로는 해당 영어 단어 하나만 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다. (한국어는 말하지 않는다.)`;
-  return `너는 미취학 아이와 실물 영어 동화책을 함께 읽는 ${v.desc}이야.
-- [절대 목소리·속도 고정 규칙] 첫 인사부터 마지막 문장까지 반드시 위에서 정한 단 한 명의 ${v.label}(${v.voice}) 성별, 음높이, 말투를 절대 바꾸지 않는다. 한국어와 영어를 오갈 때나 단어 하나만 짧게 읽을 때도 절대 반대 성별이나 다른 화자 톤으로 바뀌지 않는다.
-- [일정한 속도 규칙] 모든 영어 문장과 영어 단어는 반드시 "${speedDesc}" 속도로 동일하게 읽는다. 단어 하나를 읽을 때 갑자기 빨라지거나 느려지지 않도록 문장 읽기와 동일한 템포를 유지한다.
-- [언어 제한] 한국어(Korean)와 영어(English)만 사용한다. 제3국 언어는 절대 출력하지 않는다.
-- "GREET:"으로 시작하면 뒤에 적힌 인사말만 자연스럽게 한 번 읽고 멈춘다.
-- "READ_SENTENCE:"로 시작하면 뒤에 적힌 영어 문장만 원문 그대로 "${speedDesc}" 속도로 한 번 읽고 바로 멈춘다. ("따라 해 봐" 등 질문 금지)
-- "READ_WORD:"로 시작하면:
-${wordRule}
-  2) 동시에 \`show_word_meaning\` 도구를 호출하여 문맥에 맞는 쉬운 한국어 뜻(1~3단어)만 전달한다.
-- "SPEAK_KO:"로 시작하면 뒤에 적힌 한국어 짧은 뜻만 따뜻하게 한 번 읽어주고 바로 멈춘다.
-- "READ_WORD_ONLY:"로 시작하면 뒤에 적힌 영어 단어 하나만 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다. (도구 호출이나 한국어 설명 금지)
-- "PHONICS_WORD:"로 시작하면 뒤에 제시된 영어 단어의 파닉스 음가(알파벳 철자 이름이 아닌 실제 발음 소리!)만 "${speedDesc}" 속도로 조각 순서대로 하나씩 또박또박 끊어 읽은 뒤, 잠깐 쉬고 전체 단어를 자연스럽게 한 번 합쳐 읽고 바로 멈춘다. (예: "s · ea · l -> seal"이면 절대 '에스, 이, 에이, 엘'이 아니라 실제 음가 '/s/ ... /iː/ ... /l/ ... seal'로만 읽는다. 한국어나 설명은 절대 말하지 않는다.)
-- "PHONICS_SYLLABLES:"로 시작하면 2음절 이상 영어 단어를 음절별 단계 조합으로 읽는다. 제시된 각 음절의 음가를 하나씩 끊어 읽은 뒤 그 음절을 합쳐 읽고, 다음 음절도 똑같이 끊어 읽고 합쳐 읽은 뒤, 마지막에 모든 음절을 합쳐 전체 단어를 한 번 읽고 바로 멈춘다. (예: "m · o · n -> mon / s · t · er -> ster / mon + ster -> monster"이면 '/m/ /ɒ/ /n/ ... mon ... /s/ /t/ /ər/ ... ster ... monster' 순서로만 읽는다. 한국어나 설명은 절대 말하지 않는다.)
-- "READ_SIGHT_WORD:"로 시작하면 뒤에 적힌 영어 단어 하나만 통째로 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다.
-- "MEANING:"으로 시작하면 해당 영어 문장의 뜻을 한국어로 한두 문장만 짧게 말하고 멈춘다.
-- "CELEBRATE:"로 시작하면 뒤에 적힌 완독 축하 인사를 따뜻하게 한 번 말하고 멈춘다.
-- 아이가 영어를 따라 읽으려고 시도하면(일부만 말하거나 발음이 서툴러도) 지적하지 말고 짧게 칭찬("정말 잘했어! Great job!") 한 마디만 하고 \`move_to_next_sentence\` 도구를 호출한다.
-- 아이가 책 내용이나 다른 질문을 할 때만 짧게 답하고 "그럼 우리 읽던 문장으로 돌아가 볼까?"라고 말한다.`;
+  return `너는 미취학 아이와 영어 동화책을 함께 읽는 ${v.desc}이야.
+- [목소리·속도 고정] 처음부터 끝까지 ${v.label}(${v.voice}) 한 명의 성별과 톤을 유지한다. 영어 문장과 단어는 모두 "${speedDesc}" 속도로 일정하게 읽는다.
+- [언어] 한국어와 영어만 사용한다.
+- "GREET:" 뒤의 인사말만 자연스럽게 한 번 읽고 멈춘다.
+- "READ:" 뒤의 영어 문장만 원문 그대로 한 번 읽고 바로 멈춘다. (추가 질문·설명 금지)
+- "WORD:" 뒤의 영어 단어 하나만 또박또박 한 번 읽고 바로 멈춘다. (한국어·설명 금지)
+- "WORD_KO:" 뒤의 영어 단어와 한국어 뜻을 순서대로 부드럽게 한 번 읽고 바로 멈춘다.
+- "KO:" 뒤의 한국어 뜻만 따뜻하게 한 번 읽고 바로 멈춘다.
+- "PHONICS:" 뒤의 영어 음가(알파벳 이름이 아닌 실제 발음 소리)를 순서대로 끊어 읽은 뒤, 잠깐 쉬고 전체 단어를 합쳐 한 번 읽고 멈춘다.
+- "SYLLABLES:" 뒤의 각 음절을 음가별로 끊어 합쳐 읽고, 마지막에 음절을 모아 전체 단어를 한 번 읽고 멈춘다.
+- "MEANING:" 뒤의 영어 문장 뜻을 쉬운 한국어 한 문장으로 짧게 말하고 멈춘다.
+- "CELEBRATE:" 뒤의 축하 인사를 따뜻하게 한 번 읽고 멈춘다.
+- 아이가 마이크에 대고 따라 읽으려고 시도하면 지적하지 말고 짧게 칭찬("정말 잘했어! Great job!") 한 마디만 한 뒤 \`move_to_next_sentence\` 도구를 호출한다.
+- 아이가 책 내용에 대해 질문할 때만 한두 문장으로 짧게 답한다.`;
 }
 
 const DEFAULTS = {
   apiKey: '', sheetUrl: '', bookTitle: '',
-  voice: 'female', speed: 2, micMode: 'always', wordKoMode: 'tap', childName: ''
+  voice: 'female', speed: 2, micMode: 'always', vadMode: 'silero', wordKoMode: 'tap', childName: ''
 };
 
 let cfg = { ...DEFAULTS };
@@ -1694,18 +1768,27 @@ let ws = null, connected = false, setupDone = false, introPending = false, intro
 let silentReconnect = false, turnCountInSession = 0, reconnectAttempts = 0;
 let wakeLock = null;
 
-let outCtx = null, inCtx = null, micStream = null, micNode = null;
+let outCtx = null, audioStreamer = null;
+let inCtx = null, micStream = null, micNode = null, micSourceNode = null, micWorkletUrl = '';
+let vadInstance = null, vadReady = false, vadSpeaking = false, vadHadSentSpeech = false;
+let preSpeechRing = []; // keeps last ~450ms of 16kHz PCM Int16 chunks so first syllable is never clipped
 let micOn = false, pushing = false, voiceActiveUntil = 0;
-let playAt = 0, sources = [], firstAudioStarted = false;
+let firstAudioStarted = false;
 let teacherText = '', newTurn = false;
-let selVoice = 'female', selSpeed = 2, selMic = 'always', selWordKo = 'tap';
+let selVoice = 'female', selSpeed = 2, selMic = 'always', selVad = 'silero', selWordKo = 'tap';
 
-let reqSeq = 0;
-let pendingTurns = 0;
 let turnInFlight = false;
+let discardingCurrentTurn = false;
+let queuedRequest = null;       // latest-wins request waiting for in-flight turn to settle
+let queueFlushTimer = null;     // fallback timer if server skips turnComplete on interrupted turn
+let turnWatchdogTimer = null;   // safety watchdog so a stalled turn never locks the app
+let deferredAfterReconnect = null; // executes automatically if user taps during silent reconnect
+let micCooldownUntil = 0;       // 850ms echo guard after AI stops speaking
+let micCooldownTimer = null;
 let captionTimer = null;
 let currentTurnChunks = [];
 let activeCacheKey = '';
+let wordRequestSeq = 0;
 const audioCache = new Map();
 
 const $ = id => document.getElementById(id);
@@ -1809,11 +1892,216 @@ async function fetchBooks(url) {
   return list;
 }
 
-// ---------- 오디오 출력 ----------
+// ---------- 정밀 오디오 스트리머 (google-gemini/multimodal-live-api-web-console 패턴) ----------
+class AudioStreamer {
+  constructor(context) {
+    this.context = context;
+    this.sampleRate = 24000;
+    this.initialBufferTime = 0.10; // 100ms 지터 버퍼
+    this.scheduleAheadTime = 0.22; // 220ms 선행 예약
+    this.audioQueue = [];
+    this.activeSources = new Set();
+    this.isPlaying = false;
+    this.isStreamComplete = false;
+    this.scheduledTime = 0;
+    this.checkTimer = null;
+    this.endOfQueueSource = null;
+    this.onFirstPlay = null;
+    this.onComplete = null;
+    this.gainNode = this.context.createGain();
+    this.gainNode.connect(this.context.destination);
+  }
+
+  _notifyFirstIfNeeded(startAt) {
+    if (!firstAudioStarted) {
+      firstAudioStarted = true;
+      const delayMs = Math.max(0, (startAt - this.context.currentTime) * 1000);
+      if (this.onFirstPlay) this.onFirstPlay(delayMs);
+    } else {
+      flushCaption();
+      updateVisualState(true);
+    }
+  }
+
+  addFloat32(f32) {
+    if (!f32 || !f32.length) return;
+    // 긴 청크는 부드러운 스케줄링을 위해 7680샘플(0.32초) 단위로 분할
+    const MAX_CHUNK = 7680;
+    let offset = 0;
+    while (offset < f32.length) {
+      const end = Math.min(offset + MAX_CHUNK, f32.length);
+      this.audioQueue.push(f32.subarray(offset, end));
+      offset = end;
+    }
+    this.isStreamComplete = false;
+    if (!this.isPlaying) {
+      this.isPlaying = true;
+      this.scheduledTime = this.context.currentTime + this.initialBufferTime;
+      this.scheduleNextBuffer();
+    } else if (!this.checkTimer) {
+      this.scheduleNextBuffer();
+    }
+  }
+
+  addPCM16Base64(b64) {
+    const bin = atob(b64);
+    const len = bin.length >> 1;
+    const f32 = new Float32Array(len);
+    for (let i = 0; i < len; i++) {
+      let v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
+      if (v >= 0x8000) v -= 0x10000;
+      f32[i] = v / 32768;
+    }
+    if (activeCacheKey) currentTurnChunks.push(f32);
+    this.addFloat32(f32);
+  }
+
+  playCached(chunks) {
+    this.stop(true);
+    let totalSamples = 0;
+    for (const f of chunks) {
+      totalSamples += f.length;
+      this.addFloat32(f);
+    }
+    this.complete();
+    return Math.max(850, (totalSamples / this.sampleRate) * 1000);
+  }
+
+  scheduleNextBuffer() {
+    clearTimeout(this.checkTimer);
+    this.checkTimer = null;
+
+    while (
+      this.audioQueue.length > 0 &&
+      this.scheduledTime < this.context.currentTime + this.scheduleAheadTime
+    ) {
+      const chunk = this.audioQueue.shift();
+      const buf = this.context.createBuffer(1, chunk.length, this.sampleRate);
+      buf.getChannelData(0).set(chunk);
+
+      const src = this.context.createBufferSource();
+      src.buffer = buf;
+      src.connect(this.gainNode);
+
+      const now = this.context.currentTime;
+      const startTime = Math.max(this.scheduledTime, now + 0.02);
+      this._notifyFirstIfNeeded(startTime);
+
+      this.activeSources.add(src);
+      src.onended = () => {
+        this.activeSources.delete(src);
+        if (this.endOfQueueSource === src) {
+          this.endOfQueueSource = null;
+          if (this.isStreamComplete && this.audioQueue.length === 0 && this.activeSources.size === 0) {
+            this.isPlaying = false;
+            firstAudioStarted = false;
+            if (this.onComplete) this.onComplete();
+          }
+        }
+      };
+
+      src.start(startTime);
+      this.scheduledTime = startTime + buf.duration;
+      this.endOfQueueSource = src;
+    }
+
+    if (this.audioQueue.length > 0) {
+      const nextCheckMs = Math.max(25, (this.scheduledTime - this.context.currentTime - 0.10) * 1000);
+      this.checkTimer = setTimeout(() => this.scheduleNextBuffer(), nextCheckMs);
+    } else if (this.isStreamComplete && this.activeSources.size === 0) {
+      this.isPlaying = false;
+      firstAudioStarted = false;
+      if (this.onComplete) this.onComplete();
+    }
+  }
+
+  complete() {
+    const wasPlaying = this.isPlaying;
+    this.isStreamComplete = true;
+    if (this.audioQueue.length === 0 && this.activeSources.size === 0) {
+      this.isPlaying = false;
+      firstAudioStarted = false;
+      if (wasPlaying && this.onComplete) this.onComplete();
+    } else {
+      this.scheduleNextBuffer();
+    }
+  }
+
+  stop(forImmediateNext = false) {
+    const hadAudio = this.isPlaying || this.activeSources.size > 0 || this.audioQueue.length > 0;
+    this.isPlaying = false;
+    this.isStreamComplete = true;
+    this.audioQueue = [];
+    this.endOfQueueSource = null;
+    clearTimeout(this.checkTimer);
+    this.checkTimer = null;
+
+    // 클릭·팝 잡음 없는 25ms 소프트 페이드아웃 후 새 GainNode로 즉시 교체
+    const oldGain = this.gainNode;
+    const oldSources = [...this.activeSources];
+    this.activeSources.clear();
+    try {
+      const now = this.context.currentTime;
+      oldGain.gain.cancelScheduledValues(now);
+      oldGain.gain.setValueAtTime(oldGain.gain.value, now);
+      oldGain.gain.linearRampToValueAtTime(0.0001, now + 0.025);
+    } catch (e) {}
+
+    setTimeout(() => {
+      oldSources.forEach(s => { try { s.onended = null; s.stop(); } catch (e) {} });
+      try { oldGain.disconnect(); } catch (e) {}
+    }, 35);
+
+    this.gainNode = this.context.createGain();
+    this.gainNode.gain.setValueAtTime(1, this.context.currentTime);
+    this.gainNode.connect(this.context.destination);
+    this.scheduledTime = this.context.currentTime;
+    firstAudioStarted = false;
+    return hadAudio;
+  }
+
+  hasActiveAudio() {
+    return this.isPlaying || this.activeSources.size > 0 || this.audioQueue.length > 0;
+  }
+}
+
 function ensureOut() {
   if (!outCtx) outCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
   if (outCtx.state === 'suspended') outCtx.resume();
+  if (!audioStreamer) {
+    audioStreamer = new AudioStreamer(outCtx);
+    audioStreamer.onFirstPlay = delayMs => {
+      clearTimeout(captionTimer);
+      captionTimer = setTimeout(() => {
+        flushCaption();
+        updateVisualState(true);
+        if (phonicsMode && phonicsInfo && !phonicsInfo.isSight && !phonicsTimers.length) {
+          startPhonicsLightSequence(null);
+        }
+        if (typeof WordGame !== 'undefined') WordGame.onLiveAudioStart();
+      }, delayMs);
+    };
+    audioStreamer.onComplete = () => {
+      armMicEchoCooldown(850);
+      if (phonicsMode && phonicsInfo && !phonicsInfo.isSight) {
+        clearPhonicsTimers();
+        const isMulti = phonicsInfo.syllables && phonicsInfo.syllables.length > 1;
+        if (isMulti) {
+          phonicsStage = phonicsInfo.syllables.length;
+          phonicsLitIndex = phonicsInfo.syllables.length;
+          renderWordMeaningBox();
+        } else {
+          setPhonicsLit(phonicsInfo.chunks.length);
+        }
+      }
+      if (typeof WordGame !== 'undefined') WordGame.onLiveAudioEnd();
+      updateVisualState(false);
+    };
+  }
   return outCtx;
+}
+function isAudioPlaying() {
+  return !!(audioStreamer && audioStreamer.hasActiveAudio());
 }
 function warmUpAudio() {
   const ctx = ensureOut();
@@ -1849,77 +2137,16 @@ function flushCaption() {
   cap.textContent = teacherText;
   cap.classList.add('show');
 }
-function scheduleFloat32Chunk(f32) {
-  const ctx = ensureOut();
-  const buf = ctx.createBuffer(1, f32.length, 24000);
-  buf.getChannelData(0).set(f32);
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  src.connect(ctx.destination);
-  const now = ctx.currentTime;
-  if (!firstAudioStarted || playAt < now) playAt = now + 0.03;
-  const startAt = playAt;
-  src.start(startAt);
-  playAt += buf.duration;
-
-  if (!firstAudioStarted) {
-    firstAudioStarted = true;
-    const delayMs = Math.max(0, (startAt - now) * 1000);
-    clearTimeout(captionTimer);
-    captionTimer = setTimeout(() => {
-      flushCaption();
-      updateVisualState(true);
-      if (phonicsMode && phonicsInfo && !phonicsInfo.isSight && !phonicsTimers.length) {
-        startPhonicsLightSequence(null);
-      }
-      if (typeof WordGame !== 'undefined') WordGame.onLiveAudioStart();
-    }, delayMs);
-  } else {
-    flushCaption();
-    updateVisualState(true);
-  }
-
-  sources.push(src);
-  src.onended = () => {
-    sources = sources.filter(s => s !== src);
-    if (!sources.length) {
-      firstAudioStarted = false;
-      if (phonicsMode && phonicsInfo && !phonicsInfo.isSight) {
-        clearPhonicsTimers();
-        const isMulti = phonicsInfo.syllables && phonicsInfo.syllables.length > 1;
-        if (isMulti) {
-          phonicsStage = phonicsInfo.syllables.length;
-          phonicsLitIndex = phonicsInfo.syllables.length;
-          renderWordMeaningBox();
-        } else {
-          setPhonicsLit(phonicsInfo.chunks.length);
-        }
-      }
-      if (typeof WordGame !== 'undefined') WordGame.onLiveAudioEnd();
-      updateVisualState(false);
-    }
-  };
-}
 function playPcm(b64) {
-  const bin = atob(b64), len = bin.length >> 1, f = new Float32Array(len);
-  for (let i = 0; i < len; i++) {
-    let v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
-    if (v >= 0x8000) v -= 0x10000;
-    f[i] = v / 32768;
-  }
-  if (activeCacheKey) currentTurnChunks.push(f);
-  scheduleFloat32Chunk(f);
+  ensureOut();
+  audioStreamer.addPCM16Base64(b64);
 }
 function playCachedChunks(chunks, triggerAutoNext = false, isPhonics = false) {
-  stopPlayback();
-  firstAudioStarted = false;
-  if (outCtx) playAt = outCtx.currentTime;
-  let totalSamples = 0;
-  for (const f of chunks) {
-    totalSamples += f.length;
-    scheduleFloat32Chunk(f);
-  }
-  const totalMs = Math.max(850, (totalSamples / 24000) * 1000);
+  ensureOut();
+  clearTimeout(autoReadTimer);
+  clearTimeout(captionTimer);
+  clearPhonicsTimers();
+  const totalMs = audioStreamer.playCached(chunks);
   if (isPhonics && phonicsInfo && !phonicsInfo.isSight) {
     startPhonicsLightSequence(totalMs);
   }
@@ -1989,74 +2216,303 @@ function startPhonicsLightSequence(exactTotalMs) {
     }, ev.at));
   });
 }
+function armMicEchoCooldown(ms = 850) {
+  micCooldownUntil = Math.max(micCooldownUntil, performance.now() + ms);
+  clearTimeout(micCooldownTimer);
+  micCooldownTimer = setTimeout(() => {
+    if (!isAudioPlaying() && !turnInFlight) updateVisualState(false);
+  }, ms + 30);
+}
 function stopPlayback() {
   clearTimeout(autoReadTimer);
   clearTimeout(captionTimer);
   clearPhonicsTimers();
-  sources.forEach(s => { try { s.stop(); } catch (e) {} });
-  sources = [];
-  firstAudioStarted = false;
-  if (outCtx) playAt = outCtx.currentTime;
+  const hadAudio = audioStreamer ? audioStreamer.stop(false) : false;
+  if (hadAudio) armMicEchoCooldown(650);
   updateVisualState(false);
 }
 
-// ---------- 마이크 + 소음 게이트 + 3D 음량 피드백 ----------
+// ---------- AudioWorklet 16kHz 마이크 + Silero AI VAD (ricky0123/vad) ----------
+const PCM_WORKLET_CODE = `
+class PcmRecorderProcessor extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.targetRate = 16000;
+    this.ratio = sampleRate / this.targetRate;
+    this.phase = 0;
+    this.outLen = 2048;
+    this.outBuf = new Int16Array(this.outLen);
+    this.outIdx = 0;
+    this.sqSum = 0;
+    this.sqCount = 0;
+  }
+  process(inputs) {
+    const input = inputs[0] && inputs[0][0];
+    if (!input || !input.length) return true;
+    for (let i = 0; i < input.length; i++) {
+      this.sqSum += input[i] * input[i];
+      this.sqCount++;
+    }
+    if (Math.abs(this.ratio - 1) < 0.01) {
+      for (let i = 0; i < input.length; i++) {
+        const s = Math.max(-1, Math.min(1, input[i]));
+        this.outBuf[this.outIdx++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        if (this.outIdx >= this.outLen) this.flush();
+      }
+    } else {
+      let pos = this.phase;
+      while (pos < input.length) {
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        const s0 = input[idx];
+        const s1 = (idx + 1 < input.length) ? input[idx + 1] : s0;
+        const s = Math.max(-1, Math.min(1, s0 + (s1 - s0) * frac));
+        this.outBuf[this.outIdx++] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        if (this.outIdx >= this.outLen) this.flush();
+        pos += this.ratio;
+      }
+      this.phase = pos - input.length;
+    }
+    return true;
+  }
+  flush() {
+    const rms = this.sqCount ? Math.sqrt(this.sqSum / this.sqCount) : 0;
+    const copy = this.outBuf.slice(0, this.outIdx);
+    this.port.postMessage({ pcm: copy.buffer, rms }, [copy.buffer]);
+    this.outIdx = 0;
+    this.sqSum = 0;
+    this.sqCount = 0;
+  }
+}
+registerProcessor('pcm-recorder-processor', PcmRecorderProcessor);
+`;
+
+function int16ToBase64(int16Arr) {
+  const bytes = new Uint8Array(int16Arr.buffer, int16Arr.byteOffset, int16Arr.byteLength);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 8192) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+  }
+  return btoa(bin);
+}
+
+function sendPcm16Frame(int16Arr) {
+  send({ realtimeInput: { audio: { data: int16ToBase64(int16Arr), mimeType: 'audio/pcm;rate=16000' } } });
+}
+
+function sendTrailingSilenceFrames(count = 3) {
+  const zeros = new Int16Array(2048);
+  const b64 = int16ToBase64(zeros);
+  for (let i = 0; i < count; i++) {
+    send({ realtimeInput: { audio: { data: b64, mimeType: 'audio/pcm;rate=16000' } } });
+  }
+}
+
+function handleMicPcmFrame(int16Arr, rms) {
+  const canListen = isMicListeningNow();
+  if (canListen) {
+    const scale = Math.min(1.22, 1.03 + rms * 2.1);
+    $('teacherWrap').style.setProperty('--mic-scale', scale.toFixed(3));
+    Bear3D.setState({ micRms: rms });
+  } else {
+    $('teacherWrap').style.setProperty('--mic-scale', '1');
+    Bear3D.setState({ micRms: 0 });
+    preSpeechRing = [];
+    vadHadSentSpeech = false;
+    return;
+  }
+
+  // 'toggle' or 'push' 모드에서는 사용자가 명시적으로 켠 동안 그대로 전송
+  if (cfg.micMode !== 'always') {
+    sendPcm16Frame(int16Arr);
+    return;
+  }
+
+  // 'always' 모드 + Silero AI VAD 활성 시: AI가 사람 목소리로 판단한 구간만 전송 (앞 음절 보존 링버퍼 포함)
+  if (cfg.vadMode !== 'rms' && vadReady) {
+    if (vadSpeaking) {
+      if (preSpeechRing.length > 0) {
+        for (const oldFrame of preSpeechRing) sendPcm16Frame(oldFrame);
+        preSpeechRing = [];
+      }
+      vadHadSentSpeech = true;
+      sendPcm16Frame(int16Arr);
+    } else {
+      preSpeechRing.push(int16Arr);
+      if (preSpeechRing.length > 4) preSpeechRing.shift(); // 최근 ~500ms 보존
+    }
+    return;
+  }
+
+  // Fallback RMS 임계값 게이트
+  const nowMs = performance.now();
+  if (rms > 0.016) voiceActiveUntil = nowMs + 950;
+  if (nowMs > voiceActiveUntil) return;
+  sendPcm16Frame(int16Arr);
+}
+
+function updateVadHelpLabel() {
+  const el = $('vadStatusHelp');
+  if (!el) return;
+  if (selVad === 'rms') {
+    el.textContent = '기본 음량 감지 모드: 일정 크기 이상의 소리를 전송합니다.';
+  } else if (vadReady) {
+    el.textContent = 'Silero AI VAD 활성됨: 주변 TV·장난감 소음을 걸러내고 아이 목소리만 정밀 전달 중입니다.';
+  } else {
+    el.textContent = 'AudioWorklet + Silero AI VAD가 주변 소음을 걸러내고 아이 목소리만 전달합니다. (미지원 환경 자동 폴백)';
+  }
+}
+
+async function initSileroVad(stream) {
+  stopSileroVad();
+  if (cfg.vadMode === 'rms' || typeof vad === 'undefined' || !vad.MicVAD) return;
+  try {
+    if (typeof ort !== 'undefined' && ort.env && ort.env.wasm) {
+      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.0/dist/';
+      ort.env.wasm.numThreads = 1; // GitHub Pages(비 COOP/COEP) 호환 필수 옵션
+    }
+    const inst = await Promise.race([
+      vad.MicVAD.new({
+        stream,
+        workletURL: 'https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.19/dist/vad.worklet.bundle.min.js',
+        modelURL: 'https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.19/dist/silero_vad.onnx',
+        positiveSpeechThreshold: 0.60,
+        negativeSpeechThreshold: 0.38,
+        minSpeechFrames: 4,
+        redemptionFrames: 10,
+        preSpeechPadFrames: 4,
+        onSpeechStart: () => {
+          if (!isMicListeningNow()) return;
+          vadSpeaking = true;
+          if (preSpeechRing.length > 0 && cfg.micMode === 'always') {
+            for (const f of preSpeechRing) sendPcm16Frame(f);
+            preSpeechRing = [];
+            vadHadSentSpeech = true;
+          }
+        },
+        onSpeechEnd: () => {
+          const sent = vadHadSentSpeech;
+          vadSpeaking = false;
+          vadHadSentSpeech = false;
+          preSpeechRing = [];
+          if (sent && connected && setupDone && !liveForGameOnly) {
+            sendTrailingSilenceFrames(3);
+          }
+        },
+        onVADMisfire: () => {
+          // 0.35초 미만의 짧은 기침·박수·장난감 소리 자동 무시
+          vadSpeaking = false;
+          vadHadSentSpeech = false;
+          preSpeechRing = [];
+        }
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('VAD timeout')), 9000))
+    ]);
+    if (!micStream) { try { inst.destroy(); } catch (e) {} return; }
+    vadInstance = inst;
+    vadInstance.start();
+    vadReady = true;
+    updateVadHelpLabel();
+  } catch (e) {
+    vadReady = false;
+    vadSpeaking = false;
+    updateVadHelpLabel();
+  }
+}
+
+function stopSileroVad() {
+  vadReady = false;
+  vadSpeaking = false;
+  vadHadSentSpeech = false;
+  preSpeechRing = [];
+  if (vadInstance) {
+    try { vadInstance.pause(); } catch (e) {}
+    try { vadInstance.destroy(); } catch (e) {}
+    vadInstance = null;
+  }
+}
+
 async function startMic() {
   try {
     micStream = await navigator.mediaDevices.getUserMedia({
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
     });
     inCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-    const src = inCtx.createMediaStreamSource(micStream);
-    micNode = inCtx.createScriptProcessor(4096, 1, 1);
-    micNode.onaudioprocess = e => {
-      const canListen = isMicListeningNow();
-      const input = e.inputBuffer.getChannelData(0);
-      let sum = 0;
-      for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
-      const rms = Math.sqrt(sum / input.length);
+    if (inCtx.state === 'suspended') await inCtx.resume();
+    micSourceNode = inCtx.createMediaStreamSource(micStream);
 
-      if (canListen) {
-        const scale = Math.min(1.22, 1.03 + rms * 2.1);
-        $('teacherWrap').style.setProperty('--mic-scale', scale.toFixed(3));
-        Bear3D.setState({ micRms: rms });
-      } else {
-        $('teacherWrap').style.setProperty('--mic-scale', '1');
-        Bear3D.setState({ micRms: 0 });
-        return;
+    // 1) AudioWorklet 우선 사용 (메인 스레드 분리, 3D 렌더링과 무간섭 + 자동 16kHz 리샘플링)
+    let workletOk = false;
+    if (inCtx.audioWorklet && typeof AudioWorkletNode !== 'undefined') {
+      try {
+        if (!micWorkletUrl) {
+          micWorkletUrl = URL.createObjectURL(new Blob([PCM_WORKLET_CODE], { type: 'application/javascript' }));
+        }
+        await inCtx.audioWorklet.addModule(micWorkletUrl);
+        micNode = new AudioWorkletNode(inCtx, 'pcm-recorder-processor');
+        micNode.port.onmessage = e => {
+          const { pcm, rms } = e.data || {};
+          if (pcm) handleMicPcmFrame(new Int16Array(pcm), rms || 0);
+        };
+        micSourceNode.connect(micNode);
+        // AudioWorklet 프로세서 구동 유지용 무음 경로
+        const silentGain = inCtx.createGain();
+        silentGain.gain.value = 0;
+        micNode.connect(silentGain);
+        silentGain.connect(inCtx.destination);
+        workletOk = true;
+      } catch (e) {
+        workletOk = false;
       }
+    }
 
-      const nowMs = performance.now();
-      if (cfg.micMode === 'always') {
-        if (rms > 0.016) voiceActiveUntil = nowMs + 950;
-        if (nowMs > voiceActiveUntil) return;
-      }
+    // 2) 구형 브라우저 / file:// 환경용 ScriptProcessorNode 안전 폴백
+    if (!workletOk) {
+      const spNode = inCtx.createScriptProcessor(4096, 1, 1);
+      const ratio = inCtx.sampleRate / 16000;
+      spNode.onaudioprocess = e => {
+        const input = e.inputBuffer.getChannelData(0);
+        let sum = 0;
+        for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+        const rms = Math.sqrt(sum / input.length);
+        const outLen = Math.max(1, Math.floor(input.length / ratio));
+        const out = new Int16Array(outLen);
+        for (let i = 0; i < outLen; i++) {
+          const s = Math.max(-1, Math.min(1, input[Math.min(input.length - 1, Math.floor(i * ratio))]));
+          out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        handleMicPcmFrame(out, rms);
+      };
+      micSourceNode.connect(spNode);
+      spNode.connect(inCtx.destination);
+      micNode = spNode;
+    }
 
-      const out = new Int16Array(input.length);
-      for (let i = 0; i < input.length; i++) {
-        const s = Math.max(-1, Math.min(1, input[i]));
-        out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-      }
-      const bytes = new Uint8Array(out.buffer);
-      let bin = '';
-      for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
-      send({ realtimeInput: { audio: { data: btoa(bin), mimeType: 'audio/pcm;rate=16000' } } });
-    };
-    src.connect(micNode);
-    micNode.connect(inCtx.destination);
+    // 3) 백그라운드에서 Silero AI VAD 비동기 초기화 (로딩 중에도 즉시 녹음 가능)
+    if (cfg.vadMode !== 'rms') initSileroVad(micStream);
     return true;
   } catch (e) {
     stopMic();
     return false;
   }
 }
+
 function stopMic() {
-  if (micNode) { try { micNode.disconnect(); } catch (e) {} micNode.onaudioprocess = null; micNode = null; }
+  stopSileroVad();
+  if (micNode) {
+    try { if (micNode.port) micNode.port.onmessage = null; } catch (e) {}
+    try { micNode.onaudioprocess = null; } catch (e) {}
+    try { micNode.disconnect(); } catch (e) {}
+    micNode = null;
+  }
+  if (micSourceNode) { try { micSourceNode.disconnect(); } catch (e) {} micSourceNode = null; }
   if (inCtx) { try { inCtx.close(); } catch (e) {} inCtx = null; }
   if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
 }
+
 function isMicListeningNow() {
-  if (!connected || !setupDone || introPending || sources.length || turnInFlight || autoReadMode) return false;
+  if (!connected || !setupDone || introPending || liveForGameOnly || isAudioPlaying() || turnInFlight || discardingCurrentTurn || queuedRequest || autoReadMode) return false;
+  if (performance.now() < micCooldownUntil) return false;
   if (cfg.micMode === 'always' || cfg.micMode === 'toggle') return micOn;
   return pushing;
 }
@@ -2079,18 +2535,6 @@ function setupMessage() {
         {
           name: 'move_to_next_sentence',
           description: '아이가 방금 들은 영어 문장을 따라 읽었을 때, 칭찬을 한 뒤 자동으로 다음 문장(또는 완독 화면)으로 넘어가기 위해 호출합니다.'
-        },
-        {
-          name: 'show_word_meaning',
-          description: '아이가 특정 영어 단어를 눌렀을 때, 해당 단어의 짧은 한국어 뜻을 카드 화면에 텍스트로 보여주기 위해 호출합니다.',
-          parameters: {
-            type: 'OBJECT',
-            properties: {
-              word: { type: 'STRING', description: '요청된 영어 단어' },
-              meaning: { type: 'STRING', description: '문맥에 맞는 쉬운 한국어 뜻 (1~3단어 이내, 예: 바다표범)' }
-            },
-            required: ['word', 'meaning']
-          }
         }
       ]
     }],
@@ -2098,7 +2542,14 @@ function setupMessage() {
     outputAudioTranscription: {}
   } };
 }
-function canUse() { return connected && setupDone && !introPending && !!book; }
+function canUse() { return (connected && setupDone && !introPending && !!book) || (silentReconnect && !!book); }
+function runOrDefer(fn) {
+  if (connected && setupDone) { fn(); return; }
+  if (silentReconnect) {
+    deferredAfterReconnect = fn;
+    setTurnBanner('잠시 목소리를 가다듬고 있어요...', 'talking');
+  }
+}
 
 function connectSilentLiveForGame() {
   if (!cfg.apiKey.trim()) return;
@@ -2201,8 +2652,13 @@ async function startSession(preserveState = false) {
 function closeSession(keepProgress = false) {
   const s = ws;
   ws = null; connected = false; setupDone = false; introPending = false; pendingAutoNext = false;
-  pendingTurns = 0; turnInFlight = false; activeCacheKey = ''; currentTurnChunks = [];
+  turnInFlight = false; discardingCurrentTurn = false; queuedRequest = null;
+  activeCacheKey = ''; currentTurnChunks = [];
+  clearTimeout(queueFlushTimer);
+  clearTimeout(turnWatchdogTimer);
+  clearTimeout(micCooldownTimer);
   if (!keepProgress) {
+    deferredAfterReconnect = null;
     index = -1;
     finished = false;
     audioCache.clear();
@@ -2231,7 +2687,7 @@ function fail(msg) {
 }
 
 function maybeRefreshSession() {
-  if (turnCountInSession >= MAX_TURNS_BEFORE_REFRESH && !sources.length && !turnInFlight && connected && phase === 'ready') {
+  if (turnCountInSession >= MAX_TURNS_BEFORE_REFRESH && !isAudioPlaying() && !turnInFlight && !queuedRequest && connected && phase === 'ready' && !liveForGameOnly) {
     turnCountInSession = 0;
     startSession(true);
   }
@@ -2240,7 +2696,7 @@ function maybeRefreshSession() {
 function scheduleNextStep(delayAfterAudioMs) {
   const waitAndGo = () => {
     if (!pendingAutoNext && !autoReadMode) return;
-    if (sources.length > 0 || turnInFlight) {
+    if (isAudioPlaying() || turnInFlight) {
       autoReadTimer = setTimeout(waitAndGo, 150);
       return;
     }
@@ -2250,6 +2706,17 @@ function scheduleNextStep(delayAfterAudioMs) {
     }, delayAfterAudioMs);
   };
   autoReadTimer = setTimeout(waitAndGo, 200);
+}
+
+function flushQueuedRequestIfAny() {
+  clearTimeout(queueFlushTimer);
+  if (!queuedRequest) return false;
+  const req = queuedRequest;
+  queuedRequest = null;
+  discardingCurrentTurn = false;
+  turnInFlight = false;
+  dispatchLiveText(req.text, req.isWordReq, req.cacheKey, req.hideCap);
+  return true;
 }
 
 function handle(msg) {
@@ -2270,32 +2737,24 @@ function handle(msg) {
     if (silentReconnect) {
       silentReconnect = false;
       setPhase('ready');
-      updateVisualState(false);
+      if (deferredAfterReconnect) {
+        const fn = deferredAfterReconnect;
+        deferredAfterReconnect = null;
+        fn();
+        return;
+      }
+      if (!flushQueuedRequestIfAny()) updateVisualState(false);
       return;
     }
     sayIntro();
     return;
   }
 
-  const isStaleTurn = pendingTurns > 1;
-
   if (msg.toolCall && Array.isArray(msg.toolCall.functionCalls)) {
     const responses = [];
     for (const fc of msg.toolCall.functionCalls) {
       if (fc.name === 'move_to_next_sentence') {
-        if (!isStaleTurn) pendingAutoNext = true;
-        responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
-      } else if (fc.name === 'show_word_meaning') {
-        const args = fc.args || {};
-        if (!isStaleTurn && args.meaning) {
-          selectedWordMeaning = String(args.meaning).trim();
-          if (activeCacheKey) {
-            const existing = audioCache.get(activeCacheKey) || { chunks: [] };
-            existing.meaning = selectedWordMeaning;
-            audioCache.set(activeCacheKey, existing);
-          }
-          renderWordMeaningBox();
-        }
+        if (!discardingCurrentTurn && !queuedRequest) pendingAutoNext = true;
         responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
       }
     }
@@ -2308,15 +2767,27 @@ function handle(msg) {
 
   if (sc.interrupted) {
     pendingAutoNext = false;
-    if (pendingTurns > 0) pendingTurns -= 1;
-    turnInFlight = pendingTurns > 0;
+    clearTimeout(turnWatchdogTimer);
+    turnInFlight = false;
+    activeCacheKey = '';
+    currentTurnChunks = [];
     stopPlayback();
+    if (discardingCurrentTurn) {
+      discardingCurrentTurn = false;
+      flushQueuedRequestIfAny();
+    }
+    return;
   }
 
-  if (pendingTurns > 1) {
+  // Only discard packets belonging to an explicitly superseded turn while waiting for its turnComplete
+  if (discardingCurrentTurn) {
     if (sc.turnComplete) {
-      pendingTurns = Math.max(0, pendingTurns - 1);
-      turnInFlight = pendingTurns > 0;
+      clearTimeout(turnWatchdogTimer);
+      discardingCurrentTurn = false;
+      turnInFlight = false;
+      activeCacheKey = '';
+      currentTurnChunks = [];
+      flushQueuedRequestIfAny();
     }
     return;
   }
@@ -2331,13 +2802,16 @@ function handle(msg) {
   }
   for (const part of (sc.modelTurn && sc.modelTurn.parts) || []) {
     if (part.inlineData && String(part.inlineData.mimeType || '').startsWith('audio/pcm')) {
+      // Audio chunk arrived -> push watchdog forward
+      resetTurnWatchdog(10000);
       playPcm(part.inlineData.data);
     }
   }
   if (sc.turnComplete) {
-    pendingTurns = Math.max(0, pendingTurns - 1);
-    turnInFlight = pendingTurns > 0;
+    clearTimeout(turnWatchdogTimer);
+    turnInFlight = false;
     turnCountInSession += 1;
+    if (audioStreamer) audioStreamer.complete();
 
     if (activeCacheKey && currentTurnChunks.length > 0) {
       const prev = audioCache.get(activeCacheKey) || {};
@@ -2352,6 +2826,9 @@ function handle(msg) {
     if (teacherText && !firstAudioStarted) flushCaption();
     newTurn = true;
     $('childLine').textContent = '';
+
+    // If user queued another request right before this turn completed, flush immediately!
+    if (flushQueuedRequestIfAny()) return;
 
     if (cfg.micMode === 'toggle' && micOn && !wordMode && !suppressCaption) {
       micOn = false;
@@ -2369,16 +2846,32 @@ function handle(msg) {
     } else if (autoReadMode && index >= 0 && !finished && !wordMode) {
       scheduleNextStep(1500);
     } else {
-      updateVisualState(sources.length > 0);
-      if (!sources.length) maybeRefreshSession();
+      updateVisualState(isAudioPlaying());
+      if (!isAudioPlaying()) maybeRefreshSession();
     }
   }
 }
 
-function sendText(text, isWordReq = false, cacheKey = '', hideCap = false) {
+function resetTurnWatchdog(ms) {
+  clearTimeout(turnWatchdogTimer);
+  turnWatchdogTimer = setTimeout(() => {
+    if (!turnInFlight) return;
+    // Recover cleanly if server stalled or dropped a turnComplete
+    turnInFlight = false;
+    discardingCurrentTurn = false;
+    activeCacheKey = '';
+    currentTurnChunks = [];
+    if (!flushQueuedRequestIfAny()) {
+      updateVisualState(isAudioPlaying());
+    }
+  }, ms);
+}
+
+function dispatchLiveText(text, isWordReq, cacheKey, hideCap) {
   clearTimeout(autoReadTimer);
-  pendingTurns += 1;
+  clearTimeout(queueFlushTimer);
   turnInFlight = true;
+  discardingCurrentTurn = false;
   activeCacheKey = cacheKey;
   currentTurnChunks = [];
   wordMode = isWordReq;
@@ -2386,11 +2879,30 @@ function sendText(text, isWordReq = false, cacheKey = '', hideCap = false) {
   teacherText = ''; newTurn = false; firstAudioStarted = false;
   $('caption').classList.remove('show');
   $('caption').textContent = '';
-  reqSeq += 1;
-  const v = VOICES[cfg.voice] || VOICES.female;
-  const sp = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
-  const voiceTag = `[#${reqSeq} | 고정화자:${v.voice}(${v.label}) | 고정속도:${sp}]`;
-  send({ clientContent: { turns: [{ role: 'user', parts: [{ text: `${voiceTag} ${text}` }] }], turnComplete: true } });
+  resetTurnWatchdog(6000);
+  send({ clientContent: { turns: [{ role: 'user', parts: [{ text }] }], turnComplete: true } });
+}
+
+function sendText(text, isWordReq = false, cacheKey = '', hideCap = false) {
+  clearTimeout(autoReadTimer);
+  if (!connected || !setupDone) {
+    queuedRequest = { text, isWordReq, cacheKey, hideCap };
+    return;
+  }
+  // If a previous turn is still streaming from server, discard its tail and queue this latest request cleanly
+  if (turnInFlight) {
+    discardingCurrentTurn = true;
+    activeCacheKey = '';
+    currentTurnChunks = [];
+    queuedRequest = { text, isWordReq, cacheKey, hideCap };
+    clearTimeout(queueFlushTimer);
+    // Safety fallback: if server doesn't finish old turn within 1.2s, send queued request anyway
+    queueFlushTimer = setTimeout(() => {
+      if (queuedRequest) flushQueuedRequestIfAny();
+    }, 1200);
+    return;
+  }
+  dispatchLiveText(text, isWordReq, cacheKey, hideCap);
 }
 
 function sayIntro() {
@@ -2404,8 +2916,9 @@ function sayIntro() {
   introTimer = setTimeout(() => {
     if (introPending) {
       introPending = false;
-      pendingTurns = 0;
       turnInFlight = false;
+      discardingCurrentTurn = false;
+      queuedRequest = null;
       setPhase('ready');
       if (autoReadMode) startBook();
       else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
@@ -2428,10 +2941,10 @@ function toggleAutoRead() {
     setTurnBanner('계속 읽기 모드예요. 쭉 읽어줄게요!', 'auto');
     if (canUse() && !finished) {
       if (index < 0) startBook();
-      else if (!sources.length) readSentence();
+      else if (!isAudioPlaying()) readSentence();
     }
   } else {
-    updateVisualState(sources.length > 0);
+    updateVisualState(isAudioPlaying());
   }
 }
 function renderAutoButton() {
@@ -2460,103 +2973,129 @@ function startBook() {
 }
 function readSentence(forceFresh = false) {
   if (!canUse() || index < 0 || finished) return;
-  stopPlayback();
-  clearWordSelection();
-  const sentence = book.sentences[index];
-  const cacheKey = `S:${cfg.voice}:${cfg.speed}:${sentence}`;
-  const cached = audioCache.get(cacheKey);
-  if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
-    suppressCaption = true;
-    $('caption').classList.remove('show');
+  runOrDefer(() => {
+    stopPlayback();
+    clearWordSelection();
+    const sentence = book.sentences[index];
+    const cacheKey = `S:${cfg.voice}:${cfg.speed}:${sentence}`;
+    const cached = audioCache.get(cacheKey);
+    if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
+      suppressCaption = true;
+      $('caption').classList.remove('show');
+      renderAll();
+      playCachedChunks(cached.chunks, true);
+      return;
+    }
+    sendText(`READ: ${sentence}`, false, cacheKey, true);
     renderAll();
-    playCachedChunks(cached.chunks, true);
-    return;
-  }
-  sendText(`READ_SENTENCE: ${sentence}`, false, cacheKey, true);
-  renderAll();
+  });
 }
 function readWord(cleanWord, displayWord) {
   if (!canUse() || index < 0 || finished || !cleanWord) return;
-  stopPlayback();
-  if (autoReadMode) {
-    autoReadMode = false;
-    renderAutoButton();
-    renderDock();
-  }
-  const sentence = book.sentences[index];
-  const cacheKey = `W:${cfg.voice}:${cfg.speed}:${cfg.wordKoMode}:${sentence}:${cleanWord.toLowerCase()}`;
-  const cached = audioCache.get(cacheKey);
-  selectedWord = displayWord;
-  wordMode = true;
-  phonicsMode = false;
-  phonicsInfo = null;
-  phonicsLitIndex = -1;
+  runOrDefer(async () => {
+    stopPlayback();
+    if (autoReadMode) {
+      autoReadMode = false;
+      renderAutoButton();
+      renderDock();
+    }
+    const sentence = book.sentences[index];
+    const low = cleanWord.toLowerCase();
+    const myWordSeq = ++wordRequestSeq;
+    selectedWord = displayWord;
+    wordMode = true;
+    phonicsMode = false;
+    phonicsInfo = null;
+    phonicsLitIndex = -1;
 
-  if (cached && cached.chunks && cached.chunks.length > 0) {
-    selectedWordMeaning = cached.meaning || '';
+    // Instant meaning check (0ms from local cache/dict), otherwise fast parallel REST lookup (zero Live toolCall!)
+    const instantMeaning = ctxWordMeaningCache.get(`${sentence}||${low}`) || sharedVocabCache[low] || BUILTIN_DICT[low] || '';
+    selectedWordMeaning = instantMeaning || '뜻 찾는 중...';
     renderCard();
-    playCachedChunks(cached.chunks, false);
-    return;
-  }
 
-  selectedWordMeaning = '뜻 찾는 중...';
-  renderCard();
-  sendText(`READ_WORD: "${cleanWord}" (문맥: "${sentence}")`, true, cacheKey, true);
+    const meaningPromise = instantMeaning
+      ? Promise.resolve(instantMeaning)
+      : fetchWordMeaningFast(cleanWord, sentence).then(m => {
+          if (myWordSeq === wordRequestSeq && selectedWord === displayWord) {
+            selectedWordMeaning = m || '뜻을 찾지 못했어요';
+            renderWordMeaningBox();
+          }
+          return m;
+        });
+
+    const cacheKey = `W:${cfg.voice}:${cfg.speed}:${cfg.wordKoMode}:${low}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+
+    if (cfg.wordKoMode === 'auto') {
+      const resolvedKo = await meaningPromise;
+      if (myWordSeq !== wordRequestSeq || selectedWord !== displayWord) return;
+      if (resolvedKo) {
+        sendText(`WORD_KO: ${cleanWord}, ${resolvedKo}`, true, cacheKey, true);
+      } else {
+        sendText(`WORD: ${cleanWord}`, true, cacheKey, true);
+      }
+    } else {
+      sendText(`WORD: ${cleanWord}`, true, cacheKey, true);
+    }
+  });
 }
 function speakWordMeaning() {
-  if (!canUse() || !selectedWordMeaning || selectedWordMeaning === '뜻 찾는 중...') return;
-  stopPlayback();
-  const cacheKey = `WK:${cfg.voice}:${selectedWordMeaning}`;
-  const cached = audioCache.get(cacheKey);
-  if (cached && cached.chunks && cached.chunks.length > 0) {
-    playCachedChunks(cached.chunks, false);
-    return;
-  }
-  sendText(`SPEAK_KO: ${selectedWordMeaning}`, true, cacheKey, true);
+  if (!canUse() || !selectedWordMeaning || selectedWordMeaning === '뜻 찾는 중...' || selectedWordMeaning === '뜻을 찾지 못했어요') return;
+  runOrDefer(() => {
+    stopPlayback();
+    const cacheKey = `WK:${cfg.voice}:${selectedWordMeaning}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+    sendText(`KO: ${selectedWordMeaning}`, true, cacheKey, true);
+  });
 }
 function readPhonics(forceFresh = false) {
   if (!canUse() || !selectedWord || index < 0 || finished) return;
-  stopPlayback();
-  if (autoReadMode) {
-    autoReadMode = false;
-    renderAutoButton();
-    renderDock();
-  }
-  const info = PhonicsEngine.analyze(selectedWord);
-  if (!info.word) return;
-  wordMode = true;
-  phonicsMode = true;
-  phonicsInfo = info;
-  phonicsLitIndex = -1;
+  runOrDefer(() => {
+    stopPlayback();
+    if (autoReadMode) {
+      autoReadMode = false;
+      renderAutoButton();
+      renderDock();
+    }
+    const info = PhonicsEngine.analyze(selectedWord);
+    if (!info.word) return;
+    wordMode = true;
+    phonicsMode = true;
+    phonicsInfo = info;
+    phonicsLitIndex = -1;
+    phonicsStage = 0;
 
-  phonicsStage = 0;
-  const isMulti = !info.isSight && info.syllables.length > 1;
-  const keyLower = info.word.toLowerCase();
-  const cacheKey = `P2:${cfg.voice}:${cfg.speed}:${info.isSight ? 'S' : (isMulti ? 'M' : 'G')}:${keyLower}`;
-  if (forceFresh) {
-    audioCache.delete(cacheKey);
-  }
-  const cached = audioCache.get(cacheKey);
-  renderWordMeaningBox();
+    const isMulti = !info.isSight && info.syllables.length > 1;
+    const keyLower = info.word.toLowerCase();
+    const cacheKey = `P2:${cfg.voice}:${cfg.speed}:${info.isSight ? 'S' : (isMulti ? 'M' : 'G')}:${keyLower}`;
+    if (forceFresh) audioCache.delete(cacheKey);
+    const cached = audioCache.get(cacheKey);
+    renderWordMeaningBox();
 
-  if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
-    playCachedChunks(cached.chunks, false, !info.isSight);
-    return;
-  }
+    if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
+      playCachedChunks(cached.chunks, false, !info.isSight);
+      return;
+    }
 
-  if (forceFresh) {
-    setTurnBanner('새로 쪼개 읽기를 요청했어요', 'talking');
-  }
-  if (info.isSight) {
-    sendText(`READ_SIGHT_WORD: "${info.word}"`, true, cacheKey, true);
-  } else if (isMulti) {
-    const stepStrs = info.syllables.map(s => `${s.chunks.join(' · ')} -> ${s.text}`);
-    const finalStr = `${info.syllables.map(s => s.text).join(' + ')} -> ${info.word}`;
-    sendText(`PHONICS_SYLLABLES: "${stepStrs.join(' / ')} / ${finalStr}"`, true, cacheKey, true);
-  } else {
-    const seqStr = info.chunks.join(' · ');
-    sendText(`PHONICS_WORD: "${seqStr} -> ${info.word}"`, true, cacheKey, true);
-  }
+    if (forceFresh) setTurnBanner('새로 쪼개 읽기를 요청했어요', 'talking');
+    if (info.isSight) {
+      sendText(`WORD: ${info.word}`, true, cacheKey, true);
+    } else if (isMulti) {
+      const stepStrs = info.syllables.map(s => `${s.chunks.join(' · ')} -> ${s.text}`);
+      const finalStr = `${info.syllables.map(s => s.text).join(' + ')} -> ${info.word}`;
+      sendText(`SYLLABLES: ${stepStrs.join(' / ')} / ${finalStr}`, true, cacheKey, true);
+    } else {
+      sendText(`PHONICS: ${info.chunks.join(' · ')} -> ${info.word}`, true, cacheKey, true);
+    }
+  });
 }
 function closePhonicsView() {
   clearPhonicsTimers();
@@ -2607,22 +3146,24 @@ function go(delta) {
 }
 function meaning() {
   if (!canUse() || index < 0 || finished) return;
-  stopPlayback();
-  clearWordSelection();
-  if (autoReadMode) {
-    autoReadMode = false;
-    renderAutoButton();
-  }
-  const sentence = book.sentences[index];
-  const cacheKey = `M:${cfg.voice}:${sentence}`;
-  const cached = audioCache.get(cacheKey);
-  if (cached && cached.chunks && cached.chunks.length > 0) {
+  runOrDefer(() => {
+    stopPlayback();
+    clearWordSelection();
+    if (autoReadMode) {
+      autoReadMode = false;
+      renderAutoButton();
+    }
+    const sentence = book.sentences[index];
+    const cacheKey = `M:${cfg.voice}:${sentence}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      renderAll();
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+    sendText(`MEANING: ${sentence}`, false, cacheKey, false);
     renderAll();
-    playCachedChunks(cached.chunks, false);
-    return;
-  }
-  sendText(`MEANING: "${sentence}"`, false, cacheKey, false);
-  renderAll();
+  });
 }
 
 // ---------- 화면 및 3D 시각 피드백 ----------
@@ -2680,7 +3221,7 @@ function renderAll() {
   renderCard();
   renderDots();
   renderDock();
-  updateVisualState(sources.length > 0);
+  updateVisualState(isAudioPlaying());
 }
 function renderDots() {
   const wrap = $('dots');
@@ -2843,7 +3384,7 @@ function fillForm() {
   $('apiKeyInput').value = cfg.apiKey;
   $('sheetInput').value = cfg.sheetUrl;
   $('childInput').value = cfg.childName;
-  selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode; selWordKo = cfg.wordKoMode || 'tap';
+  selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode; selVad = cfg.vadMode || 'silero'; selWordKo = cfg.wordKoMode || 'tap';
   paintSegs();
   renderBookSelect();
 }
@@ -2863,7 +3404,9 @@ function paintSegs() {
   document.querySelectorAll('[data-voice]').forEach(b => b.classList.toggle('on', b.dataset.voice === selVoice));
   document.querySelectorAll('[data-speed]').forEach(b => b.classList.toggle('on', Number(b.dataset.speed) === selSpeed));
   document.querySelectorAll('[data-mic]').forEach(b => b.classList.toggle('on', b.dataset.mic === selMic));
+  document.querySelectorAll('[data-vad]').forEach(b => b.classList.toggle('on', b.dataset.vad === selVad));
   document.querySelectorAll('[data-wordko]').forEach(b => b.classList.toggle('on', b.dataset.wordko === selWordKo));
+  updateVadHelpLabel();
 }
 function showTest(text, bad) {
   const o = $('testResult');
@@ -2896,11 +3439,11 @@ function testConnection() {
   t.onclose = e => finish('연결이 닫혔어요 (코드 ' + e.code + ').', true);
 }
 async function saveSettings() {
-  const before = { key: cfg.apiKey, voice: cfg.voice, speed: cfg.speed, mic: cfg.micMode, sheet: cfg.sheetUrl, wordKo: cfg.wordKoMode };
+  const before = { key: cfg.apiKey, voice: cfg.voice, speed: cfg.speed, mic: cfg.micMode, vad: cfg.vadMode, sheet: cfg.sheetUrl, wordKo: cfg.wordKoMode };
   cfg.apiKey = $('apiKeyInput').value.trim();
   cfg.sheetUrl = $('sheetInput').value.trim();
   cfg.childName = $('childInput').value.trim();
-  cfg.voice = selVoice; cfg.speed = selSpeed; cfg.micMode = selMic; cfg.wordKoMode = selWordKo;
+  cfg.voice = selVoice; cfg.speed = selSpeed; cfg.micMode = selMic; cfg.vadMode = selVad; cfg.wordKoMode = selWordKo;
   if (cfg.sheetUrl !== before.sheet || !books.length) {
     try { books = await fetchBooks(cfg.sheetUrl); }
     catch (e) { saveCfg(); $('settingsMsg').textContent = e.message; return; }
@@ -2911,7 +3454,7 @@ async function saveSettings() {
   cfg.bookTitle = book.title;
   if (changed) { index = -1; finished = false; clearWordSelection(); }
   saveCfg();
-  const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.speed !== before.speed || cfg.micMode !== before.mic || cfg.wordKoMode !== before.wordKo);
+  const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.speed !== before.speed || cfg.micMode !== before.mic || cfg.vadMode !== before.vad || cfg.wordKoMode !== before.wordKo);
   closeSettings();
   audioCache.clear();
   if (needRestart) {
@@ -3018,6 +3561,7 @@ $('stopTeacherBtn').addEventListener('click', () => { closeSession(false); close
 document.querySelectorAll('[data-voice]').forEach(b => b.addEventListener('click', () => { selVoice = b.dataset.voice; paintSegs(); }));
 document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => { selSpeed = Number(b.dataset.speed); paintSegs(); }));
 document.querySelectorAll('[data-mic]').forEach(b => b.addEventListener('click', () => { selMic = b.dataset.mic; paintSegs(); }));
+document.querySelectorAll('[data-vad]').forEach(b => b.addEventListener('click', () => { selVad = b.dataset.vad; paintSegs(); }));
 document.querySelectorAll('[data-wordko]').forEach(b => b.addEventListener('click', () => { selWordKo = b.dataset.wordko; paintSegs(); }));
 $('closeBookListBtn').addEventListener('click', closeBookList);
 $('bookListModal').addEventListener('click', e => { if (e.target === $('bookListModal')) closeBookList(); });
@@ -3067,21 +3611,21 @@ $('micBtn').addEventListener('click', () => {
   if (cfg.micMode === 'always' || cfg.micMode === 'toggle') {
     micOn = !micOn;
     renderDock();
-    updateVisualState(sources.length > 0);
+    updateVisualState(isAudioPlaying());
   }
 });
 $('micBtn').addEventListener('pointerdown', () => {
   if (connected && !autoReadMode && cfg.micMode === 'push') {
     pushing = true;
     renderDock();
-    updateVisualState(sources.length > 0);
+    updateVisualState(isAudioPlaying());
   }
 });
 ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $('micBtn').addEventListener(ev, () => {
   if (cfg.micMode === 'push' && pushing) {
     pushing = false;
     renderDock();
-    updateVisualState(sources.length > 0);
+    updateVisualState(isAudioPlaying());
   }
 }));
 $('krFlag').innerHTML = flagKR();
@@ -3090,32 +3634,6 @@ $('usFlag').innerHTML = flagUS();
 
 // ========== Vocabulary Word Game (단어장 뜻 찾기 게임 · AI 음성 + 음절별 파닉스) ==========
 const WordGame = (() => {
-  const VOCAB_STORE_KEY = 'tent_vocab_cache_v1';
-  const BUILTIN_DICT = {
-    seal:'바다표범', clown:'광대', king:'왕', crown:'왕관', sheep:'양', bed:'침대',
-    sleep:'자다', draw:'그리다', myself:'나 자신', monster:'괴물', rabbit:'토끼',
-    hamster:'햄스터', blanket:'담요', pillow:'베개', turtle:'거북이', frog:'개구리',
-    snake:'뱀', mouse:'생쥐', fish:'물고기', bear:'곰', cat:'고양이', dog:'강아지',
-    pig:'돼지', duck:'오리', bird:'새', lion:'사자', tiger:'호랑이', zebra:'얼룩말',
-    owl:'부엉이', bat:'박쥐', bee:'꿀벌', ant:'개미', ladybug:'무당벌레', firefly:'반딧불이',
-    sun:'해', moon:'달', star:'별', tree:'나무', flower:'꽃', leaf:'나뭇잎', stone:'돌',
-    stick:'나뭇가지', feather:'깃털', acorn:'도토리', snow:'눈', wind:'바람', spring:'봄',
-    winter:'겨울', night:'밤', apple:'사과', banana:'바나나', strawberry:'딸기',
-    chocolate:'초콜릿', cake:'케이크', cookie:'쿠키', donut:'도넛', muffin:'머핀',
-    bread:'빵', pizza:'피자', pasta:'파스타', milk:'우유', water:'물', soup:'수프',
-    book:'책', paper:'종이', scissors:'가위', glue:'풀', crayon:'크레용', sticker:'스티커',
-    ribbon:'리본', hat:'모자', shoes:'신발', dress:'드레스', ring:'반지', ball:'공',
-    car:'자동차', bus:'버스', house:'집', tent:'텐트', table:'탁자', chair:'의자',
-    door:'문', rug:'양탄자', tub:'욕조', sink:'세면대', bath:'목욕', beach:'바닷가',
-    school:'학교', playground:'놀이터', flashlight:'손전등', bubbles:'비눗방울',
-    birthday:'생일', friend:'친구', happy:'행복한', big:'큰', small:'작은', tall:'키가 큰',
-    red:'빨간색', blue:'파란색', green:'초록색', yellow:'노란색', hot:'뜨거운',
-    jump:'뛰다', run:'달리다', eat:'먹다', play:'놀다', read:'읽다', write:'쓰다',
-    paint:'색칠하다', cut:'자르다', count:'세다', hide:'숨다', find:'찾다', shine:'빛나다',
-    blow:'불다', swim:'수영하다', hop:'깡충 뛰다', smile:'웃다', hug:'포옹',
-    square:'네모', triangle:'세모', circle:'동그라미', oval:'타원', rectangle:'직사각형',
-    stripes:'줄무늬', spots:'점박이', can:'할 수 있다', need:'필요하다', like:'좋아하다'
-  };
   const FALLBACK_DISTRACTORS = [
     '사과','강아지','고양이','토끼','자동차','모자','우산','나비',
     '별','구름','케이크','공룡','곰','꽃','풍선','기차','비행기','바나나',
@@ -3129,7 +3647,7 @@ const WordGame = (() => {
 
   let isOpen = false;
   let scope = 'book'; // 'book' (오늘의 책) or 'all' (전체 책장)
-  let vocabCache = {};
+
   let questions = [];
   let wrongItems = [];
   let qIdx = 0;
@@ -3150,12 +3668,7 @@ const WordGame = (() => {
   let gameLongTimer = null;
   let gameLongFired = false;
 
-  function loadVocabCache() {
-    try { vocabCache = JSON.parse(localStorage.getItem(VOCAB_STORE_KEY) || '{}'); } catch (e) { vocabCache = {}; }
-  }
-  function saveVocabCache() {
-    try { localStorage.setItem(VOCAB_STORE_KEY, JSON.stringify(vocabCache)); } catch (e) {}
-  }
+
 
   function clearGamePhonicsTimers() {
     gamePhonicsTimers.forEach(id => clearTimeout(id));
@@ -3324,7 +3837,7 @@ const WordGame = (() => {
       return;
     }
     if (connected && setupDone) {
-      sendText(`READ_WORD_ONLY: "${word}"`, true, cacheKey, true);
+      sendText(`WORD: ${word}`, true, cacheKey, true);
       return;
     }
     await speakUtteranceFallback(word, 1.0, mySeq);
@@ -3356,13 +3869,13 @@ const WordGame = (() => {
     if (connected && setupDone) {
       pendingLiveLight = !info.isSight;
       if (info.isSight) {
-        sendText(`READ_SIGHT_WORD: "${info.word}"`, true, cacheKey, true);
+        sendText(`WORD: ${info.word}`, true, cacheKey, true);
       } else if (isMulti) {
         const stepStrs = info.syllables.map(s => `${s.chunks.join(' · ')} -> ${s.text}`);
         const finalStr = `${info.syllables.map(s => s.text).join(' + ')} -> ${info.word}`;
-        sendText(`PHONICS_SYLLABLES: "${stepStrs.join(' / ')} / ${finalStr}"`, true, cacheKey, true);
+        sendText(`SYLLABLES: ${stepStrs.join(' / ')} / ${finalStr}`, true, cacheKey, true);
       } else {
-        sendText(`PHONICS_WORD: "${info.chunks.join(' · ')} -> ${info.word}"`, true, cacheKey, true);
+        sendText(`PHONICS: ${info.chunks.join(' · ')} -> ${info.word}`, true, cacheKey, true);
       }
       return;
     }
@@ -3479,18 +3992,18 @@ const WordGame = (() => {
   }
 
   async function buildQuestions() {
-    loadVocabCache();
+    loadSharedVocab();
     const targetBooks = (scope === 'all' && books.length > 1) ? books : (book ? [book] : [SAMPLE_BOOK]);
     const words = extractWordsFromBooks(targetBooks);
-    const missing = words.filter(w => !BUILTIN_DICT[w] && !vocabCache[w]);
+    const missing = words.filter(w => !BUILTIN_DICT[w] && !sharedVocabCache[w]);
     if (missing.length > 0 && cfg.apiKey.trim()) {
       const fetched = await fetchMeaningsWithGemini(missing);
-      Object.assign(vocabCache, fetched);
-      saveVocabCache();
+      Object.assign(sharedVocabCache, fetched);
+      saveSharedVocab();
     }
 
     const pairs = words
-      .map(w => ({ word: w, meaning: vocabCache[w] || BUILTIN_DICT[w] || '' }))
+      .map(w => ({ word: w, meaning: sharedVocabCache[w] || BUILTIN_DICT[w] || '' }))
       .filter(p => p.meaning);
 
     if (pairs.length < 4) {
@@ -3733,6 +4246,7 @@ $('gameScopeBtn').addEventListener('click', () => WordGame.toggleScope());
 async function init() {
   Bear3D.init();
   loadCfg();
+  loadSharedVocab();
   let loadErr = '';
   try { books = await fetchBooks(cfg.sheetUrl); }
   catch (e) { books = [SAMPLE_BOOK]; loadErr = e.message + ' (기본 책으로 시작해요)'; }
@@ -3745,3 +4259,4 @@ init();
 </script>
 </body>
 </html>
+
