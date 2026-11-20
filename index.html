@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>숲속 텐트 영어 친구 3D</title>
+<title>숲속 텐트 영어 친구 3D · 파닉스</title>
 <style>
 :root{
   --ink:#223c2a;
@@ -282,8 +282,83 @@ body{
   transform:translateY(-1px);
 }
 
-.word-meaning-box{display:none;align-items:center;justify-content:center}
+.word-meaning-box{display:none;align-items:center;justify-content:center;width:100%}
 .word-meaning-box.show{display:flex}
+.word-tools-row{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;max-width:100%}
+.phonics-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:linear-gradient(180deg,#fff7df 0%,#ffdf85 100%);
+  border:2px solid #f0b21a;color:#6e3f00;
+  font-size:14px;font-weight:900;
+  padding:6px 12px;border-radius:999px;
+  cursor:pointer;font-family:inherit;white-space:nowrap;
+  box-shadow:0 4px 0 #d49408, 0 4px 8px rgba(178,116,0,.15), inset 0 2px 3px rgba(255,255,255,.85);
+  transition:transform .1s,box-shadow .1s;
+  touch-action:manipulation;
+}
+.phonics-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #d49408}
+.phonics-strip{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;
+  background:linear-gradient(180deg,#fffdf5 0%,#fff3cc 100%);
+  border:2px solid #f3be33;
+  padding:5px 10px;border-radius:999px;
+  box-shadow:0 4px 0 #d69c14, inset 0 2px 3px rgba(255,255,255,.9);
+  animation:popIn .16s ease-out;
+  max-width:100%;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.p-chunk{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;height:28px;padding:0 7px;border-radius:10px;
+  background:#ffffff;border:1.5px solid #e6cb7a;
+  font-size:16px;font-weight:900;color:#274463;
+  transition:transform .14s,background .14s,color .14s,box-shadow .14s,border-color .14s;
+}
+.p-chunk.lit{
+  background:linear-gradient(180deg,#ffea85 0%,#ffc72c 100%);
+  border-color:#d98b00;color:#4a2600;
+  transform:scale(1.16) translateY(-2px);
+  box-shadow:0 3px 0 #c97f00;
+}
+.p-dot{font-size:13px;font-weight:900;color:#c79b32;line-height:1}
+.p-arrow{font-size:13px;font-weight:900;color:#b87d00;margin:0 1px}
+.p-whole{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:28px;padding:0 10px;border-radius:10px;
+  background:#edf7ee;border:1.5px solid #96d68a;
+  font-size:16px;font-weight:900;color:#175722;
+  transition:transform .16s,background .16s,color .16s,box-shadow .16s;
+}
+.p-whole.lit{
+  background:linear-gradient(180deg,#64ee9d 0%,#28c768 100%);
+  border-color:#18944a;color:#ffffff;
+  transform:scale(1.12) translateY(-1px);
+  box-shadow:0 3px 0 #168241;
+}
+.sight-strip{
+  display:inline-flex;align-items:center;gap:7px;
+  background:linear-gradient(180deg,#f3f8ff 0%,#dcebff 100%);
+  border:2px solid #75b1ff;color:#14468c;
+  font-size:14.5px;font-weight:900;
+  padding:6px 13px;border-radius:999px;
+  box-shadow:0 4px 0 #4f8de0, inset 0 2px 3px rgba(255,255,255,.9);
+  animation:popIn .16s ease-out;
+  cursor:pointer;
+}
+.sight-tag{
+  font-size:11.5px;font-weight:900;color:#fff;
+  background:linear-gradient(180deg,#5ba1ff 0%,#2d7be8 100%);
+  padding:2px 8px;border-radius:999px;
+}
+.back-meaning-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:30px;padding:0 10px;border-radius:999px;border:2px solid #8fd46b;
+  background:#f0faf2;color:#18541d;font-size:12.5px;font-weight:900;
+  cursor:pointer;font-family:inherit;white-space:nowrap;
+  box-shadow:0 3px 0 #66b355;
+}
+.back-meaning-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #66b355}
 .word-meaning-pill{
   display:inline-flex;align-items:center;gap:7px;
   background:linear-gradient(180deg,#f4fff6 0%,#daf7df 100%);
@@ -1126,6 +1201,75 @@ function pickTimeGreeting(namePrefix) {
   return pick(pool);
 }
 
+
+// ========== Modular Phonics Engine (Stage 1: Rule-based + Live, Stage 2-ready for 44 MP3s) ==========
+const PhonicsEngine = (() => {
+  const SIGHT_WORDS = new Set([
+    'i','a','the','to','do','does','done','go','goes','no','so','he','she','we','me','be',
+    'my','by','of','for','from','are','was','were','is','his','has','have','said','says',
+    'you','your','they','their','there','here','where','what','who','why','one','two','four',
+    'eight','come','some','love','give','live','could','would','should','put','pull','push',
+    'full','all','water','want','watch','walk','talk','friend','people','because','again',
+    'very','any','many','been','into','onto','only','other','mother','father','brother',
+    'eye','eyes','shoe','shoes','once','buy','laugh','through','thought','enough','beautiful'
+  ]);
+
+  const MULTI_GRAPHEMES = [
+    'ough','augh','eigh','tion','sion','ture',
+    'igh','tch','dge','air','ear','eer','ore','oor','our','ire',
+    'sh','ch','th','wh','ph','ck','ng','nk','qu','kn','wr','mb','gh',
+    'ee','ea','ai','ay','oa','oe','oo','ou','ow','oi','oy','au','aw','ew','ue','ui','ie','ey',
+    'ar','er','ir','or','ur',
+    'll','ss','ff','zz','tt','pp','dd','bb','gg','mm','nn','rr'
+  ];
+
+  function cleanWord(raw) {
+    return String(raw || '').replace(/^[^a-zA-Z']+|[^a-zA-Z']+$/g, '');
+  }
+
+  function analyze(raw) {
+    const clean = cleanWord(raw);
+    const lower = clean.toLowerCase();
+    if (!lower) return { isSight: true, word: '', chunks: [] };
+    if (lower.length <= 1 || SIGHT_WORDS.has(lower) || lower.includes("'")) {
+      return { isSight: true, word: clean, chunks: [clean] };
+    }
+
+    const chunks = [];
+    let i = 0;
+    const n = lower.length;
+    while (i < n) {
+      // Magic-e check: remaining 3 letters are [vowel][single consonant]e (e.g. ake, ine, one, ome, ide)
+      if (n - i === 3 && /^[aeiou][^aeiouwy]e$/.test(lower.slice(i))) {
+        chunks.push(clean.slice(i, i + 1));
+        chunks.push(clean.slice(i + 1, i + 3));
+        break;
+      }
+      let matched = '';
+      for (const g of MULTI_GRAPHEMES) {
+        if (lower.startsWith(g, i)) {
+          matched = clean.slice(i, i + g.length);
+          break;
+        }
+      }
+      if (matched) {
+        chunks.push(matched);
+        i += matched.length;
+      } else {
+        chunks.push(clean[i]);
+        i += 1;
+      }
+    }
+
+    if (chunks.length <= 1) {
+      return { isSight: true, word: clean, chunks: [clean] };
+    }
+    return { isSight: false, word: clean, chunks };
+  }
+
+  return { analyze, cleanWord };
+})();
+
 function buildSystemPrompt() {
   const speedDesc = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
   const v = VOICES[cfg.voice] || VOICES.female;
@@ -1142,6 +1286,8 @@ function buildSystemPrompt() {
 ${wordRule}
   2) 동시에 \`show_word_meaning\` 도구를 호출하여 문맥에 맞는 쉬운 한국어 뜻(1~3단어)만 전달한다.
 - "SPEAK_KO:"로 시작하면 뒤에 적힌 한국어 짧은 뜻만 따뜻하게 한 번 읽어주고 바로 멈춘다.
+- "PHONICS_WORD:"로 시작하면 뒤에 제시된 영어 단어의 파닉스 음가(알파벳 철자 이름이 아닌 실제 발음 소리!)만 "${speedDesc}" 속도로 조각 순서대로 하나씩 또박또박 끊어 읽은 뒤, 잠깐 쉬고 전체 단어를 자연스럽게 한 번 합쳐 읽고 바로 멈춘다. (예: "s · ea · l -> seal"이면 절대 '에스, 이, 에이, 엘'이 아니라 실제 음가 '/s/ ... /iː/ ... /l/ ... seal'로만 읽는다. 한국어나 설명은 절대 말하지 않는다.)
+- "READ_SIGHT_WORD:"로 시작하면 뒤에 적힌 영어 단어 하나만 통째로 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다.
 - "MEANING:"으로 시작하면 해당 영어 문장의 뜻을 한국어로 한두 문장만 짧게 말하고 멈춘다.
 - "CELEBRATE:"로 시작하면 뒤에 적힌 완독 축하 인사를 따뜻하게 한 번 말하고 멈춘다.
 - 아이가 영어를 따라 읽으려고 시도하면(일부만 말하거나 발음이 서툴러도) 지적하지 말고 짧게 칭찬("정말 잘했어! Great job!") 한 마디만 하고 \`move_to_next_sentence\` 도구를 호출한다.
@@ -1164,6 +1310,10 @@ let pendingAutoNext = false;
 let selectedWord = '';
 let selectedWordMeaning = '';
 let wordMode = false;
+let phonicsMode = false;
+let phonicsInfo = null;
+let phonicsTimers = [];
+let phonicsLitIndex = -1; // 0..chunks-1 = chunk lit, chunks.length = whole word lit
 let suppressCaption = false;
 let phase = 'splash';
 
@@ -1343,7 +1493,13 @@ function scheduleFloat32Chunk(f32) {
     firstAudioStarted = true;
     const delayMs = Math.max(0, (startAt - now) * 1000);
     clearTimeout(captionTimer);
-    captionTimer = setTimeout(() => { flushCaption(); updateVisualState(true); }, delayMs);
+    captionTimer = setTimeout(() => {
+      flushCaption();
+      updateVisualState(true);
+      if (phonicsMode && phonicsInfo && !phonicsInfo.isSight && !phonicsTimers.length) {
+        startPhonicsLightSequence(null);
+      }
+    }, delayMs);
   } else {
     flushCaption();
     updateVisualState(true);
@@ -1354,6 +1510,10 @@ function scheduleFloat32Chunk(f32) {
     sources = sources.filter(s => s !== src);
     if (!sources.length) {
       firstAudioStarted = false;
+      if (phonicsMode && phonicsInfo && !phonicsInfo.isSight) {
+        clearPhonicsTimers();
+        setPhonicsLit(phonicsInfo.chunks.length);
+      }
       updateVisualState(false);
     }
   };
@@ -1368,20 +1528,56 @@ function playPcm(b64) {
   if (activeCacheKey) currentTurnChunks.push(f);
   scheduleFloat32Chunk(f);
 }
-function playCachedChunks(chunks, triggerAutoNext = false) {
+function playCachedChunks(chunks, triggerAutoNext = false, isPhonics = false) {
   stopPlayback();
   firstAudioStarted = false;
   if (outCtx) playAt = outCtx.currentTime;
+  let totalSamples = 0;
   for (const f of chunks) {
+    totalSamples += f.length;
     scheduleFloat32Chunk(f);
+  }
+  if (isPhonics && phonicsInfo && !phonicsInfo.isSight) {
+    const totalMs = Math.max(900, (totalSamples / 24000) * 1000);
+    startPhonicsLightSequence(totalMs);
   }
   if (triggerAutoNext && autoReadMode && index >= 0 && !finished && !wordMode) {
     scheduleNextStep(1500);
   }
 }
+function clearPhonicsTimers() {
+  phonicsTimers.forEach(id => clearTimeout(id));
+  phonicsTimers = [];
+}
+function setPhonicsLit(idx) {
+  phonicsLitIndex = idx;
+  const box = $('wordMeaningBox');
+  if (!box) return;
+  box.querySelectorAll('.p-chunk').forEach((el, i) => el.classList.toggle('lit', i === idx));
+  const wholeEl = box.querySelector('.p-whole');
+  if (wholeEl) wholeEl.classList.toggle('lit', phonicsInfo && idx === phonicsInfo.chunks.length);
+}
+function startPhonicsLightSequence(exactTotalMs) {
+  clearPhonicsTimers();
+  if (!phonicsInfo || phonicsInfo.isSight) return;
+  const n = phonicsInfo.chunks.length;
+  const speedStep = [740, 620, 520, 440][cfg.speed] || 520;
+  const chunkDur = exactTotalMs ? Math.max(260, (exactTotalMs * 0.68) / n) : speedStep;
+  const wholeAt = exactTotalMs ? Math.max(n * chunkDur + 80, exactTotalMs * 0.72) : (n * chunkDur + 260);
+
+  for (let i = 0; i < n; i++) {
+    phonicsTimers.push(setTimeout(() => {
+      if (phonicsMode) setPhonicsLit(i);
+    }, Math.round(i * chunkDur)));
+  }
+  phonicsTimers.push(setTimeout(() => {
+    if (phonicsMode) setPhonicsLit(n);
+  }, Math.round(wholeAt)));
+}
 function stopPlayback() {
   clearTimeout(autoReadTimer);
   clearTimeout(captionTimer);
+  clearPhonicsTimers();
   sources.forEach(s => { try { s.stop(); } catch (e) {} });
   sources = [];
   firstAudioStarted = false;
@@ -1781,9 +1977,13 @@ function renderAutoButton() {
 
 // ---------- 읽기 흐름 ----------
 function clearWordSelection() {
+  clearPhonicsTimers();
   selectedWord = '';
   selectedWordMeaning = '';
   wordMode = false;
+  phonicsMode = false;
+  phonicsInfo = null;
+  phonicsLitIndex = -1;
 }
 function startBook() {
   if (!canUse()) return;
@@ -1822,6 +2022,9 @@ function readWord(cleanWord, displayWord) {
   const cached = audioCache.get(cacheKey);
   selectedWord = displayWord;
   wordMode = true;
+  phonicsMode = false;
+  phonicsInfo = null;
+  phonicsLitIndex = -1;
 
   if (cached && cached.chunks && cached.chunks.length > 0) {
     selectedWordMeaning = cached.meaning || '';
@@ -1844,6 +2047,51 @@ function speakWordMeaning() {
     return;
   }
   sendText(`SPEAK_KO: ${selectedWordMeaning}`, true, cacheKey, true);
+}
+function readPhonics(forceFresh = false) {
+  if (!canUse() || !selectedWord || index < 0 || finished) return;
+  stopPlayback();
+  if (autoReadMode) {
+    autoReadMode = false;
+    renderAutoButton();
+    renderDock();
+  }
+  const info = PhonicsEngine.analyze(selectedWord);
+  if (!info.word) return;
+  wordMode = true;
+  phonicsMode = true;
+  phonicsInfo = info;
+  phonicsLitIndex = -1;
+
+  const keyLower = info.word.toLowerCase();
+  const cacheKey = `P:${cfg.voice}:${cfg.speed}:${info.isSight ? 'S' : 'G'}:${keyLower}`;
+  if (forceFresh) {
+    audioCache.delete(cacheKey);
+  }
+  const cached = audioCache.get(cacheKey);
+  renderWordMeaningBox();
+
+  if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
+    playCachedChunks(cached.chunks, false, !info.isSight);
+    return;
+  }
+
+  if (forceFresh) {
+    setTurnBanner('새로 쪼개 읽기를 요청했어요', 'talking');
+  }
+  if (info.isSight) {
+    sendText(`READ_SIGHT_WORD: "${info.word}"`, true, cacheKey, true);
+  } else {
+    const seqStr = info.chunks.join(' · ');
+    sendText(`PHONICS_WORD: "${seqStr} -> ${info.word}"`, true, cacheKey, true);
+  }
+}
+function closePhonicsView() {
+  clearPhonicsTimers();
+  phonicsMode = false;
+  phonicsInfo = null;
+  phonicsLitIndex = -1;
+  renderWordMeaningBox();
 }
 function finishBook() {
   if (!canUse()) return;
@@ -1935,7 +2183,9 @@ function updateVisualState(isTalking) {
 
   if (!connected || !setupDone || introPending) return;
   if (isTalking) {
-    if (wordMode) setTurnBanner(`"${selectedWord}" 발음을 들려주고 있어요`, 'talking');
+    if (phonicsMode && phonicsInfo) {
+      setTurnBanner(phonicsInfo.isSight ? `"${phonicsInfo.word}" 통째로 읽는 단어예요` : `"${phonicsInfo.word}" 소리를 쪼개어 들어 봐요`, 'talking');
+    } else if (wordMode) setTurnBanner(`"${selectedWord}" 발음을 들려주고 있어요`, 'talking');
     else if (autoReadMode) setTurnBanner('선생님이 계속 읽어주고 있어요', 'talking');
     else setTurnBanner('선생님 목소리를 잘 들어 봐요', 'talking');
   } else if (finished) {
@@ -1976,9 +2226,40 @@ function renderWordMeaningBox() {
     box.innerHTML = '';
     return;
   }
-  const cleanLabel = selectedWord.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, '') || selectedWord;
   box.classList.add('show');
-  box.innerHTML = `<button type="button" class="word-meaning-pill" data-act="speak-meaning" title="눌러서 한글 뜻 듣기"><span class="spk-ic">${speakerIconSvg()}</span><strong>${esc(cleanLabel)}</strong> : ${esc(selectedWordMeaning)}</button>`;
+
+  if (phonicsMode && phonicsInfo) {
+    if (phonicsInfo.isSight) {
+      box.innerHTML = `<div class="word-tools-row">
+        <button type="button" class="sight-strip" data-act="phonics" title="짧게 누르면 다시 듣기 · 길게 누르면 새로 듣기">
+          <span class="sight-tag">통째로 읽는 단어</span>
+          <span>${esc(phonicsInfo.word)}</span>
+        </button>
+        <button type="button" class="back-meaning-btn" data-act="back-meaning">뜻</button>
+      </div>`;
+      return;
+    }
+    const chunksHtml = phonicsInfo.chunks.map((ch, idx) => {
+      const lit = phonicsLitIndex === idx ? ' lit' : '';
+      return `<span class="p-chunk${lit}">${esc(ch)}</span>`;
+    }).join('<span class="p-dot">·</span>');
+    const wholeLit = phonicsLitIndex === phonicsInfo.chunks.length ? ' lit' : '';
+    box.innerHTML = `<div class="word-tools-row">
+      <div class="phonics-strip" data-act="phonics" role="button" tabindex="0" title="짧게 누르면 다시 듣기 · 길게 누르면 새로 듣기">
+        ${chunksHtml}
+        <span class="p-arrow">→</span>
+        <span class="p-whole${wholeLit}">${esc(phonicsInfo.word)}</span>
+      </div>
+      <button type="button" class="back-meaning-btn" data-act="back-meaning">뜻</button>
+    </div>`;
+    return;
+  }
+
+  const cleanLabel = selectedWord.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, '') || selectedWord;
+  box.innerHTML = `<div class="word-tools-row">
+    <button type="button" class="word-meaning-pill" data-act="speak-meaning" title="눌러서 한글 뜻 듣기"><span class="spk-ic">${speakerIconSvg()}</span><strong>${esc(cleanLabel)}</strong> : ${esc(selectedWordMeaning)}</button>
+    <button type="button" class="phonics-btn" data-act="phonics" title="짧게 누르면 쪼개 듣기 · 길게 누르면 새로 듣기">쪼개 듣기</button>
+  </div>`;
 }
 function renderCard() {
   const el = $('card');
@@ -2260,10 +2541,38 @@ $('closeBookListBtn').addEventListener('click', closeBookList);
 $('bookListModal').addEventListener('click', e => { if (e.target === $('bookListModal')) closeBookList(); });
 $('bookPillBtn').addEventListener('click', openBookList);
 
+let phonicsLongTimer = null;
+let phonicsLongFired = false;
+
+$('card').addEventListener('pointerdown', e => {
+  const phEl = e.target.closest('[data-act="phonics"]');
+  if (!phEl) return;
+  phonicsLongFired = false;
+  clearTimeout(phonicsLongTimer);
+  phonicsLongTimer = setTimeout(() => {
+    phonicsLongFired = true;
+    readPhonics(true); // 길게 누르기: 캐시 무시하고 새로 요청 (방안 B)
+  }, 650);
+});
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => {
+  $('card').addEventListener(ev, () => {
+    if (phonicsLongTimer) {
+      clearTimeout(phonicsLongTimer);
+      phonicsLongTimer = null;
+    }
+  });
+});
+
 $('card').addEventListener('click', e => {
   if (e.target.closest('[data-act="start"]') || e.target.closest('[data-act="again"]')) { startBook(); return; }
   if (e.target.closest('[data-act="other"]')) { openBookList(); return; }
   if (e.target.closest('[data-act="speak-meaning"]')) { speakWordMeaning(); return; }
+  if (e.target.closest('[data-act="back-meaning"]')) { closePhonicsView(); return; }
+  if (e.target.closest('[data-act="phonics"]')) {
+    if (phonicsLongFired) { phonicsLongFired = false; return; }
+    readPhonics(false); // 짧게 누르기: 캐시 재사용 (방안 B)
+    return;
+  }
   const wordEl = e.target.closest('.word-btn');
   if (wordEl && index >= 0 && !finished) readWord(wordEl.dataset.word, wordEl.dataset.raw);
 });
@@ -2312,4 +2621,3 @@ init();
 </script>
 </body>
 </html>
-
