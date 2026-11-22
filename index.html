@@ -1264,13 +1264,14 @@ body{
 
       <!-- Batch Generation & Offline Save Buttons -->
       <div style="margin-bottom:7px">
+        <button type="button" class="btn3d mint" id="btnImportOssPhonemes" style="width:100%;margin-bottom:7px">🌐 오픈소스 원어민 음가 자동 매칭·저장 (무료 · 3초)</button>
         <div class="pm-grid2" style="margin-bottom:7px">
-          <button type="button" class="btn3d purple sm" id="btnGenPhonemes" title="Gemini AI 선생님 목소리로 44개 생성">🎙️ AI선생님 음가 44개 생성</button>
+          <button type="button" class="btn3d purple sm" id="btnGenPhonemes" title="Gemini AI 선생님 목소리로 남은 음가 생성">🎙️ AI선생님 음가 생성</button>
           <button type="button" class="btn3d coral sm" id="btnClearPhonemes" title="저장된 음가 파일을 지우고 깔끔한 기본 발음으로 되돌립니다">🗑️ 저장된 음가 초기화</button>
           <button type="button" class="btn3d blue sm" id="btnGenSentences">✨ AI선생님 문장 50개</button>
-          <button type="button" class="btn3d mint sm" id="btnSaveCoreWords">📥 핵심 단어(418) 저장</button>
+          <button type="button" class="btn3d gold sm" id="btnSaveCoreWords">📥 핵심 단어(418) 저장</button>
         </div>
-        <button type="button" class="btn3d gold sm" id="btnSaveAllWords" style="width:100%">📥 전체 단어(950) 원어민 발음 영구 저장</button>
+        <button type="button" class="btn3d sm" id="btnSaveAllWords" style="width:100%">📥 전체 단어(950) 원어민 발음 영구 저장</button>
       </div>
       <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer;margin-bottom:6px">
         <input type="checkbox" id="pmFillMissingWithGemini" checked />
@@ -2167,6 +2168,164 @@ function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
     return;
   }
   fallbackPlay();
+}
+
+// ========== Open-Source (xiaozhah/phoneme_audio) IPA *_isolation.mp3 -> 44-Slug Auto Matcher ==========
+// Ordered candidate IPA symbols for each of our 44 app slugs (supports Oxford RP & General American IPA variants)
+const OSS_IPA_CANDIDATES = {
+  b: ['b'],
+  d: ['d'],
+  f: ['f'],
+  g: ['ɡ', 'g'],
+  h: ['h'],
+  j: ['dʒ', 'ʤ'],
+  k: ['k'],
+  l: ['l'],
+  m: ['m'],
+  n: ['n'],
+  ng: ['ŋ'],
+  p: ['p'],
+  r: ['r', 'ɹ'],
+  s: ['s'],
+  t: ['t'],
+  v: ['v'],
+  w: ['w'],
+  y: ['j'],            // IPA /j/ is English 'y' ("yes"), NOT letter J!
+  z: ['z'],
+  sh: ['ʃ'],
+  ch: ['tʃ', 'ʧ'],
+  th_s: ['θ'],
+  th_d: ['ð'],
+  short_a: ['æ'],
+  short_e: ['e', 'ɛ'],
+  short_i: ['ɪ'],
+  short_o: ['ɒ', 'ɑː', 'ɑ:', 'ɑ'],
+  short_u: ['ʌ'],
+  long_a: ['eɪ'],
+  long_e: ['iː', 'i:'],
+  long_i: ['aɪ'],
+  long_o: ['əʊ', 'oʊ'],
+  long_u: ['juː', 'ju:'],
+  oo_short: ['ʊ'],
+  oo_long: ['uː', 'u:'],
+  aw: ['ɔː', 'ɔ:'],
+  er: ['ɜː', 'ɜ:', 'ɜːr']
+};
+
+function normalizeIpaKey(s) {
+  return String(s || '').normalize('NFC').trim().replace(/:/g, 'ː').replace(/g/g, 'ɡ');
+}
+
+// Build reverse map: normalized IPA symbol -> our app slug
+const OSS_IPA_TO_SLUG = (() => {
+  const map = {};
+  for (const [slug, syms] of Object.entries(OSS_IPA_CANDIDATES)) {
+    for (const sym of syms) {
+      const k = normalizeIpaKey(sym);
+      if (!map[k]) map[k] = slug;
+    }
+  }
+  return map;
+})();
+
+function mapIsolationFileToSlug(fileName) {
+  const base = String(fileName || '').split('/').pop();
+  const m = base.match(/^(.+)_isolation\.(mp3|wav|ogg)$/i);
+  if (!m) return null;
+  let sym = m[1];
+  try { sym = decodeURIComponent(sym); } catch (e) {}
+  return OSS_IPA_TO_SLUG[normalizeIpaKey(sym)] || null;
+}
+
+async function runImportOpenSourcePhonemes() {
+  if (batchRunning) return;
+  batchRunning = true; batchAbort = false;
+  const cdnBase = 'https://cdn.jsdelivr.net/gh/xiaozhah/phoneme_audio@main/audio/';
+  let saved = 0, skipped = 0;
+  try {
+    setProgStatus('🌐 오픈소스(xiaozhah/phoneme_audio) 음가 목록 확인 중...', 8);
+    // Step 1: Try GitHub API to discover exact filenames in audio/ folder
+    let remoteMap = {}; // normalized IPA -> download URL
+    try {
+      const ctrl = new AbortController();
+      const tm = setTimeout(() => ctrl.abort(), 5000);
+      const res = await fetch('https://api.github.com/repos/xiaozhah/phoneme_audio/contents/audio', { signal: ctrl.signal });
+      clearTimeout(tm);
+      if (res.ok) {
+        const list = await res.json();
+        if (Array.isArray(list)) {
+          for (const item of list) {
+            if (!item || !item.name) continue;
+            const slug = mapIsolationFileToSlug(item.name);
+            if (slug && !remoteMap[slug]) {
+              // Prefer jsDelivr CDN for fast, reliable CORS MP3 fetch, fallback to download_url
+              remoteMap[slug] = [cdnBase + encodeURIComponent(item.name), item.download_url].filter(Boolean);
+            }
+          }
+        }
+      }
+    } catch (e) {}
+
+    // Step 2: Build download plan for all 37 single-phoneme slugs (with CDN fallback if GitHub API was rate-limited)
+    const slugs = Object.keys(OSS_IPA_CANDIDATES);
+    const total = slugs.length;
+    let doneCount = 0;
+    let cursor = 0;
+
+    const fetchSlugBlob = async slug => {
+      const urls = [];
+      if (remoteMap[slug]) urls.push(...remoteMap[slug]);
+      for (const sym of OSS_IPA_CANDIDATES[slug]) {
+        const fname = encodeURIComponent(sym + '_isolation.mp3');
+        const u1 = cdnBase + fname;
+        const u2 = 'https://raw.githubusercontent.com/xiaozhah/phoneme_audio/main/audio/' + fname;
+        if (!urls.includes(u1)) urls.push(u1);
+        if (!urls.includes(u2)) urls.push(u2);
+      }
+      for (const u of urls) {
+        if (batchAbort) return null;
+        try {
+          const ctrl = new AbortController();
+          const tm = setTimeout(() => ctrl.abort(), 6000);
+          const r = await fetch(u, { signal: ctrl.signal });
+          clearTimeout(tm);
+          if (r.ok) {
+            const b = await r.blob();
+            if (b && b.size > 300) return new Blob([b], { type: 'audio/mpeg' });
+          }
+        } catch (e) {}
+      }
+      return null;
+    };
+
+    const worker = async () => {
+      while (cursor < slugs.length && !batchAbort) {
+        const slug = slugs[cursor++];
+        const blob = await fetchSlugBlob(slug);
+        if (blob) {
+          await saveAudioBlob('ph_' + slug, blob);
+          saved++;
+        } else {
+          skipped++;
+        }
+        doneCount++;
+        setProgStatus(`📥 오픈소스 원어민 음가 자동 매칭·저장 중... (${doneCount}/${total} · 성공 ${saved})`, 10 + (doneCount / total) * 90);
+      }
+    };
+
+    await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
+
+    if (!batchAbort) {
+      SFX.correct();
+      setProgStatus(`✅ 오픈소스 원어민 음가 ${saved}개 자동 매칭·영구 저장 완료! (나머지 덩어리 음가는 기본 음성 자동 사용 · ZIP 다운로드로 내 GitHub에 보관 가능)`, 100);
+    } else {
+      setProgStatus(`⏹ 중지됨 (${saved}개 저장됨)`, (doneCount / total) * 100);
+    }
+  } finally {
+    batchRunning = false;
+    render44Checklist();
+    updateOfflineStatsUI();
+  }
 }
 
 async function clearAllPhonemeBlobs() {
@@ -3745,6 +3904,7 @@ $('parentModal').addEventListener('click', e => { if (e.target === $('parentModa
 $('pmApiKeyInput').addEventListener('input', e => { appState.apiKey = e.target.value.trim(); saveState(); });
 $('pmGeminiVoiceSelect').addEventListener('change', e => { appState.geminiVoice = e.target.value; saveState(); });
 
+$('btnImportOssPhonemes').addEventListener('click', () => { SFX.click(); runImportOpenSourcePhonemes(); });
 $('btnClearPhonemes').addEventListener('click', async () => {
   SFX.click();
   await clearAllPhonemeBlobs();
@@ -3787,7 +3947,13 @@ $('mp3FileInput').addEventListener('change', async e => {
   let imported = 0;
   setProgStatus(`📂 파일 불러오는 중...`, 20);
   const classifyAndSave = async (path, blob) => {
-    const fname = path.split('/').pop().toLowerCase();
+    const rawFname = path.split('/').pop();
+    const fname = rawFname.toLowerCase();
+    // 1) Auto-match xiaozhah/phoneme_audio *_isolation.mp3 (and skip *_words.mp3)
+    if (/_words\.(mp3|wav|ogg)$/i.test(rawFname)) return false;
+    const ossSlug = mapIsolationFileToSlug(rawFname);
+    if (ossSlug) { await saveAudioBlob('ph_' + ossSlug, blob); return true; }
+
     const base = fname.replace(/\.[^.]+$/, '');
     if (/^sent_\d+$/.test(base)) { await saveAudioBlob(base, blob); return true; }
     if (path.includes('/phonemes/') || PH44_MAP[base]) {
