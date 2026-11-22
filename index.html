@@ -1264,13 +1264,13 @@ body{
 
       <!-- Batch Generation & Offline Save Buttons -->
       <div style="margin-bottom:7px">
-        <button type="button" class="btn3d purple" id="btnInstantPhonemes" style="width:100%;margin-bottom:7px">⚡ 표준 파닉스 음가 44개 0.5초 즉시 저장 (추천 · 대기없음)</button>
-        <div class="pm-grid2">
-          <button type="button" class="btn3d sm" id="btnGenPhonemes" title="AI 선생님 목소리로 44개 생성 (약 4분 소요)">🎙️ AI음성 음가 44개</button>
-          <button type="button" class="btn3d blue sm" id="btnGenSentences">✨ AI음성 문장 50개</button>
+        <div class="pm-grid2" style="margin-bottom:7px">
+          <button type="button" class="btn3d purple sm" id="btnGenPhonemes" title="Gemini AI 선생님 목소리로 44개 생성">🎙️ AI선생님 음가 44개 생성</button>
+          <button type="button" class="btn3d coral sm" id="btnClearPhonemes" title="저장된 음가 파일을 지우고 깔끔한 기본 발음으로 되돌립니다">🗑️ 저장된 음가 초기화</button>
+          <button type="button" class="btn3d blue sm" id="btnGenSentences">✨ AI선생님 문장 50개</button>
           <button type="button" class="btn3d mint sm" id="btnSaveCoreWords">📥 핵심 단어(418) 저장</button>
-          <button type="button" class="btn3d gold sm" id="btnSaveAllWords">📥 전체 단어(950) 저장</button>
         </div>
+        <button type="button" class="btn3d gold sm" id="btnSaveAllWords" style="width:100%">📥 전체 단어(950) 원어민 발음 영구 저장</button>
       </div>
       <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer;margin-bottom:6px">
         <input type="checkbox" id="pmFillMissingWithGemini" checked />
@@ -2151,8 +2151,8 @@ function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
   const key = 'ph_' + slug;
   const info = PH44_MAP[slug];
   const fallbackPlay = () => {
-    if (info) speakTTS(info.tts, info.lang, info.lang==='ko-KR'?0.88:0.72, onEnd);
-    else if (fallbackKo) speakTTS(fallbackKo.replace(/[\[\]]/g,''), 'ko-KR', 0.88, onEnd);
+    if (info) speakTTS(info.tts, info.lang, info.lang==='ko-KR'?0.90:0.76, onEnd);
+    else if (fallbackKo) speakTTS(fallbackKo.replace(/[\[\]]/g,''), 'ko-KR', 0.90, onEnd);
     else if (onEnd) onEnd();
   };
   if (storedAudioUrls[key]) {
@@ -2169,162 +2169,30 @@ function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
   fallbackPlay();
 }
 
-// ========== Built-in Instant Standard Phonics Synthesizer (0s, Offline, IPA-Accurate!) ==========
-// Generates clean, crisp WAV blobs for all 44 standard American English phonemes in < 0.3 seconds total,
-// using real formant/noise acoustics for voiceless/continuous sounds + pitch-controlled formant synthesis for vowels/voiced consonants!
-function synthPhonemeWavBlob(slug) {
-  const sr = 22050;
-  const makeBuf = sec => new Float32Array(Math.floor(sr * sec));
-  const noise = () => Math.random() * 2 - 1;
-  // Simple biquad bandpass/lowpass filter
-  function biquad(samples, type, f0, Q) {
-    const out = new Float32Array(samples.length);
-    const w0 = 2 * Math.PI * f0 / sr;
-    const alpha = Math.sin(w0) / (2 * Q);
-    const cosw = Math.cos(w0);
-    let b0, b1, b2, a0, a1, a2;
-    if (type === 'bandpass') {
-      b0 = alpha; b1 = 0; b2 = -alpha;
-      a0 = 1 + alpha; a1 = -2 * cosw; a2 = 1 - alpha;
-    } else if (type === 'highpass') {
-      b0 = (1 + cosw) / 2; b1 = -(1 + cosw); b2 = (1 + cosw) / 2;
-      a0 = 1 + alpha; a1 = -2 * cosw; a2 = 1 - alpha;
-    } else {
-      b0 = (1 - cosw) / 2; b1 = 1 - cosw; b2 = (1 - cosw) / 2;
-      a0 = 1 + alpha; a1 = -2 * cosw; a2 = 1 - alpha;
-    }
-    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-    for (let i = 0; i < samples.length; i++) {
-      const x0 = samples[i];
-      const y0 = (b0 * x0 + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2) / a0;
-      x2 = x1; x1 = x0; y2 = y1; y1 = y0;
-      out[i] = y0;
-    }
-    return out;
-  }
-  function addFormantVowel(buf, startSec, durSec, f1, f2, f3, f0Start=185, f0End=155, amp=0.55) {
-    const s0 = Math.floor(startSec * sr), len = Math.floor(durSec * sr);
-    const raw = new Float32Array(len);
-    let phase = 0;
-    for (let i = 0; i < len; i++) {
-      const t = i / len;
-      const f0 = f0Start + (f0End - f0Start) * t;
-      phase += f0 / sr;
-      if (phase >= 1) phase -= 1;
-      // Glottal pulse approximation
-      const g = phase < 0.35 ? Math.sin(Math.PI * phase / 0.35) : -0.25 * Math.sin(Math.PI * (phase - 0.35) / 0.65);
-      raw[i] = g;
-    }
-    const r1 = biquad(raw, 'bandpass', f1, 7);
-    const r2 = biquad(raw, 'bandpass', f2, 9);
-    const r3 = biquad(raw, 'bandpass', f3, 11);
-    for (let i = 0; i < len && (s0 + i) < buf.length; i++) {
-      const env = Math.sin(Math.PI * Math.min(1, i / (sr * 0.025)) * 0.5) * Math.min(1, (len - i) / (sr * 0.04));
-      buf[s0 + i] += amp * env * (r1[i] * 0.55 + r2[i] * 0.32 + r3[i] * 0.13);
-    }
-  }
-  function addNoiseBurst(buf, startSec, durSec, filterType, freq, Q, amp=0.45) {
-    const s0 = Math.floor(startSec * sr), len = Math.floor(durSec * sr);
-    const raw = new Float32Array(len);
-    for (let i = 0; i < len; i++) raw[i] = noise();
-    const flt = biquad(raw, filterType, freq, Q);
-    for (let i = 0; i < len && (s0 + i) < buf.length; i++) {
-      const env = Math.min(1, i / (sr * 0.015)) * Math.min(1, (len - i) / (sr * 0.03));
-      buf[s0 + i] += amp * env * flt[i];
-    }
-  }
-
-  let buf = makeBuf(0.36);
-  // 1. Pure Voiceless Fricatives & Plosives (Zero unwanted vowel tail!)
-  if (slug === 's') { buf = makeBuf(0.38); addNoiseBurst(buf, 0.02, 0.32, 'highpass', 5200, 1.4, 0.42); }
-  else if (slug === 'sh') { buf = makeBuf(0.38); addNoiseBurst(buf, 0.02, 0.32, 'bandpass', 2600, 2.2, 0.58); }
-  else if (slug === 'f') { buf = makeBuf(0.34); addNoiseBurst(buf, 0.02, 0.28, 'highpass', 3400, 0.9, 0.32); }
-  else if (slug === 'th_s') { buf = makeBuf(0.34); addNoiseBurst(buf, 0.02, 0.28, 'highpass', 4200, 1.0, 0.30); }
-  else if (slug === 'h') { buf = makeBuf(0.30); addNoiseBurst(buf, 0.02, 0.22, 'bandpass', 1200, 1.2, 0.36); }
-  else if (slug === 'k') { buf = makeBuf(0.22); addNoiseBurst(buf, 0.02, 0.065, 'bandpass', 1750, 2.0, 0.65); }
-  else if (slug === 't') { buf = makeBuf(0.22); addNoiseBurst(buf, 0.02, 0.055, 'highpass', 3600, 1.5, 0.58); }
-  else if (slug === 'p') { buf = makeBuf(0.22); addNoiseBurst(buf, 0.02, 0.055, 'lowpass', 950, 1.2, 0.65); }
-  else if (slug === 'ch') { buf = makeBuf(0.28); addNoiseBurst(buf, 0.02, 0.16, 'bandpass', 2800, 2.4, 0.62); }
-  else if (slug === 'x_ks') { buf = makeBuf(0.34); addNoiseBurst(buf, 0.02, 0.05, 'bandpass', 1750, 2.0, 0.58); addNoiseBurst(buf, 0.08, 0.22, 'highpass', 5200, 1.4, 0.38); }
-  // 2. Voiced Continuants & Voiced Plosives (Minimal crisp schwa release)
-  else if (slug === 'z') { buf = makeBuf(0.38); addFormantVowel(buf, 0.02, 0.32, 260, 1600, 2600, 150, 145, 0.35); addNoiseBurst(buf, 0.02, 0.32, 'highpass', 4800, 1.5, 0.34); }
-  else if (slug === 'v') { buf = makeBuf(0.36); addFormantVowel(buf, 0.02, 0.30, 250, 1200, 2400, 150, 145, 0.38); addNoiseBurst(buf, 0.02, 0.30, 'highpass', 3000, 1.0, 0.22); }
-  else if (slug === 'th_d') { buf = makeBuf(0.34); addFormantVowel(buf, 0.02, 0.26, 280, 1450, 2500, 155, 145, 0.42); addNoiseBurst(buf, 0.02, 0.24, 'highpass', 3600, 1.0, 0.18); }
-  else if (slug === 'm') { buf = makeBuf(0.38); addFormantVowel(buf, 0.02, 0.32, 280, 950, 2200, 165, 155, 0.55); }
-  else if (slug === 'n') { buf = makeBuf(0.38); addFormantVowel(buf, 0.02, 0.32, 280, 1450, 2450, 165, 155, 0.55); }
-  else if (slug === 'ng') { buf = makeBuf(0.38); addFormantVowel(buf, 0.02, 0.32, 280, 1100, 2350, 160, 148, 0.55); }
-  else if (slug === 'l') { buf = makeBuf(0.36); addFormantVowel(buf, 0.02, 0.30, 360, 1050, 2700, 175, 160, 0.56); }
-  else if (slug === 'r') { buf = makeBuf(0.36); addFormantVowel(buf, 0.02, 0.30, 420, 1300, 1650, 175, 158, 0.58); }
-  else if (slug === 'w') { buf = makeBuf(0.30); addFormantVowel(buf, 0.02, 0.14, 310, 720, 2250, 175, 170, 0.55); addFormantVowel(buf, 0.12, 0.14, 520, 1350, 2450, 170, 155, 0.45); }
-  else if (slug === 'y') { buf = makeBuf(0.30); addFormantVowel(buf, 0.02, 0.14, 290, 2250, 3000, 180, 172, 0.55); addFormantVowel(buf, 0.12, 0.14, 520, 1450, 2500, 172, 155, 0.45); }
-  else if (slug === 'b') { buf = makeBuf(0.24); addFormantVowel(buf, 0.02, 0.15, 420, 1150, 2350, 165, 148, 0.58); }
-  else if (slug === 'd') { buf = makeBuf(0.24); addFormantVowel(buf, 0.02, 0.15, 440, 1550, 2550, 172, 152, 0.58); }
-  else if (slug === 'g') { buf = makeBuf(0.24); addFormantVowel(buf, 0.02, 0.15, 440, 1300, 2200, 168, 148, 0.58); }
-  else if (slug === 'j') { buf = makeBuf(0.28); addNoiseBurst(buf, 0.02, 0.11, 'bandpass', 2500, 2.2, 0.45); addFormantVowel(buf, 0.04, 0.18, 420, 1750, 2600, 172, 152, 0.54); }
-  // 3. Standard American English Vowels & Diphthongs (Formant Targets)
-  else if (slug === 'short_a') { buf = makeBuf(0.34); addFormantVowel(buf, 0.02, 0.28, 720, 1720, 2500, 185, 160, 0.62); }
-  else if (slug === 'short_e') { buf = makeBuf(0.34); addFormantVowel(buf, 0.02, 0.28, 560, 1840, 2550, 185, 160, 0.62); }
-  else if (slug === 'short_i') { buf = makeBuf(0.32); addFormantVowel(buf, 0.02, 0.26, 410, 2020, 2650, 185, 162, 0.62); }
-  else if (slug === 'short_o') { buf = makeBuf(0.36); addFormantVowel(buf, 0.02, 0.30, 760, 1120, 2450, 182, 156, 0.64); }
-  else if (slug === 'short_u') { buf = makeBuf(0.32); addFormantVowel(buf, 0.02, 0.26, 620, 1220, 2450, 182, 158, 0.62); }
-  else if (slug === 'long_a') { buf = makeBuf(0.42); addFormantVowel(buf, 0.02, 0.20, 500, 1900, 2550, 185, 175, 0.58); addFormantVowel(buf, 0.16, 0.22, 330, 2250, 2850, 175, 155, 0.56); }
-  else if (slug === 'long_e') { buf = makeBuf(0.40); addFormantVowel(buf, 0.02, 0.34, 290, 2320, 3000, 188, 160, 0.60); }
-  else if (slug === 'long_i') { buf = makeBuf(0.44); addFormantVowel(buf, 0.02, 0.22, 740, 1220, 2450, 185, 175, 0.60); addFormantVowel(buf, 0.18, 0.22, 360, 2150, 2750, 175, 155, 0.56); }
-  else if (slug === 'long_o') { buf = makeBuf(0.42); addFormantVowel(buf, 0.02, 0.20, 480, 920, 2400, 185, 172, 0.60); addFormantVowel(buf, 0.16, 0.22, 340, 780, 2300, 172, 152, 0.56); }
-  else if (slug === 'long_u') { buf = makeBuf(0.42); addFormantVowel(buf, 0.02, 0.16, 300, 2200, 2850, 185, 175, 0.55); addFormantVowel(buf, 0.14, 0.24, 320, 860, 2280, 175, 154, 0.60); }
-  else if (slug === 'oo_short') { buf = makeBuf(0.32); addFormantVowel(buf, 0.02, 0.26, 440, 1020, 2320, 182, 160, 0.60); }
-  else if (slug === 'oo_long') { buf = makeBuf(0.40); addFormantVowel(buf, 0.02, 0.34, 310, 840, 2260, 185, 158, 0.62); }
-  else if (slug === 'aw') { buf = makeBuf(0.40); addFormantVowel(buf, 0.02, 0.34, 590, 880, 2420, 182, 156, 0.62); }
-  else if (slug === 'er') { buf = makeBuf(0.40); addFormantVowel(buf, 0.02, 0.34, 480, 1340, 1680, 182, 156, 0.62); }
-  // 4. Composite Chunks (tion, sion, tain, ex)
-  else if (slug === 'tion_shun') { buf = makeBuf(0.42); addNoiseBurst(buf, 0.02, 0.14, 'bandpass', 2600, 2.2, 0.52); addFormantVowel(buf, 0.14, 0.14, 540, 1350, 2450, 175, 162, 0.55); addFormantVowel(buf, 0.25, 0.14, 280, 1450, 2450, 162, 150, 0.48); }
-  else if (slug === 'tion_chun') { buf = makeBuf(0.42); addNoiseBurst(buf, 0.02, 0.13, 'bandpass', 2800, 2.4, 0.55); addFormantVowel(buf, 0.13, 0.14, 540, 1350, 2450, 175, 162, 0.55); addFormantVowel(buf, 0.24, 0.14, 280, 1450, 2450, 162, 150, 0.48); }
-  else if (slug === 'sion_zhun') { buf = makeBuf(0.42); addNoiseBurst(buf, 0.02, 0.14, 'bandpass', 2400, 2.0, 0.42); addFormantVowel(buf, 0.02, 0.26, 500, 1400, 2450, 172, 158, 0.55); addFormantVowel(buf, 0.25, 0.14, 280, 1450, 2450, 160, 148, 0.48); }
-  else if (slug === 'tain_tin') { buf = makeBuf(0.40); addNoiseBurst(buf, 0.02, 0.05, 'highpass', 3600, 1.5, 0.50); addFormantVowel(buf, 0.07, 0.16, 410, 2000, 2620, 178, 162, 0.56); addFormantVowel(buf, 0.21, 0.15, 280, 1450, 2450, 162, 150, 0.48); }
-  else if (slug === 'ex_eks') { buf = makeBuf(0.44); addFormantVowel(buf, 0.02, 0.15, 550, 1820, 2550, 182, 168, 0.58); addNoiseBurst(buf, 0.17, 0.05, 'bandpass', 1750, 2.0, 0.55); addNoiseBurst(buf, 0.22, 0.19, 'highpass', 5200, 1.4, 0.36); }
-  else if (slug === 'ex_igz') { buf = makeBuf(0.44); addFormantVowel(buf, 0.02, 0.15, 410, 2000, 2620, 180, 166, 0.56); addFormantVowel(buf, 0.17, 0.10, 440, 1300, 2200, 166, 158, 0.52); addNoiseBurst(buf, 0.25, 0.16, 'highpass', 4800, 1.5, 0.34); }
-  else { addFormantVowel(buf, 0.02, 0.26, 540, 1400, 2450, 180, 158, 0.55); }
-
-  // Normalize & encode 16-bit PCM WAV
-  let peak = 0.01;
-  for (let i = 0; i < buf.length; i++) { const a = Math.abs(buf[i]); if (a > peak) peak = a; }
-  const scale = 0.85 / peak;
-  const pcmLen = buf.length * 2;
-  const wav = new ArrayBuffer(44 + pcmLen);
-  const view = new DataView(wav);
-  const wStr = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
-  wStr(0, 'RIFF'); view.setUint32(4, 36 + pcmLen, true); wStr(8, 'WAVE'); wStr(12, 'fmt ');
-  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
-  view.setUint32(24, sr, true); view.setUint32(28, sr * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
-  wStr(36, 'data'); view.setUint32(40, pcmLen, true);
-  for (let i = 0; i < buf.length; i++) {
-    const v = Math.max(-1, Math.min(1, buf[i] * scale));
-    view.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7FFF, true);
-  }
-  return new Blob([wav], { type: 'audio/wav' });
-}
-
-async function runInstantSynthPhonemes() {
-  if (batchRunning) return;
-  batchRunning = true; batchAbort = false;
-  let done = 0;
-  const total = PHONEMES_44.length;
+async function clearAllPhonemeBlobs() {
   try {
-    for (let i = 0; i < total; i++) {
-      const p = PHONEMES_44[i], key = 'ph_' + p.slug;
-      const blob = synthPhonemeWavBlob(p.slug);
-      await saveAudioBlob(key, blob);
-      done++;
-      if (i % 8 === 0 || i === total - 1) {
-        setProgStatus(`⚡ 표준 음가 44개 즉시 생성 중... (${done}/${total})`, done / total * 100);
-        await sleepMs(10);
-      }
-    }
-    SFX.correct();
-    setProgStatus(`✅ 표준 파닉스 음가 44개 0.5초 만에 영구 저장 완료! (오프라인 즉시 재생)`, 100);
-  } finally {
-    batchRunning = false; render44Checklist(); updateOfflineStatsUI();
-  }
+    const db = await openSoundDB();
+    await new Promise(resolve => {
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      const store = tx.objectStore(DB_STORE);
+      const req = store.openCursor();
+      req.onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) {
+          const k = String(cur.key);
+          if (k.startsWith('ph_')) {
+            store.delete(cur.key);
+            if (storedAudioUrls[k]) { try { URL.revokeObjectURL(storedAudioUrls[k]); } catch (err) {} delete storedAudioUrls[k]; }
+            delete storedAudioMeta[k];
+          }
+          cur.continue();
+        } else resolve();
+      };
+      req.onerror = () => resolve();
+    });
+  } catch (e) {}
+  updateOfflineStatsUI();
+  render44Checklist();
 }
 
 // ========== Batch Offline Audio Studio Controller ==========
@@ -3877,7 +3745,11 @@ $('parentModal').addEventListener('click', e => { if (e.target === $('parentModa
 $('pmApiKeyInput').addEventListener('input', e => { appState.apiKey = e.target.value.trim(); saveState(); });
 $('pmGeminiVoiceSelect').addEventListener('change', e => { appState.geminiVoice = e.target.value; saveState(); });
 
-$('btnInstantPhonemes').addEventListener('click', () => { SFX.click(); runInstantSynthPhonemes(); });
+$('btnClearPhonemes').addEventListener('click', async () => {
+  SFX.click();
+  await clearAllPhonemeBlobs();
+  setProgStatus('🗑️ 저장되었던 합성 음가를 모두 삭제했습니다! 이제 깔끔한 기본 음성으로 바로 재생됩니다.', 0);
+});
 $('btnGenPhonemes').addEventListener('click', () => { SFX.click(); runBatchPhonemes(); });
 $('btnGenSentences').addEventListener('click', () => { SFX.click(); runBatchSentences(); });
 $('btnSaveCoreWords').addEventListener('click', () => { SFX.click(); runBatchWords(CORE_GAME_WORDS, '핵심 놀이 단어(418)'); });
