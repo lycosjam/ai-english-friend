@@ -231,6 +231,12 @@ body{
   background:linear-gradient(180deg,#fff6d6 0%,#ffe391 100%);
   border:2.5px solid #f7b728;box-shadow:0 4px 0 #d49200, inset 0 2px 3px #fff;
 }
+.ab-team-cons{
+  display:inline-flex;flex-wrap:nowrap;align-items:flex-end;gap:0;
+  padding:4px 6px 3px;border-radius:18px;
+  background:linear-gradient(180deg,#e0f7ff 0%,#b8ecff 100%);
+  border:2.5px solid #29b6f6;box-shadow:0 4px 0 #0288d1, inset 0 2px 3px #fff;
+}
 .ab-magic-box{
   display:inline-flex;flex-wrap:nowrap;align-items:flex-end;
   padding:3px 5px;border-radius:18px;
@@ -1428,7 +1434,7 @@ function getRulePool(ruleKey) {
   if (ruleKey === 'th') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'th'));
   if (ruleKey === 'ck') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'ck'));
   if (ruleKey === 'ay') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'ay'));
-  if (ruleKey === 'rctrl') return WORDS_800.filter(w => w.t.some(tk => tk.ko === 'r 앞 [어]' || tk.ko === '맨 뒤 [어] 추가'));
+  if (ruleKey === 'rctrl') return WORDS_800.filter(w => w.t.some(tk => ['er','ar','ear','air','ure'].includes(tk.p) || ['ar','or','er','ir','ur','air','ear','oor'].includes(tk.g)));
   if (ruleKey === 'soft_cg') return WORDS_800.filter(w => w.t.some(tk => (tk.g === 'c' && (tk.ko === '[ㅅ]' || tk.ko === '[쉬]')) || (tk.g === 'g' && tk.ko === '[쥐]')));
   if (ruleKey === 'silent') return WORDS_800.filter(w => w.t.some((tk, i) => tk.ko === '묵음' && !(w.me && i === w.t.length - 1 && tk.g === 'e')));
   if (ruleKey === 'verb') return WORDS_800.filter(w => w.v === 1);
@@ -2149,6 +2155,17 @@ function mapToPhonemeSlug(g, ko, pos) {
 }
 
 function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
+  if (!slug) { if (onEnd) onEnd(); return; }
+  // Seamlessly chain compound 2-phoneme letters (e.g. x -> k+s / g+z, u[유] -> y+oo_long) using pure 44-phoneme audio!
+  if (String(slug).includes('+')) {
+    const parts = String(slug).split('+').filter(Boolean);
+    const step = idx => {
+      if (idx >= parts.length) { if (onEnd) onEnd(); return; }
+      playPhonemeBySlug(parts[idx], '', () => setTimeout(() => step(idx + 1), 35));
+    };
+    step(0);
+    return;
+  }
   const key = 'ph_' + slug;
   const info = PH44_MAP[slug];
   const fallbackPlay = () => {
@@ -2173,43 +2190,53 @@ function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
 // ========== Open-Source (xiaozhah/phoneme_audio) IPA *_isolation.mp3 -> 44-Slug Auto Matcher ==========
 // Ordered candidate IPA symbols for each of our 44 app slugs (supports Oxford RP & General American IPA variants)
 const OSS_IPA_CANDIDATES = {
+  // 24 Standard Consonants
+  p: ['p'],
   b: ['b'],
+  t: ['t'],
   d: ['d'],
-  f: ['f'],
-  g: ['ɡ', 'g'],
-  h: ['h'],
-  j: ['dʒ', 'ʤ'],
   k: ['k'],
-  l: ['l'],
+  g: ['ɡ', 'g'],
+  f: ['f'],
+  v: ['v'],
+  th_s: ['θ'],
+  th_d: ['ð'],
+  s: ['s'],
+  z: ['z'],
+  sh: ['ʃ'],
+  zh: ['ʒ'],
+  h: ['h'],
+  ch: ['tʃ', 'ʧ'],
+  j: ['dʒ', 'ʤ'],
   m: ['m'],
   n: ['n'],
   ng: ['ŋ'],
-  p: ['p'],
+  l: ['l'],
   r: ['r', 'ɹ'],
-  s: ['s'],
-  t: ['t'],
-  v: ['v'],
   w: ['w'],
-  y: ['j'],            // IPA /j/ is English 'y' ("yes"), NOT letter J!
-  z: ['z'],
-  sh: ['ʃ'],
-  ch: ['tʃ', 'ʧ'],
-  th_s: ['θ'],
-  th_d: ['ð'],
+  y: ['j'],
+  // 12 Standard Monophthongs
   short_a: ['æ'],
   short_e: ['e', 'ɛ'],
   short_i: ['ɪ'],
-  short_o: ['ɒ', 'ɑː', 'ɑ:', 'ɑ'],
+  short_o: ['ɒ', 'ɑ'],
   short_u: ['ʌ'],
-  long_a: ['eɪ'],
-  long_e: ['iː', 'i:'],
-  long_i: ['aɪ'],
-  long_o: ['əʊ', 'oʊ'],
-  long_u: ['juː', 'ju:'],
+  schwa: ['ə'],
   oo_short: ['ʊ'],
-  oo_long: ['uː', 'u:'],
+  long_e: ['iː', 'i:'],
+  ar: ['ɑː', 'ɑ:'],
   aw: ['ɔː', 'ɔ:'],
-  er: ['ɜː', 'ɜ:', 'ɜːr']
+  oo_long: ['uː', 'u:'],
+  er: ['ɜː', 'ɜ:', 'ɜːr'],
+  // 8 Standard Diphthongs
+  long_a: ['eɪ'],
+  long_i: ['aɪ'],
+  oi: ['ɔɪ'],
+  ou: ['aʊ'],
+  long_o: ['əʊ', 'oʊ'],
+  ear: ['ɪə'],
+  air: ['eə', 'ɛə'],
+  ure: ['ʊə']
 };
 
 function normalizeIpaKey(s) {
@@ -2317,7 +2344,7 @@ async function runImportOpenSourcePhonemes() {
 
     if (!batchAbort) {
       SFX.correct();
-      setProgStatus(`✅ 오픈소스 원어민 음가 ${saved}개 자동 매칭·영구 저장 완료! (나머지 덩어리 음가는 기본 음성 자동 사용 · ZIP 다운로드로 내 GitHub에 보관 가능)`, 100);
+      setProgStatus(`✅ 표준 44음가 중 ${saved}개 원어민 MP3 자동 매칭·영구 저장 완료! (ZIP 다운로드로 내 GitHub sounds/phonemes/에 영구 보관 가능)`, 100);
     } else {
       setProgStatus(`⏹ 중지됨 (${saved}개 저장됨)`, (doneCount / total) * 100);
     }
@@ -2814,16 +2841,18 @@ function buildTokenUnitHtml(tok, idx, totalLen, isMagicE) {
   const isSilent = tok.ko === '묵음';
   const useMagicE = isMagicE && isLast && rawG === 'e' && isSilent;
   const isTeam = rawG.length > 1;
+  const slug = tok.p || mapToPhonemeSlug(tok.g, tok.ko, tok.pos) || '';
+  const pInfo = PH44_MAP[slug.split('+')[0]];
+  const isConsTeam = isTeam && pInfo && pInfo.cat === 'cons';
   const imgsHtml = useMagicE
     ? `<img class="ab-char-img" src="${AB_IMGS.magicE}" alt="Magic E" />`
     : rawG.split('').map(ch => `<img class="ab-char-img" src="${AB_IMGS[ch]||AB_IMGS.a}" alt="${esc(ch)}" />`).join('');
-  const wrapClass = useMagicE ? 'ab-magic-box' : (isTeam ? 'ab-team-box' : '');
+  const wrapClass = useMagicE ? 'ab-magic-box' : (isConsTeam ? 'ab-team-cons' : (isTeam ? 'ab-team-box' : ''));
   const unitClasses = ['ab-unit'];
   if (isSilent && !useMagicE) unitClasses.push('silent');
   if (useMagicE) unitClasses.push('magic-e');
   const labelTxt = useMagicE ? '🎩 매직E' : (tok.ko ? `${tok.g} ${tok.ko}` : tok.g);
   const silentBadge = (isSilent && !useMagicE) ? `<span class="ab-silent-tag">🤫</span>` : '';
-  const slug = mapToPhonemeSlug(tok.g, tok.ko, tok.pos) || '';
   return `<div class="${unitClasses.join(' ')}" data-slug="${esc(slug)}" data-ko="${esc(tok.ko)}" data-magice="${useMagicE?1:0}">
     ${silentBadge}
     <div class="${wrapClass}">${imgsHtml}</div>
@@ -3245,7 +3274,7 @@ function renderBattleBoard() {
           const isMagic = !!battleWord.me && chosen.origIdx === total - 1 && chosen.g.replace(/^-/, '') === 'e' && chosen.ko === '묵음';
           if (isMagic) SFX.magic();
           else if (chosen.ko === '묵음') SFX.hush();
-          else { SFX.pop(); playPhonemeBySlug(mapToPhonemeSlug(chosen.g, chosen.ko, chosen.pos), chosen.ko); }
+          else { SFX.pop(); playPhonemeBySlug(chosen.p || mapToPhonemeSlug(chosen.g, chosen.ko, chosen.pos), chosen.ko); }
         }
       } else {
         SFX.wrong();
@@ -3442,12 +3471,13 @@ function initParentTools() {
     const o3 = document.createElement('option'); o3.value = d; o3.textContent = lbl; d3.appendChild(o3);
   }
   const row = $('searchTokenRow');
-  row.innerHTML = `<button type="button" class="pill3d on" data-stok="all">전체 46종</button>` +
-    CANONICAL_TOKENS.map(tk => `<button type="button" class="pill3d" data-stok="${esc(tk)}">${esc(tk)}</button>`).join('');
+  row.innerHTML = `<button type="button" class="pill3d on" data-stok="all">전체 44음가</button>` +
+    PHONEMES_44.map(p => `<button type="button" class="pill3d" data-stok="${esc(p.slug)}">${esc(p.ipa)} ${esc(p.ko)}</button>`).join('');
   row.querySelectorAll('.pill3d').forEach(btn => {
     btn.addEventListener('click', () => {
       SFX.click(); sToken = btn.dataset.stok; sSubPron = 'all'; sLimit = 30;
       row.querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.stok === sToken));
+      if (sToken !== 'all') playPhonemeBySlug(sToken);
       renderSubPronChips(); renderSearchResults();
     });
   });
@@ -3455,13 +3485,18 @@ function initParentTools() {
 function renderSubPronChips() {
   const wrap = $('searchSubPronWrap'), row = $('searchSubPronRow');
   if (sToken === 'all') { wrap.style.display = 'none'; return; }
-  const prons = new Set();
-  WORDS_800.forEach(w => w.t.forEach(tk => { if (tk.g === sToken) prons.add(tk.ko); }));
-  const arr = [...prons];
+  const graphemes = new Set();
+  WORDS_800.forEach(w => w.t.forEach(tk => {
+    const parts = (tk.p || '').split('+');
+    if (parts.includes(sToken)) graphemes.add(tk.g);
+  }));
+  const arr = [...graphemes].sort();
   if (arr.length <= 1) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
-  row.innerHTML = `<button type="button" class="pill3d on" data-spron="all">${esc(sToken)} 전체</button>` +
-    arr.map(p => `<button type="button" class="pill3d" data-spron="${esc(p)}">${esc(sToken)} ${esc(p)}</button>`).join('');
+  const pObj = PH44_MAP[sToken];
+  const lbl = pObj ? `${pObj.ipa} ${pObj.ko}` : sToken;
+  row.innerHTML = `<button type="button" class="pill3d on" data-spron="all">${esc(lbl)} 전체 철자</button>` +
+    arr.map(g => `<button type="button" class="pill3d" data-spron="${esc(g)}">${esc(g)}</button>`).join('');
   row.querySelectorAll('.pill3d').forEach(btn => {
     btn.addEventListener('click', () => {
       SFX.click(); sSubPron = btn.dataset.spron; sLimit = 30;
@@ -3477,7 +3512,7 @@ function renderSearchResults() {
     if (sPos === 'nonverb' && w.v) return false;
     if (sPos === 'magice' && !w.me) return false;
     if (sDay !== 'all' && w.day !== Number(sDay)) return false;
-    if (sToken !== 'all' && !w.t.some(tk => tk.g === sToken && (sSubPron === 'all' || tk.ko === sSubPron))) return false;
+    if (sToken !== 'all' && !w.t.some(tk => (tk.p || '').split('+').includes(sToken) && (sSubPron === 'all' || tk.g === sSubPron))) return false;
     if (q && !w.w.toLowerCase().includes(q) && !w.m.toLowerCase().includes(q)) return false;
     return true;
   });
