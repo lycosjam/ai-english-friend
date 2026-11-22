@@ -1,0 +1,3845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>알파랜드 3D 파닉스</title>
+<style>
+:root{
+  --ink:#1b3247;
+  --muted:#5a7285;
+  --sky1:#86d2ff;
+  --sky2:#ddf5ff;
+  --sky3:#d5f7c4;
+  --gold:#ffd447;
+  --gold-hi:#fff2a6;
+  --gold-edge:#d49100;
+  --coral:#ff6b8b;
+  --coral-hi:#ff9cb2;
+  --coral-edge:#cc385b;
+  --mint:#2fd179;
+  --mint-hi:#74eba7;
+  --mint-edge:#189953;
+  --blue:#45a3ff;
+  --blue-hi:#8ac6ff;
+  --blue-edge:#1b6ec2;
+  --purple:#8b63ff;
+  --purple-hi:#b89eff;
+  --purple-edge:#5b35c7;
+  --white-edge:#b9cedd;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic','Nanum Gothic',sans-serif;color:var(--ink)}
+body{
+  background:radial-gradient(circle at 15% 6%, #fffbe0 0%, rgba(255,251,224,0) 30%),
+             linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 48%,var(--sky3) 96%);
+  background-attachment:fixed;
+  padding-bottom:44px;
+  overflow-x:hidden;
+}
+
+/* ===== 3D Clay Scenic Background ===== */
+.scene-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+.sun3d{
+  position:absolute;top:-22px;right:24px;width:88px;height:88px;border-radius:50%;
+  background:radial-gradient(circle at 35% 32%, #fffbe0 0%, #ffdc5e 58%, #f2ae18 100%);
+  box-shadow:0 0 42px rgba(255,220,94,.72), inset -6px -8px 14px rgba(214,132,0,.28);
+}
+.cloud3d{
+  position:absolute;left:-160px;width:128px;height:44px;border-radius:50px;
+  background:linear-gradient(180deg,#ffffff 0%,#e7f5ff 100%);
+  box-shadow:0 10px 18px rgba(45,112,158,.12), inset 0 -5px 8px rgba(154,205,235,.45), inset 0 4px 6px rgba(255,255,255,.95);
+  animation:cloudDrift 38s linear infinite;
+}
+.cloud3d::before,.cloud3d::after{
+  content:'';position:absolute;border-radius:50%;
+  background:linear-gradient(180deg,#ffffff 0%,#edf7ff 100%);box-shadow:inset 0 4px 6px #fff;
+}
+.cloud3d::before{width:54px;height:54px;left:18px;top:-24px}
+.cloud3d::after{width:68px;height:68px;left:50px;top:-32px}
+.cl1{top:64px}.cl2{top:185px;width:96px;height:36px;opacity:.82;animation-duration:48s;animation-delay:-20s}
+@keyframes cloudDrift{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 220px))}}
+
+.hills3d{position:fixed;left:0;right:0;bottom:0;height:180px;z-index:-1;pointer-events:none;overflow:hidden}
+.hill-b{
+  position:absolute;bottom:-125px;left:-20%;width:140%;height:245px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 18%, #a6ee7e 0%, #74cf54 62%, #52aa37 100%);
+  box-shadow:inset 0 10px 18px rgba(255,255,255,.42);
+}
+.hill-f{
+  position:absolute;bottom:-150px;left:-12%;width:124%;height:235px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 15%, #90e368 0%, #60bd43 66%, #42992b 100%);
+  box-shadow:0 -8px 20px rgba(34,92,44,.12), inset 0 10px 18px rgba(255,255,255,.36);
+}
+
+/* ===== Reusable Tactile 3D Toy Buttons ===== */
+.btn3d{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:none;border-radius:22px;padding:12px 20px;min-height:48px;
+  font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;
+  color:var(--ink);user-select:none;
+  background:linear-gradient(180deg,#ffffff 0%,#eaf4fc 100%);
+  box-shadow:0 6px 0 var(--white-edge), 0 10px 18px rgba(24,62,92,.14), inset 0 3px 4px #fff;
+  transition:transform .09s ease, box-shadow .09s ease, filter .12s;
+}
+.btn3d:hover{filter:brightness(1.03)}
+.btn3d:active{transform:translateY(4px);box-shadow:0 2px 0 var(--white-edge), 0 4px 8px rgba(24,62,92,.14)}
+.btn3d.round{width:52px;height:52px;padding:0;border-radius:50%;font-size:22px}
+.btn3d.round-lg{width:64px;height:64px;padding:0;border-radius:50%;font-size:26px}
+.btn3d.sm{padding:8px 13px;min-height:38px;font-size:13px;border-radius:15px}
+.btn3d.lg{padding:15px 28px;min-height:58px;font-size:18px;border-radius:26px}
+.btn3d.gold{
+  color:#4a2c00;background:linear-gradient(180deg,var(--gold-hi) 0%,var(--gold) 65%,#f5b81d 100%);
+  box-shadow:0 6px 0 var(--gold-edge), 0 10px 18px rgba(196,128,0,.25), inset 0 3px 4px rgba(255,255,255,.75);
+}
+.btn3d.gold:active{box-shadow:0 2px 0 var(--gold-edge)}
+.btn3d.coral{
+  color:#fff;background:linear-gradient(180deg,var(--coral-hi) 0%,var(--coral) 62%,#f04b73 100%);
+  box-shadow:0 6px 0 var(--coral-edge), 0 10px 18px rgba(204,56,91,.28), inset 0 3px 4px rgba(255,255,255,.45);
+}
+.btn3d.coral:active{box-shadow:0 2px 0 var(--coral-edge)}
+.btn3d.mint{
+  color:#fff;background:linear-gradient(180deg,var(--mint-hi) 0%,var(--mint) 62%,#1eb864 100%);
+  box-shadow:0 6px 0 var(--mint-edge), 0 10px 18px rgba(24,153,83,.28), inset 0 3px 4px rgba(255,255,255,.48);
+}
+.btn3d.mint:active{box-shadow:0 2px 0 var(--mint-edge)}
+.btn3d.blue{
+  color:#fff;background:linear-gradient(180deg,var(--blue-hi) 0%,var(--blue) 62%,#2486e8 100%);
+  box-shadow:0 6px 0 var(--blue-edge), 0 10px 18px rgba(27,110,194,.28), inset 0 3px 4px rgba(255,255,255,.48);
+}
+.btn3d.blue:active{box-shadow:0 2px 0 var(--blue-edge)}
+.btn3d.purple{
+  color:#fff;background:linear-gradient(180deg,var(--purple-hi) 0%,var(--purple) 62%,#7245f2 100%);
+  box-shadow:0 6px 0 var(--purple-edge), 0 10px 18px rgba(91,53,199,.3), inset 0 3px 4px rgba(255,255,255,.48);
+}
+.btn3d.purple:active{box-shadow:0 2px 0 var(--purple-edge)}
+
+.clay-panel{
+  background:linear-gradient(180deg,#ffffff 0%,#f7fbff 100%);
+  border:4px solid #ffffff;
+  border-radius:30px;
+  box-shadow:0 10px 0 #c6dce9, 0 18px 34px rgba(24,62,92,.16), inset 0 4px 6px #fff;
+  padding:20px;
+}
+
+/* ===== ULTRA-CLEAN 3-ITEM FLOATING TOP BAR ===== */
+.app-wrap{max-width:980px;margin:0 auto;padding:14px 14px 20px}
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:18px;min-height:54px;
+}
+.top-slot{width:54px;display:flex;align-items:center}
+.top-slot.right{justify-content:flex-end}
+.quiet-gear{
+  width:46px;height:46px;border-radius:50%;border:2.5px solid rgba(255,255,255,.85);
+  background:rgba(255,255,255,.72);backdrop-filter:blur(6px);cursor:pointer;
+  font-size:20px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 rgba(160,192,216,.65);transition:transform .1s, background .15s;
+}
+.quiet-gear:hover{background:#fff}
+.quiet-gear:active{transform:translateY(3px)}
+
+.status-pill{
+  display:inline-flex;align-items:center;gap:10px;padding:7px 18px 8px;border-radius:999px;
+  background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);
+  border:3px solid #fff;box-shadow:0 6px 0 #b8d3e6, 0 10px 20px rgba(24,62,92,.14);
+  max-width:calc(100% - 124px);
+}
+.sp-who{
+  font-size:13px;font-weight:900;padding:3px 10px;border-radius:999px;color:#fff;white-space:nowrap;
+}
+.sp-who.kid2{background:linear-gradient(180deg,#ff8fab,#ff547d)}
+.sp-who.kid1{background:linear-gradient(180deg,#9b7bff,#6b3ef0)}
+.sp-mid{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.sp-line{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:900;color:#153657;white-space:nowrap}
+.sp-score{color:#e06a00}
+.xp-mini{width:110px;height:7px;border-radius:999px;background:#dbeaf5;overflow:hidden;margin-top:3px}
+.xp-mini-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#ffb703,#ff5478);transition:width .4s cubic-bezier(.34,1.56,.64,1)}
+.combo-badge{
+  display:none;padding:3px 9px;border-radius:999px;font-size:12.5px;font-weight:900;color:#fff;
+  background:linear-gradient(180deg,#ff9a52,#ff4b2b);box-shadow:0 3px 0 #b3280f;
+  animation:popBounce .3s ease;white-space:nowrap;
+}
+.combo-badge.show{display:inline-flex}
+
+/* ===== Screens & Animations ===== */
+.screen{display:none}
+.screen.active{display:block;animation:fadeSlide .22s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popBounce{0%{transform:scale(.82)}55%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes jump3d{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-18px) scale(1.12)}70%{transform:translateY(-3px) scale(.97)}}
+@keyframes shakeWrong{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 9px 0 #a86400, 0 0 0 0 rgba(255,212,71,.6)}50%{box-shadow:0 9px 0 #a86400, 0 0 0 16px rgba(255,212,71,0)}}
+
+/* ===== HOME SCREEN (Clean 2 Giant 3D Toy Doors) ===== */
+.home-head{text-align:center;margin:4px 0 24px}
+.home-title{
+  font-size:clamp(30px, 6vw, 44px);font-weight:900;color:#123456;letter-spacing:-.5px;
+  text-shadow:0 4px 0 rgba(255,255,255,.95), 0 8px 16px rgba(24,62,92,.14);
+}
+.home-doors{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:820px;margin:0 auto}
+.door-card{
+  border:4.5px solid #fff;border-radius:36px;padding:28px 20px 24px;cursor:pointer;
+  font-family:inherit;color:#fff;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.door-card:hover{transform:translateY(-5px)}
+.door-card:active{transform:translateY(5px)}
+.door-card.kid2-door{
+  background:linear-gradient(160deg,#ff9eb8 0%,#ff5c84 55%,#e63b67 100%);
+  box-shadow:0 12px 0 #b82950, 0 24px 38px rgba(184,41,80,.32), inset 0 5px 10px rgba(255,255,255,.45);
+}
+.door-card.kid2-door:active{box-shadow:0 4px 0 #b82950}
+.door-card.kid1-door{
+  background:linear-gradient(160deg,#aa8aff 0%,#7345f2 55%,#5629d4 100%);
+  box-shadow:0 12px 0 #3f1aa8, 0 24px 38px rgba(63,26,168,.32), inset 0 5px 10px rgba(255,255,255,.45);
+}
+.door-card.kid1-door:active{box-shadow:0 4px 0 #3f1aa8}
+.door-who{
+  padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.24);
+  border:2px solid rgba(255,255,255,.55);font-size:14px;font-weight:900;
+}
+.door-mascots{display:flex;align-items:flex-end;justify-content:center;gap:2px;height:102px}
+.door-mascots img{width:86px;height:86px;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(0,0,0,.24))}
+.door-title{font-size:clamp(24px,4vw,30px);font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.door-stat{font-size:14px;font-weight:800;opacity:.95}
+.door-go{
+  padding:12px 28px;border-radius:999px;
+  background:linear-gradient(180deg,#fffef2 0%,#ffe378 100%);color:#4d2c00;
+  font-size:17px;font-weight:900;box-shadow:0 5px 0 #c98800, 0 8px 14px rgba(0,0,0,.22);
+}
+
+/* ===== STRICTLY SINGLE-LINE ALPHABLOCKS ROW ===== */
+.ab-row{
+  display:flex;flex-wrap:nowrap !important;align-items:flex-end;justify-content:center;
+  gap:clamp(4px, 1.2vw, 10px);width:100%;max-width:100%;padding:12px 4px 6px;
+}
+.ab-unit{
+  display:flex;flex-direction:column;align-items:center;position:relative;
+  cursor:pointer;flex:0 1 auto;min-width:0;transition:transform .12s;
+}
+.ab-unit:hover{transform:translateY(-4px)}
+.ab-unit.jumping{animation:jump3d .48s cubic-bezier(.28,.84,.42,1)}
+.ab-unit.speaking-now .ab-char-img{
+  filter:drop-shadow(0 0 14px #ffbe0b) drop-shadow(0 6px 6px rgba(22,52,78,.22));
+  transform:scale(1.12);
+}
+.ab-team-box{
+  display:inline-flex;flex-wrap:nowrap;align-items:flex-end;gap:0;
+  padding:4px 6px 3px;border-radius:18px;
+  background:linear-gradient(180deg,#fff6d6 0%,#ffe391 100%);
+  border:2.5px solid #f7b728;box-shadow:0 4px 0 #d49200, inset 0 2px 3px #fff;
+}
+.ab-magic-box{
+  display:inline-flex;flex-wrap:nowrap;align-items:flex-end;
+  padding:3px 5px;border-radius:18px;
+  background:linear-gradient(180deg,#f2eaff 0%,#dfd0ff 100%);
+  border:2.5px dashed #8a5cf6;box-shadow:0 4px 0 #6439cc;
+}
+.ab-char-img{
+  width:min(88px, calc((min(100vw, 720px) - 80px) / var(--chars, 4)));
+  height:auto;aspect-ratio:1/1;object-fit:contain;display:block;
+  filter:drop-shadow(0 6px 6px rgba(22,52,78,.2));transition:transform .12s;
+}
+.ab-row.lg .ab-char-img{width:min(118px, calc((min(100vw, 760px) - 72px) / var(--chars, 4)))}
+.ab-row.md .ab-char-img{width:min(74px, calc((min(100vw, 620px) - 80px) / var(--chars, 5)))}
+.ab-row.sm .ab-char-img{width:min(44px, calc(230px / var(--chars, 5)))}
+.ab-unit.silent .ab-char-img{opacity:.35;filter:grayscale(.35)}
+.ab-silent-tag{
+  position:absolute;top:-7px;right:-2px;font-size:12px;z-index:2;
+  background:#fff;border-radius:999px;padding:1px 4px;
+  box-shadow:0 2px 5px rgba(0,0,0,.18);border:1.5px solid #cbd5e1;
+}
+.ab-phon-pill{
+  margin-top:5px;padding:2px 8px;border-radius:999px;
+  font-size:clamp(10.5px, 2.3vw, 13px);font-weight:900;color:#2c4a63;
+  background:linear-gradient(180deg,#ffffff 0%,#e7f3fc 100%);
+  border:1.5px solid #bfd8eb;box-shadow:0 2px 0 #b1cde0;white-space:nowrap;
+}
+.ab-row.sm .ab-phon-pill{font-size:9.5px;padding:1px 5px}
+.ab-unit.magic-e .ab-phon-pill{background:linear-gradient(180deg,#f3e8ff,#e2ccff);border-color:#9b6eff;color:#5523c4}
+.ab-unit.silent .ab-phon-pill{background:#f1f5f9;border-color:#cbd5e1;color:#64748b}
+
+/* ===== KID 2: 26 ALPHABLOCKS PICKER ===== */
+.az-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.az-legend{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:900}
+.leg-pill{padding:5px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+.leg-pill.v{background:linear-gradient(180deg,#fff3c4,#ffd86b);color:#7a4400;border:2px solid #f0aa00}
+.leg-pill.c{background:linear-gradient(180deg,#f0f9ff,#cfeaff);color:#144d82;border:2px solid #6cb8f5}
+
+.az-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(92px, 1fr));gap:11px}
+.az-tile{
+  position:relative;border:none;border-radius:22px;padding:10px 4px 8px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit;
+  transition:transform .09s, box-shadow .09s;
+}
+.az-tile.cons{
+  background:linear-gradient(180deg,#ffffff 0%,#dff3ff 70%,#c5e7ff 100%);
+  border:2.5px solid #8acbff;box-shadow:0 6px 0 #5ca9e6, 0 9px 14px rgba(32,96,150,.15), inset 0 3px 4px #fff;
+  color:#114678;
+}
+.az-tile.cons:active{transform:translateY(4px);box-shadow:0 2px 0 #5ca9e6}
+.az-tile.vowel{
+  background:linear-gradient(180deg,#fff9d9 0%,#ffe07d 68%,#ffc947 100%);
+  border:2.5px solid #ffae19;box-shadow:0 6px 0 #d48900, 0 9px 14px rgba(196,120,0,.22), inset 0 3px 4px #fff;
+  color:#6e3600;
+}
+.az-tile.vowel:active{transform:translateY(4px);box-shadow:0 2px 0 #d48900}
+.az-tile img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 4px 4px rgba(0,0,0,.16))}
+.az-tile .az-lbl{font-size:15px;font-weight:900}
+.az-tile .az-star{position:absolute;top:5px;right:6px;font-size:15px}
+
+/* ===== KID 2: ULTRA-CLEAN WORD STAGE (3-BUTTON DOCK!) ===== */
+.stage-card{
+  max-width:740px;margin:0 auto;text-align:center;
+  background:linear-gradient(180deg,#fffef8 0%,#f5fbff 66%,#e6f7df 100%);
+  border:4.5px solid var(--gold);border-radius:34px;padding:18px 16px 24px;
+  box-shadow:0 10px 0 var(--gold-edge), 0 20px 36px rgba(24,62,92,.18), inset 0 5px 8px #fff;
+}
+.stage-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.dots-row{display:flex;align-items:center;gap:8px}
+.dot-btn{
+  width:15px;height:15px;border-radius:50%;border:none;cursor:pointer;
+  background:#cfe0ec;transition:all .16s;
+}
+.dot-btn.on{width:34px;border-radius:999px;background:linear-gradient(90deg,#ff8b2b,#ff5478)}
+
+.stage-grass{
+  background:radial-gradient(ellipse at 50% 92%, rgba(76,175,80,.26) 0%, rgba(76,175,80,0) 65%);
+  padding:14px 4px 16px;margin:4px 0 12px;
+}
+.giant-word-btn{
+  display:inline-flex;align-items:center;gap:14px;padding:14px 30px;border-radius:28px;
+  border:3.5px solid var(--gold);cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,#ffffff 0%,#fff6d6 100%);
+  box-shadow:0 8px 0 var(--gold-edge), 0 14px 24px rgba(196,128,0,.22), inset 0 3px 5px #fff;
+  transition:transform .09s, box-shadow .09s;
+}
+.giant-word-btn:active{transform:translateY(5px);box-shadow:0 3px 0 var(--gold-edge)}
+.gw-en{font-size:clamp(38px, 8vw, 56px);font-weight:900;color:#143659;letter-spacing:2px;line-height:1}
+.gw-ko{font-size:19px;font-weight:900;color:#d15d00;background:#fff;padding:6px 14px;border-radius:999px}
+.magic-note{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;border-radius:999px;
+  background:linear-gradient(180deg,#f4eaff,#e2ceff);border:2px solid #8b5cf6;color:#5523c4;
+  font-size:13px;font-weight:900;
+}
+.kid-dock{
+  display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px;
+}
+
+/* ===== SOUND DETECTIVE BOSS ARENA (Focused 4-Choice Game) ===== */
+.boss-arena{
+  max-width:640px;margin:0 auto;text-align:center;color:#fff;
+  background:linear-gradient(180deg,#251d4d 0%,#3a287d 56%,#5336b0 100%);
+  border:4.5px solid #ffd447;border-radius:34px;padding:24px 18px 26px;
+  box-shadow:0 11px 0 #1b1140, 0 22px 38px rgba(24,14,66,.38), inset 0 4px 10px rgba(255,255,255,.2);
+}
+.boss-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:999px;
+  background:linear-gradient(180deg,#ffdf6b,#ffb414);color:#422500;font-size:14px;font-weight:900;
+  box-shadow:0 4px 0 #b87400;margin-bottom:10px;
+}
+.boss-q{font-size:clamp(20px, 4.5vw, 26px);font-weight:900;margin-bottom:16px}
+.giant-speaker{
+  width:128px;height:128px;border-radius:50%;border:5px solid #fff;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%, #ffe98a 0%, #ffb914 68%, #e08d00 100%);
+  box-shadow:0 9px 0 #a86400, 0 18px 30px rgba(0,0,0,.35), inset 0 5px 8px rgba(255,255,255,.7);
+  font-size:54px;display:inline-flex;align-items:center;justify-content:center;
+  transition:transform .1s, box-shadow .1s;margin-bottom:16px;
+  animation:pulseGlow 2.2s infinite;
+}
+.giant-speaker:active{transform:translateY(5px);box-shadow:0 4px 0 #a86400;animation:none}
+.quiz-grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:460px;margin:0 auto 12px}
+.quiz-opt{
+  border:3.5px solid #fff;border-radius:24px;padding:18px 10px;cursor:pointer;font-family:inherit;
+  font-size:clamp(24px, 5vw, 30px);font-weight:900;color:#1b3247;letter-spacing:1px;
+  background:linear-gradient(180deg,#ffffff 0%,#e9f3ff 100%);
+  box-shadow:0 8px 0 #a8c2db, 0 12px 20px rgba(0,0,0,.22), inset 0 3px 4px #fff;
+  transition:transform .09s, box-shadow .09s;
+}
+.quiz-opt:active{transform:translateY(5px);box-shadow:0 3px 0 #a8c2db}
+.quiz-opt.correct{background:linear-gradient(180deg,#7ff0ad,#28c76f);color:#fff;box-shadow:0 8px 0 #158747;animation:popBounce .35s ease}
+.quiz-opt.wrong{background:linear-gradient(180deg,#ffc2cf,#ff6b8b);color:#fff;box-shadow:0 8px 0 #bd3252;animation:shakeWrong .35s ease}
+.boss-msg{min-height:26px;font-size:15.5px;font-weight:900;color:#ffe680;margin-top:4px}
+.boss-reveal{
+  margin:14px auto 0;max-width:480px;background:rgba(255,255,255,.97);color:var(--ink);
+  border-radius:24px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.25);display:none;
+}
+.boss-reveal.show{display:block;animation:popBounce .3s ease}
+
+/* ===== KID 1: 3-CARD QUEST HUB ===== */
+.quest-hub{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:860px;margin:10px auto 0}
+.quest-card{
+  border:4px solid #fff;border-radius:30px;padding:24px 16px 22px;cursor:pointer;font-family:inherit;
+  color:#fff;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;
+  transition:transform .12s, box-shadow .12s;
+}
+.quest-card:hover{transform:translateY(-4px)}
+.quest-card:active{transform:translateY(5px)}
+.quest-card.q1{background:linear-gradient(160deg,#68b8ff,#2685eb);box-shadow:0 10px 0 var(--blue-edge), 0 18px 28px rgba(27,110,194,.28)}
+.quest-card.q2{background:linear-gradient(160deg,#5ce89a,#1eb864);box-shadow:0 10px 0 var(--mint-edge), 0 18px 28px rgba(24,153,83,.28)}
+.quest-card.q3{background:linear-gradient(160deg,#a685ff,#6c3ef0);box-shadow:0 10px 0 var(--purple-edge), 0 18px 28px rgba(91,53,199,.28)}
+.quest-ic{font-size:52px;line-height:1;filter:drop-shadow(0 5px 6px rgba(0,0,0,.2))}
+.quest-title{font-size:21px;font-weight:900}
+.quest-desc{font-size:13.5px;font-weight:700;opacity:.94;line-height:1.4}
+
+/* Battle Assemble Stage */
+.pill-strip{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pill3d{
+  border:2.5px solid #c5dceb;border-radius:999px;padding:7px 14px;cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:900;color:#2c4a63;
+  background:linear-gradient(180deg,#ffffff 0%,#edf6fc 100%);box-shadow:0 4px 0 #b7d0e2;
+  transition:transform .09s;
+}
+.pill3d:active{transform:translateY(2px)}
+.pill3d.on{background:linear-gradient(180deg,#ffe88a,#ffc42e);border-color:#e69b00;color:#4a2b00;box-shadow:0 4px 0 #bd7d00}
+
+.prompt-hero{
+  display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;
+}
+.prompt-ko{font-size:clamp(26px, 5.5vw, 34px);font-weight:900;color:#143659}
+.slot-tray{
+  display:flex;flex-wrap:nowrap !important;align-items:center;justify-content:center;gap:clamp(4px, 1vw, 10px);
+  min-height:116px;padding:12px 8px;border-radius:26px;
+  background:linear-gradient(180deg,#eaf5fd,#d9ecfa);border:3px dashed #7ab6e6;
+  box-shadow:inset 0 4px 10px rgba(27,82,130,.12);margin-bottom:16px;
+}
+.slot-empty{
+  width:min(68px, calc((100% - 40px) / var(--slots, 4)));aspect-ratio:4/5;border-radius:16px;
+  border:3px dashed #8ebee3;background:rgba(255,255,255,.55);
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#8bb4d4;
+}
+.tile-pool{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;min-height:102px;margin-bottom:14px}
+.piece-btn{
+  border:3px solid #fff;border-radius:22px;padding:8px 11px;cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,#ffffff 0%,#e5f3ff 100%);
+  box-shadow:0 6px 0 #9fc3e0, 0 10px 16px rgba(24,62,92,.14), inset 0 3px 4px #fff;
+  display:inline-flex;flex-direction:column;align-items:center;gap:2px;transition:transform .09s;
+}
+.piece-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #9fc3e0}
+.piece-btn.used{opacity:.22;pointer-events:none;transform:scale(.9)}
+.piece-btn .p-imgs{display:flex;flex-wrap:nowrap;align-items:flex-end}
+.piece-btn img{width:54px;height:54px;object-fit:contain}
+.piece-btn .p-lbl{font-size:13.5px;font-weight:900;color:#17426b}
+.piece-btn .p-ko{font-size:11px;font-weight:800;color:#627f96}
+
+/* Sentence Quest Stage */
+.sent-card{
+  background:linear-gradient(180deg,#ffffff,#f4f9ff);border:4px solid var(--blue);
+  border-radius:28px;padding:20px 16px;box-shadow:0 8px 0 var(--blue-edge);margin-bottom:16px;text-align:center;
+}
+.sent-en{font-size:clamp(22px, 4.8vw, 32px);font-weight:900;color:#143659;line-height:1.45;margin:10px 0 8px}
+.sent-blank{
+  display:inline-block;min-width:96px;padding:2px 14px;margin:0 4px;border-radius:14px;
+  border:3px dashed #ff6b8b;background:#fff0f4;color:#d6335c;
+}
+.sent-blank.filled{border-style:solid;border-color:#26c46c;background:#e6fff0;color:#117a3f}
+.sent-ko{font-size:16px;font-weight:800;color:#556e85}
+.relay-tray{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:66px;padding:12px;
+  border-radius:22px;background:#eaf4fc;border:3px dashed #7eb7e6;margin-bottom:14px;
+}
+.word-tile3d{
+  border:2.5px solid #fff;border-radius:18px;padding:11px 18px;cursor:pointer;
+  font-family:inherit;font-size:20px;font-weight:900;color:#183b5e;
+  background:linear-gradient(180deg,#ffffff,#e4f2ff);box-shadow:0 5px 0 #9dc1de;transition:transform .09s;
+}
+.word-tile3d:active{transform:translateY(3px)}
+.word-tile3d.picked{background:linear-gradient(180deg,#ffec99,#ffc938);color:#4f2e00;box-shadow:0 5px 0 #cc8e00}
+
+/* ===== PARENT TOOLS (Search & A4 Print) ===== */
+.input3d{
+  flex:1;min-width:180px;padding:11px 15px;border-radius:16px;border:2.5px solid #bed8eb;
+  font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);background:#fff;outline:none;
+}
+.select3d{
+  padding:10px 13px;border-radius:16px;border:2.5px solid #bed8eb;background:#fff;
+  font-family:inherit;font-size:13.5px;font-weight:800;color:var(--ink);cursor:pointer;
+}
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.word-cards-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(265px, 1fr));gap:12px;margin-top:12px}
+.w-card{
+  background:linear-gradient(180deg,#fff,#f7fbff);border:2.5px solid #dcebf5;border-radius:22px;padding:12px;
+  box-shadow:0 6px 0 #c1d8e8;display:flex;flex-direction:column;justify-content:space-between;gap:8px;
+}
+.pos-tag{font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px}
+.pos-tag.v{background:#dcfce7;color:#166534}.pos-tag.vm{background:#fef3c7;color:#92400e}
+.pos-tag.mod{background:#ede9fe;color:#5b21b6}.pos-tag.nv{background:#f1f5f9;color:#475569}
+
+.a4-preview-wrap{background:#d5e4ef;border-radius:24px;padding:16px;overflow-x:auto}
+.a4-sheet{width:210mm;min-height:292mm;margin:0 auto;background:#fff;color:#111827;padding:13mm 12mm;border-radius:6px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.ws-head{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #1f4e5f;padding-bottom:8px;margin-bottom:10px}
+.ws-title{font-size:18pt;font-weight:900;color:#1f4e5f}
+.ws-meta{font-size:10pt;font-weight:700;color:#475569;text-align:right;line-height:1.5}
+.ws-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ws-item{border:1.5px solid #cbd5e1;border-radius:10px;padding:7px 9px;background:#fafdff;page-break-inside:avoid}
+.ws-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ws-word{font-size:14pt;font-weight:900}.ws-meaning{font-size:10pt;font-weight:800;color:#b45309}
+.ws-blocks{display:flex;flex-wrap:nowrap !important;align-items:flex-end;gap:2px;min-height:36px;margin-bottom:4px;overflow:hidden}
+.ws-blocks img{width:min(34px, calc(100% / var(--chars, 5)));height:auto;aspect-ratio:1/1;object-fit:contain}
+.ws-blocks .ws-sil{opacity:.35}
+.ws-phon{font-size:8.5pt;color:#475569;font-weight:700;margin-bottom:5px}
+.ws-lines{height:24px;border-top:1px solid #94a3b8;border-bottom:1px solid #94a3b8;background:linear-gradient(180deg, transparent 48%, #cbd5e1 49%, #cbd5e1 51%, transparent 52%)}
+.ws-mini-box{border:2px dashed #2e6b80;border-radius:12px;padding:10px 12px;background:#f8fcff}
+.ws-mini-title{font-size:11.5pt;font-weight:900;color:#1f4e5f;margin-bottom:7px}
+.ws-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:10.5pt;font-weight:800}
+
+/* ===== PARENT SETTINGS MODAL (44 Phoneme MP3 Manager + Tools) ===== */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(16,38,60,.6);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;padding:14px;z-index:100;
+}
+.modal-bg.open{display:flex}
+.parent-modal{
+  background:linear-gradient(180deg,#ffffff 0%,#f2f8fd 100%);
+  border:4px solid #fff;border-radius:30px;padding:20px 18px;max-width:560px;width:100%;
+  max-height:92vh;overflow-y:auto;box-shadow:0 12px 0 #a9c5d9, 0 24px 48px rgba(0,0,0,.35);
+  animation:popBounce .26s ease;
+}
+.pm-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:2px dashed #d1e3f0}
+.pm-title{font-size:18px;font-weight:900;color:#123456}
+.pm-box{background:#fff;border:2px solid #dcebf5;border-radius:20px;padding:13px;margin-bottom:11px;box-shadow:0 4px 0 #d0e3f0}
+.pm-lbl{font-size:13.5px;font-weight:900;color:#1d456b;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pm-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.pm-grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.phon44-list{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(148px, 1fr));gap:6px;
+  max-height:220px;overflow-y:auto;padding:6px;background:#f7fbff;border-radius:14px;border:1.5px solid #d7e7f4;margin-top:8px;
+}
+.ph44-item{
+  display:flex;align-items:center;justify-content:space-between;gap:4px;
+  padding:5px 8px;border-radius:10px;background:#fff;border:1.5px solid #dce9f5;font-size:11.5px;font-weight:800;cursor:pointer;
+}
+.ph44-item.loaded{border-color:#2fd179;background:#effdf5}
+.ph44-item:hover{background:#eef7ff}
+
+.prog-wrap{margin-top:8px;display:none}
+.prog-wrap.show{display:block}
+.prog-bar{height:12px;border-radius:999px;background:#dbeaf5;overflow:hidden;border:1.5px solid #bed6e8}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#2fd179,#45a3ff);transition:width .25s ease}
+.prog-txt{font-size:12px;font-weight:800;color:#1b496e;margin-top:5px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.stat-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stat-chip{background:#f4faff;border:1.5px solid #cfe3f2;border-radius:14px;padding:7px 6px;text-align:center}
+.stat-chip .sc-n{font-size:14px;font-weight:900;color:#123d63}
+.stat-chip .sc-l{font-size:11px;font-weight:800;color:#5c768c}
+.stat-chip.done{background:#eefdf4;border-color:#2fd179}
+.stat-chip.done .sc-n{color:#138044}
+.ph44-item .ph-act{display:inline-flex;align-items:center;gap:3px}
+.ph-mini-btn{border:none;background:#eef5fc;border-radius:6px;padding:2px 5px;font-size:11px;cursor:pointer;font-weight:900}
+.ph-mini-btn:hover{background:#d7ebff}
+.sent-check-list{display:flex;flex-direction:column;gap:5px;max-height:210px;overflow-y:auto;padding:6px;background:#f7fbff;border-radius:14px;border:1.5px solid #d7e7f4;margin-top:8px}
+.sent-row{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px;border-radius:10px;background:#fff;border:1.5px solid #dce9f5;font-size:12px;font-weight:800}
+.sent-row.loaded{border-color:#2fd179;background:#effdf5}
+
+
+.levelup-box{
+  background:linear-gradient(180deg,#fffef4 0%,#ffe999 100%);
+  border:5px solid #fff;border-radius:32px;padding:28px 24px;max-width:380px;width:100%;text-align:center;
+  box-shadow:0 12px 0 #d49100, 0 24px 44px rgba(0,0,0,.35);animation:popBounce .4s ease;
+}
+.float-score{
+  position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:90;
+  pointer-events:none;font-size:32px;font-weight:900;color:#ff9d00;
+  text-shadow:0 3px 0 #fff, 0 6px 14px rgba(0,0,0,.22);animation:floatUp .95s ease-out forwards;
+}
+@keyframes floatUp{
+  0%{opacity:0;transform:translate(-50%,-20%) scale(.7)}
+  25%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}
+  100%{opacity:0;transform:translate(-50%,-150%) scale(.95)}
+}
+#confettiCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:95}
+
+
+/* ===== v5: 2-ROW LONG WORD ALPHABLOCKS, CLEAN WORD-TEXT ASSEMBLY, 2x2 HUB, PARENT MATH GATE ===== */
+.ab-rows-stack{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.ab-row.split-row .ab-char-img{width:min(86px, calc((min(100vw, 720px) - 72px) / var(--chars, 5)))}
+.ab-row.split-row.md .ab-char-img{width:min(66px, calc((min(100vw, 600px) - 72px) / var(--chars, 5)))}
+.ab-hyphen{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;color:#62829c;padding:0 2px;margin-bottom:26px;user-select:none;
+}
+
+/* Kid 1 2x2 Quest Hub & Mission Banner */
+.mission-banner{
+  max-width:780px;margin:0 auto 16px;padding:14px 18px;border-radius:26px;
+  background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);
+  border:3.5px solid #fff;box-shadow:0 8px 0 #b8d3e6, 0 14px 24px rgba(24,62,92,.14);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.mb-left{display:flex;flex-direction:column;gap:3px;text-align:left}
+.mb-title{font-size:17px;font-weight:900;color:#143659}
+.mb-words{font-size:12.5px;font-weight:800;color:#52718a}
+.mb-steps{display:flex;gap:6px;flex-wrap:wrap}
+.mb-badge{
+  padding:5px 11px;border-radius:999px;font-size:12px;font-weight:900;
+  background:#e6f0f8;color:#55728a;border:2px solid #c9ddeb;
+}
+.mb-badge.done{background:linear-gradient(180deg,#82f2b0,#28c76f);color:#fff;border-color:#189953}
+
+.quest-hub-2x2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:780px;margin:0 auto}
+.quest-card.q0{background:linear-gradient(160deg,#ff9eb8 0%,#ff5c84 55%,#e63b67 100%);box-shadow:0 10px 0 var(--coral-edge), 0 18px 28px rgba(204,56,91,.28)}
+.quest-card.q0:active{box-shadow:0 4px 0 var(--coral-edge)}
+.quest-badge-done{
+  padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.26);
+  border:2px solid rgba(255,255,255,.6);font-size:12px;font-weight:900;
+}
+
+/* Clean Standard English Word Assembly Tray (Zero Overlap, Crystal Clear!) */
+.word-slot-tray{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 7px;
+  min-height:92px;padding:16px 14px;border-radius:26px;
+  background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);
+  border:3.5px dashed #7ab6e6;box-shadow:inset 0 4px 10px rgba(27,82,130,.08);
+  margin-bottom:16px;transition:all .25s ease;
+}
+.word-slot-tray.complete{
+  border-style:solid;border-color:#2fd179;
+  background:linear-gradient(180deg,#f2fff7 0%,#dcffe9 100%);
+  gap:0;
+}
+.letter-chunk-empty{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;height:56px;padding:0 10px;border-radius:16px;
+  border:2.5px dashed #8ebee3;background:rgba(255,255,255,.78);
+  font-size:18px;font-weight:900;color:#8bb4d4;
+}
+.letter-chunk-filled{
+  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 9px 3px;border-radius:14px;
+  background:#fff;border-bottom:4px solid #45a3ff;
+  box-shadow:0 4px 10px rgba(24,62,92,.08);
+  animation:popBounce .26s ease;
+}
+.letter-chunk-filled.c-team{border-bottom-color:#f5a800;background:#fffbf0}
+.letter-chunk-filled.c-magic{border-bottom-color:#8b5cf6;background:#f7f2ff}
+.letter-chunk-filled.c-silent{border-bottom-color:#94a3b8;color:#64748b}
+.lcf-txt{
+  font-size:clamp(30px, 7.2vw, 48px);font-weight:900;color:#123456;
+  letter-spacing:1px;line-height:1.05;
+}
+.letter-chunk-filled.c-silent .lcf-txt{color:#7c90a3}
+.lcf-ko{font-size:11px;font-weight:900;color:#5a758c;margin-top:2px}
+.word-slot-tray.complete .letter-chunk-filled{
+  background:transparent;border-bottom-color:transparent;box-shadow:none;padding:2px 0;
+}
+.word-slot-tray.complete .lcf-txt{
+  font-size:clamp(36px, 8.5vw, 54px);color:#117a3f;letter-spacing:1.5px;
+}
+.word-slot-tray.complete .lcf-ko{display:none}
+.word-hyphen-sep{font-size:clamp(28px, 6vw, 42px);font-weight:900;color:#52718a;padding:0 2px}
+
+/* Compact Alphablocks Piece Buttons for Long Words (7+ tokens) */
+.tile-pool.compact{gap:7px}
+.tile-pool.compact .piece-btn{padding:6px 8px;border-radius:17px}
+.tile-pool.compact .piece-btn img{width:42px;height:42px}
+.tile-pool.compact .piece-btn .p-lbl{font-size:12px}
+.tile-pool.compact .piece-btn .p-ko{font-size:10px}
+
+/* Parent Settings: Today's Words Preview Chips & Addition Gate */
+.today-preview-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.tp-chip{
+  padding:4px 10px;border-radius:999px;font-size:12px;font-weight:900;
+  background:#eef7ff;color:#15436e;border:1.5px solid #bdd9ef;
+}
+.tp-chip.done{background:#eafdf2;color:#12753f;border-color:#53d68a}
+.gate-box{
+  background:linear-gradient(180deg,#ffffff 0%,#f3f9ff 100%);
+  border:4.5px solid #fff;border-radius:30px;padding:26px 22px;max-width:360px;width:100%;text-align:center;
+  box-shadow:0 12px 0 #a9c5d9, 0 24px 48px rgba(0,0,0,.35);animation:popBounce .26s ease;
+}
+.gate-eq{
+  font-size:38px;font-weight:900;color:#123456;margin:12px 0;padding:12px;
+  border-radius:20px;background:#eef7ff;border:2.5px solid #c4dff2;letter-spacing:2px;
+}
+.gate-input{
+  width:140px;text-align:center;font-size:28px;font-weight:900;padding:10px;
+  border-radius:18px;border:3px solid #7ab6e6;color:#123456;outline:none;font-family:inherit;
+}
+.gate-input:focus{border-color:#ff9d00}
+
+/* ===== v6: CALM STEP-BY-STEP PROGRESS BAR, STAMP SLOTS & CLEAN UPPER/LOWERCASE AZ TILES ===== */
+.step-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;
+  background:linear-gradient(180deg,#ffffff 0%,#eef7ff 100%);
+  border:3px solid #fff;box-shadow:0 6px 0 #b8d3e6, 0 10px 20px rgba(24,62,92,.14);
+  max-width:calc(100% - 120px);
+}
+.stepper-track{display:flex;align-items:center;gap:4px}
+.step-node{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;
+  font-size:12.5px;font-weight:900;color:#688299;background:#e6f0f7;white-space:nowrap;
+  transition:all .2s ease;
+}
+.step-node.active{
+  background:linear-gradient(180deg,#ffe47a,#ffb81c);color:#4d2c00;
+  box-shadow:0 3px 0 #cc8800;transform:scale(1.03);
+}
+.step-node.done{
+  background:linear-gradient(180deg,#7ff0ad,#28c76f);color:#fff;
+  box-shadow:0 3px 0 #158747;
+}
+.step-line{width:14px;height:3.5px;border-radius:999px;background:#cbe0ee}
+.step-line.done{background:#28c76f}
+
+.k2-top-prog{display:flex;align-items:center;gap:9px}
+.k2-bar-wrap{display:flex;flex-direction:column;align-items:flex-start}
+.k2-bar-txt{font-size:13px;font-weight:900;color:#143659;white-space:nowrap}
+.prog-mini{width:112px;height:8px;border-radius:999px;background:#dbeaf5;overflow:hidden;margin-top:3px}
+.prog-mini-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#34d399,#22c55e);transition:width .35s ease}
+
+/* Stamp Slots & Step Progress Strip inside Learning Stages */
+.stamp-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px}
+.stamp-slot{
+  width:32px;height:32px;border-radius:50%;border:2.5px solid #c4daea;
+  background:#f4faff;color:#6f8da6;font-size:13px;font-weight:900;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all .18s ease;font-family:inherit;
+}
+.stamp-slot.active{
+  border-color:#ff9d00;background:linear-gradient(180deg,#fff3b0,#ffd23f);color:#5c3300;
+  transform:scale(1.14);box-shadow:0 3px 0 #cc8400;
+}
+.stamp-slot.stamped{
+  border-color:#22c55e;background:linear-gradient(180deg,#86efac,#22c55e);color:#fff;
+  box-shadow:0 3px 0 #15803d;font-size:15px;
+}
+.boss-arena .stamp-slot{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#e2e8f0}
+.boss-arena .stamp-slot.active{border-color:#fff;background:linear-gradient(180deg,#fff3b0,#ffd23f);color:#4d2c00}
+.boss-arena .stamp-slot.stamped{border-color:#86efac;background:linear-gradient(180deg,#7ff0ad,#28c76f);color:#fff}
+
+.stage-linear-bar{height:8px;border-radius:999px;background:#dbeaf5;overflow:hidden;width:100%}
+.stage-linear-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#45a3ff,#2fd179);transition:width .35s ease}
+.boss-arena .stage-linear-bar{background:rgba(255,255,255,.18);margin-bottom:12px}
+.boss-arena .stage-linear-fill{background:linear-gradient(90deg,#ffd447,#4ade80)}
+
+/* Kid 2 26-Tile Upper + Lowercase Distinct Styling (Aa) */
+.az-tile .az-lbl{
+  display:inline-flex;align-items:baseline;justify-content:center;gap:1px;
+  font-size:17px;font-weight:900;letter-spacing:0.3px;line-height:1.1;
+}
+.az-tile .az-up{font-size:18px;font-weight:900}
+.az-tile .az-lo{font-size:16px;font-weight:800;opacity:.88}
+
+/* Parent Kid 1 Stage / Rule Picker Pills */
+.stage-pill-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:7px}
+.stage-pill-btn{
+  border:2px solid #cfe0ee;border-radius:12px;padding:6px 4px;cursor:pointer;
+  background:#fff;font-family:inherit;font-size:11.5px;font-weight:900;color:#2c4a63;
+  text-align:center;transition:all .12s;
+}
+.stage-pill-btn.on{
+  background:linear-gradient(180deg,#ffe88a,#ffc42e);border-color:#e69b00;color:#4a2b00;
+  box-shadow:0 3px 0 #bd7d00;
+}
+.stage-pill-btn .sp-sub{display:block;font-size:10px;font-weight:800;opacity:.82;margin-top:2px}
+.tp-chip.rev{background:#fff4e0;color:#9a4d00;border-color:#f5b74c}
+
+@media (max-width:520px){
+  .step-node{font-size:11px;padding:4px 7px}
+  .step-line{width:7px}
+  .stage-pill-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+@media (max-width:740px){
+  .quest-hub-2x2{grid-template-columns:1fr;gap:12px}
+}
+
+@media (max-width:740px){
+  .home-doors,.quest-hub{grid-template-columns:1fr;gap:14px}
+  .door-card{padding:20px 16px}
+  .door-mascots{height:78px}.door-mascots img{width:68px;height:68px}
+  .az-grid{grid-template-columns:repeat(auto-fill, minmax(72px, 1fr));gap:8px}
+  .az-tile img{width:50px;height:50px}
+  .pm-grid4{grid-template-columns:repeat(2,1fr)}
+  .pm-grid2{grid-template-columns:1fr}
+}
+
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff !important;padding:0 !important}
+  .scene-bg,.hills3d,.top-bar,.no-print,#confettiCanvas,.modal-bg,
+  #scr-home,#scr-az,#scr-stage,#scr-stage1,#scr-boss2,#scr-hub1,#scr-assemble,#scr-sentence,#scr-boss1,#scr-search{display:none !important}
+  #scr-print{display:block !important}
+  .app-wrap{max-width:none;padding:0;margin:0}
+  .clay-panel{box-shadow:none;border:none;padding:0;background:#fff}
+  .a4-preview-wrap{background:#fff;padding:0}
+  .a4-sheet{width:100%;min-height:auto;padding:0;box-shadow:none;border-radius:0}
+}
+</style>
+</head>
+<body>
+
+<div class="scene-bg">
+  <div class="sun3d"></div>
+  <div class="cloud3d cl1"></div>
+  <div class="cloud3d cl2"></div>
+</div>
+<div class="hills3d">
+  <div class="hill-b"></div>
+  <div class="hill-f"></div>
+</div>
+<canvas id="confettiCanvas"></canvas>
+
+<div class="app-wrap">
+  <!-- ===== ULTRA-CLEAN 3-ITEM TOP BAR ===== -->
+  <header class="top-bar">
+    <div class="top-slot">
+      <button type="button" class="btn3d round gold" id="backBtn" style="display:none" aria-label="뒤로 가기">⬅️</button>
+    </div>
+
+    <div class="step-pill" id="topProgressPill">
+      <span style="font-size:14px;font-weight:900;color:#143659">✨ 알파랜드 3D 파닉스</span>
+    </div>
+
+    <div class="top-slot right">
+      <button type="button" class="quiet-gear" id="openParentBtn" title="부모용 설정 및 도구">⚙️</button>
+    </div>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 0: HOME LAUNCHER (2 Giant 3D Mode Doors)           -->
+  <!-- ========================================================= -->
+  <section class="screen active" id="scr-home">
+    <div class="home-head">
+      <h1 class="home-title">🧱 알파랜드 3D 파닉스</h1>
+    </div>
+
+    <div class="home-doors">
+      <button type="button" class="door-card kid2-door" id="enterAlphaBtn">
+        <span class="door-who">🧱 둘째 (6세) · 알파벳 놀이</span>
+        <div class="door-mascots" id="door1Mascots"></div>
+        <div class="door-title">알파블럭스 모드</div>
+        <div class="door-stat" id="homeStatKid2">⭐ 알파벳 도장 0 / 26</div>
+        <span class="door-go">시작하기 ▶</span>
+      </button>
+
+      <button type="button" class="door-card kid1-door" id="enterBattleBtn">
+        <span class="door-who">⚽ 첫째 (7세) · 파닉스 & 문장</span>
+        <div class="door-mascots" id="door2Mascots"></div>
+        <div class="door-title">파닉스 & 문장 코스</div>
+        <div class="door-stat" id="homeStatKid1">📅 오늘의 영단어 5개 · 3단계 코스</div>
+        <span class="door-go">시작하기 ▶</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 1: KID 2 — 26 ALPHABLOCKS GRID PICKER              -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-az">
+    <div class="clay-panel">
+      <div class="az-top">
+        <div class="az-legend">
+          <span class="leg-pill v">🟨 모음 (a·e·i·o·u)</span>
+          <span class="leg-pill c">🟦 자음</span>
+        </div>
+        <div style="font-size:15px;font-weight:900;color:#d47a00" id="azStarCount">⭐ 0 / 26</div>
+      </div>
+      <div class="az-grid" id="azGrid"></div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 2: KID 2 — WORD LEARNING STAGE (3-BUTTON DOCK)     -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-stage">
+    <div class="stage-card">
+      <div class="stage-bar">
+        <div class="stamp-row" id="stageDots"></div>
+        <button type="button" class="btn3d coral sm" id="stageBossShortcut">🎯 소리 찾기</button>
+      </div>
+
+      <div class="stage-grass">
+        <div class="ab-row lg" id="alphaBlockStage"></div>
+      </div>
+
+      <div>
+        <button type="button" class="giant-word-btn" id="alphaWordBtn">
+          <span class="gw-en" id="alphaBigWord">cat</span>
+          <span class="gw-ko" id="alphaBigKo">고양이</span>
+          <span style="font-size:26px">🔊</span>
+        </button>
+      </div>
+      <div id="alphaMagicNote"></div>
+
+      <!-- ONLY 3 CLEAN BIG THUMB BUTTONS! -->
+      <div class="kid-dock">
+        <button type="button" class="btn3d round-lg" id="alphaPrevBtn" aria-label="이전 단어">◀</button>
+        <button type="button" class="btn3d purple lg" id="alphaBlendBtn">🔤 쪼개 듣기</button>
+        <button type="button" class="btn3d blue round-lg" id="alphaNextBtn" aria-label="다음 단어">▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 3: KID 2 — SOUND DETECTIVE BOSS ARENA              -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-boss2">
+    <div class="boss-arena">
+      <div class="boss-pill" id="boss2Pill">🎯 C 소리 찾기</div>
+      <div class="stamp-row" id="boss2Stamps" style="margin-bottom:10px"></div>
+      <div class="boss-q">어떤 단어 소리일까요?</div>
+      <button type="button" class="giant-speaker" id="boss2SpeakBtn" aria-label="소리 듣기">🔊</button>
+
+      <div class="quiz-grid4" id="boss2Opts"></div>
+      <div class="boss-msg" id="boss2Msg"></div>
+
+      <div class="boss-reveal" id="boss2Reveal">
+        <div class="ab-row md" id="boss2Blocks"></div>
+        <div style="font-size:20px;font-weight:900;color:#14385c;margin:6px 0" id="boss2Ans"></div>
+        <button type="button" class="btn3d mint lg" id="boss2NextBtn" style="margin-top:4px">다음 문제 ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 4: KID 1 — 4-CARD DAILY MISSION HUB                 -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-hub1">
+    <div class="mission-banner">
+      <div class="mb-left">
+        <div class="mb-title" id="hub1MissionTitle">📅 오늘의 영단어 (5단어)</div>
+        <div class="mb-words" id="hub1MissionWords">apple · book · cake</div>
+      </div>
+      <div class="mb-steps" id="hub1StepBadges">
+        <span class="mb-badge" id="hubBadge1">1. 배우기</span>
+        <span class="mb-badge" id="hubBadge2">2. 조립</span>
+        <span class="mb-badge" id="hubBadge3">3. 탐정</span>
+      </div>
+    </div>
+
+    <div class="quest-hub-2x2">
+      <button type="button" class="quest-card q0" id="goStage1Btn">
+        <span class="quest-ic">🧱</span>
+        <span class="quest-title">1. 알파블럭스 배우기</span>
+        <span class="quest-desc">오늘 배울 영단어를 알파블럭스로 바로 시작해요!</span>
+        <span class="quest-badge-done" id="hubCard1Stat">0 / 5</span>
+      </button>
+      <button type="button" class="quest-card q1" id="goAssembleBtn">
+        <span class="quest-ic">🧩</span>
+        <span class="quest-title">2. 블록 조립</span>
+        <span class="quest-desc">알파블럭스 조각을 눌러 영어 단어를 완성해요!</span>
+        <span class="quest-badge-done" id="hubCard2Stat">0 / 5</span>
+      </button>
+      <button type="button" class="quest-card q3" id="goBoss1Btn">
+        <span class="quest-ic">👑</span>
+        <span class="quest-title">3. 오늘의 소리 찾기</span>
+        <span class="quest-desc">소리를 듣고 비슷한 4개 단어 중 진짜 정답 찾기!</span>
+        <span class="quest-badge-done" id="hubCard3Stat">0 / 5</span>
+      </button>
+      <button type="button" class="quest-card q2" id="goSentenceBtn">
+        <span class="quest-ic">📜</span>
+        <span class="quest-title">문장 퀘스트</span>
+        <span class="quest-desc">빈칸을 채우고 단어 블록으로 영어 문장을 완성해요!</span>
+        <span class="quest-badge-done">50문장</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 4.5: KID 1 — ALPHABLOCKS STAGE (NO LENGTH LIMIT!)  -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-stage1">
+    <div class="stage-card">
+      <div class="stage-bar">
+        <div class="stamp-row" id="stage1Dots"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13.5px;font-weight:900;color:#52718a" id="stage1Counter">1 / 5</span>
+          <button type="button" class="btn3d blue sm" id="stage1ToAssembleBtn">🧩 블록 조립</button>
+        </div>
+      </div>
+
+      <div class="stage-linear-bar" style="margin-bottom:8px"><div class="stage-linear-fill" id="stage1LinearFill" style="width:0%"></div></div>
+      <div class="stage-grass">
+        <div id="kid1BlockStage"></div>
+      </div>
+
+      <div>
+        <button type="button" class="giant-word-btn" id="kid1WordBtn">
+          <span class="gw-en" id="kid1BigWord">apple</span>
+          <span class="gw-ko" id="kid1BigKo">사과</span>
+          <span style="font-size:26px">🔊</span>
+        </button>
+      </div>
+      <div id="kid1MagicNote"></div>
+
+      <div class="kid-dock">
+        <button type="button" class="btn3d round-lg" id="kid1PrevBtn" aria-label="이전 단어">◀</button>
+        <button type="button" class="btn3d purple lg" id="kid1BlendBtn">🔤 쪼개 듣기</button>
+        <button type="button" class="btn3d blue round-lg" id="kid1NextBtn" aria-label="다음 단어">▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 5: KID 1 — PHONICS BLOCK ASSEMBLY (TEXT DISPLAY!)  -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-assemble">
+    <div class="clay-panel" style="text-align:center">
+      <div class="stage-bar" style="margin-bottom:12px">
+        <div class="stamp-row" id="battleDots"></div>
+        <span style="font-size:13.5px;font-weight:900;color:#52718a" id="battleCounter">1 / 5</span>
+      </div>
+
+      <div class="stage-linear-bar" style="margin-bottom:12px"><div class="stage-linear-fill" id="battleLinearFill" style="width:0%"></div></div>
+      <div class="prompt-hero">
+        <button type="button" class="btn3d round-lg gold" id="battleListenBtn" aria-label="소리 듣기">🔊</button>
+        <span class="prompt-ko" id="battleKo">책</span>
+      </div>
+
+      <!-- Clean Standard English Letters Tray (Zero Alphablock Overlap!) -->
+      <div class="word-slot-tray" id="battleSlotTray"></div>
+
+      <!-- Bottom Tactile Alphablocks Piece Pool -->
+      <div class="tile-pool" id="battleTilePool"></div>
+
+      <div style="min-height:24px;font-size:15.5px;font-weight:900;color:#147a42;margin-bottom:12px" id="battleMsg"></div>
+
+      <div class="kid-dock" style="margin-top:6px">
+        <button type="button" class="btn3d blue" id="battleHintBtn">💡 힌트</button>
+        <button type="button" class="btn3d mint lg" id="battleNextBtn">다음 ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 6: KID 1 — SENTENCE QUEST                          -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-sentence">
+    <div class="clay-panel" style="text-align:center">
+      <div class="pill-strip">
+        <button type="button" class="pill3d on" id="sentModeBlank">🎯 빈칸 채우기</button>
+        <button type="button" class="pill3d" id="sentModeRelay">🧱 문장 조립</button>
+      </div>
+
+      <div class="sent-card">
+        <button type="button" class="btn3d round-lg gold" id="sentSpeakBtn" aria-label="문장 듣기">🔊</button>
+        <div class="sent-en" id="sentEnDisplay"></div>
+        <div class="sent-ko" id="sentKoDisplay"></div>
+      </div>
+
+      <div id="sentBlankArea"><div class="quiz-grid4" id="sentBlankOpts"></div></div>
+      <div id="sentRelayArea" style="display:none">
+        <div class="relay-tray" id="sentRelayTray"></div>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:12px" id="sentRelayPool"></div>
+      </div>
+
+      <div style="min-height:24px;font-size:15.5px;font-weight:900;color:#147a42;margin:8px 0" id="sentMsg"></div>
+      <button type="button" class="btn3d mint lg" id="sentNextBtn">다음 문장 ▶</button>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 7: KID 1 — TODAY'S SOUND DETECTIVE BOSS            -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-boss1">
+    <div class="boss-arena">
+      <div class="boss-pill" id="boss1RulePill">🎧 3단계 · 오늘의 소리 찾기 (1 / 5)</div>
+      <div class="stamp-row" id="boss1Stamps" style="margin-bottom:8px"></div>
+      <div class="stage-linear-bar"><div class="stage-linear-fill" id="boss1LinearFill" style="width:0%"></div></div>
+      <div class="boss-q">귀를 쫑긋! 진짜 단어를 찾으세요!</div>
+      <button type="button" class="giant-speaker" id="boss1SpeakBtn" aria-label="발음 듣기">🔊</button>
+
+      <div class="quiz-grid4" id="boss1Opts"></div>
+      <div class="boss-msg" id="boss1Msg"></div>
+
+      <div class="boss-reveal" id="boss1Reveal">
+        <div id="boss1Blocks"></div>
+        <div style="font-size:20px;font-weight:900;color:#14385c;margin:6px 0" id="boss1Ans"></div>
+        <button type="button" class="btn3d mint lg" id="boss1NextBtn" style="margin-top:4px">다음 문제 ▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 8: PARENT TOOL — 800 WORD SEARCH                   -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-search">
+    <div class="clay-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <span style="font-size:17px;font-weight:900">🔍 초등필수 800단어 파닉스·품사 검색기</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:13px;font-weight:900;color:var(--muted)" id="searchCountBadge">800단어</span>
+          <button type="button" class="btn3d mint sm" id="goPrintPinnedBtn">📌 담은 학습지 (<span id="pinCountNum">0</span>)</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <input type="text" class="input3d" id="searchTextInput" placeholder="단어 또는 한글 뜻 검색 (예: book, 책)" />
+        <select class="select3d" id="searchDaySelect"><option value="all">전체 Day</option></select>
+        <button type="button" class="btn3d sm" id="searchResetBtn">초기화</button>
+      </div>
+
+      <div class="chip-row" id="searchPosRow">
+        <button type="button" class="pill3d on" data-spos="all">전체 (800)</button>
+        <button type="button" class="pill3d" data-spos="verb">🏃 동사 (166)</button>
+        <button type="button" class="pill3d" data-spos="nonverb">📦 비동사 (634)</button>
+        <button type="button" class="pill3d" data-spos="magice">🎩 매직E (87)</button>
+      </div>
+
+      <div class="chip-row" id="searchTokenRow"></div>
+      <div id="searchSubPronWrap" style="display:none;margin-bottom:8px">
+        <div class="chip-row" id="searchSubPronRow"></div>
+      </div>
+
+      <div class="word-cards-grid" id="searchResultsGrid"></div>
+      <div style="text-align:center;margin-top:14px">
+        <button type="button" class="btn3d blue" id="searchLoadMoreBtn" style="display:none">더 보기 (+30개)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 9: PARENT TOOL — A4 WORKSHEET STUDIO               -->
+  <!-- ========================================================= -->
+  <section class="screen" id="scr-print">
+    <div class="clay-panel">
+      <div class="no-print" style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px">
+        <select class="select3d" id="printPresetSelect">
+          <option value="today" selected>⭐ 오늘 학습한 단어 (자동)</option>
+          <option value="kid1plan">⚽ 첫째 오늘 설정 N단어</option>
+          <option value="day">📅 Day별 진도 (01~80)</option>
+          <option value="oo">🎵 oo [우] 특강</option>
+          <option value="ch">⚡ ch [취/ㅋ/쉬]</option>
+          <option value="sh">⚡ sh [쉬]</option>
+          <option value="th">⚡ th [ㄷ/ㅆ]</option>
+          <option value="eaee">🎵 ea·ee [이:]</option>
+          <option value="magice">🎩 매직E 특강</option>
+          <option value="cs">✨ c [ㅅ] vs c [ㅋ]</option>
+          <option value="verb">🏃 핵심 동사 특강</option>
+          <option value="pinned">📌 검색기 담은 단어</option>
+        </select>
+        <select class="select3d" id="printDaySelect"></select>
+        <select class="select3d" id="printCountSelect">
+          <option value="8">8단어 (6세)</option>
+          <option value="10" selected>10단어 (7세)</option>
+        </select>
+        <select class="select3d" id="printProfileSelect"><option value="kid1">⚽ 첫째</option><option value="kid2">🧱 둘째</option></select>
+        <input type="text" class="input3d" id="printChildName" style="max-width:100px" value="첫째" />
+        <button type="button" class="btn3d blue sm" id="printShuffleBtn">🔀 새로 뽑기</button>
+        <button type="button" class="btn3d mint" id="doPrintBtn">🖨️ A4 인쇄 / PDF</button>
+      </div>
+      <div class="a4-preview-wrap"><div class="a4-sheet" id="a4Sheet"></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== PARENT ADDITION MATH GATE MODAL (숲속텐트 스타일) ===== -->
+<div class="modal-bg" id="parentGateModal">
+  <div class="gate-box">
+    <div style="font-size:38px;line-height:1;margin-bottom:6px">🔒</div>
+    <div style="font-size:19px;font-weight:900;color:#123456">부모님 확인</div>
+    <div style="font-size:13px;font-weight:800;color:#5a7285;margin-top:4px">아래 더하기 문제를 풀면 설정창이 열려요!</div>
+    <div class="gate-eq" id="gateEqText">17 + 15 = ?</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px">
+      <input type="number" inputmode="numeric" pattern="[0-9]*" class="gate-input" id="gateAnswerInput" placeholder="?" autocomplete="off" />
+      <button type="button" class="btn3d mint" id="gateSubmitBtn">확인</button>
+    </div>
+    <div style="min-height:20px;font-size:13px;font-weight:900;color:#d6335c;margin-bottom:10px" id="gateErrMsg"></div>
+    <div style="display:flex;justify-content:center;gap:8px">
+      <button type="button" class="btn3d sm" id="gateRefreshBtn">🔄 새 문제</button>
+      <button type="button" class="btn3d sm" id="gateCancelBtn">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PARENT SETTINGS & OFFLINE AUDIO STUDIO MODAL ===== -->
+<div class="modal-bg" id="parentModal">
+  <div class="parent-modal">
+    <div class="pm-head">
+      <div class="pm-title">⚙️ 부모용 설정 · 완전 오프라인 오디오 스튜디오</div>
+      <button type="button" class="btn3d sm" id="closeParentBtn">✕ 닫기</button>
+    </div>
+
+    <!-- 0. Kid 1 ONLY Daily Word Count & Smart Selection Configuration -->
+    <div class="pm-box" style="border-color:#b89eff;background:linear-gradient(180deg,#ffffff,#f7f4ff)">
+      <div class="pm-lbl">
+        <span>⚽ 첫째 전용 · 1회 학습 영단어 설정</span>
+        <span style="font-size:11.5px;color:#5b35c7" id="pmKid1RangeLbl">1단계 미학습 랜덤</span>
+      </div>
+
+      <!-- Word Count -->
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:900;color:var(--muted)">단어 수:</span>
+        <button type="button" class="pill3d" data-k1cnt="3">3개</button>
+        <button type="button" class="pill3d on" data-k1cnt="5">5개</button>
+        <button type="button" class="pill3d" data-k1cnt="7">7개</button>
+        <button type="button" class="pill3d" data-k1cnt="10">10개</button>
+        <input type="number" class="input3d" id="pmKid1CountInput" min="1" max="20" value="5" style="min-width:60px;max-width:70px;padding:6px 8px;text-align:center;font-weight:900" />
+      </div>
+
+      <!-- Selection Mode -->
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:900;color:var(--muted)">선정 방식:</span>
+        <select class="select3d" id="pmKid1SourceSelect" style="flex:1;font-size:12.5px;padding:7px 10px">
+          <option value="stage_rand">🎯 파닉스 5단계 랜덤 (미학습 우선 ⭐)</option>
+          <option value="rule_rand">🎵 파닉스 규칙 집중 묶음 (랜덤)</option>
+          <option value="theme_rand">🌱 입문 핵심 주제별 (쉬운 일상단어)</option>
+          <option value="seq">📚 800단어 순서대로 (세트 진도)</option>
+          <option value="day">📅 Day별 지정 (Day 01~80)</option>
+          <option value="pinned">📌 800단어 검색기에서 담은 단어</option>
+        </select>
+      </div>
+
+      <!-- Mode Sub-Controls: 5 Stages -->
+      <div id="pmKid1StageRow" style="margin-bottom:7px">
+        <div class="stage-pill-grid" id="pmStagePillGrid">
+          <button type="button" class="stage-pill-btn on" data-k1st="1">1단계<span class="sp-sub">기초단모음</span></button>
+          <button type="button" class="stage-pill-btn" data-k1st="2">2단계<span class="sp-sub">매직E·장모음</span></button>
+          <button type="button" class="stage-pill-btn" data-k1st="3">3단계<span class="sp-sub">이중자·모음</span></button>
+          <button type="button" class="stage-pill-btn" data-k1st="4">4단계<span class="sp-sub">묵음·R통제</span></button>
+          <button type="button" class="stage-pill-btn" data-k1st="5">5단계<span class="sp-sub">긴단어·고급</span></button>
+        </div>
+        <div style="font-size:11.5px;font-weight:800;color:#4a6782;text-align:center" id="pmKid1StageProg">1단계 진행: 0 / 211 완료</div>
+      </div>
+
+      <!-- Mode Sub-Controls: Phonics Rule Bundle -->
+      <div id="pmKid1RuleRow" style="display:none;margin-bottom:7px">
+        <select class="select3d" id="pmKid1RuleSelect" style="width:100%;font-size:12.5px;padding:7px 10px">
+          <option value="magice">🎩 매직E (a_e, i_e, o_e · 87단어)</option>
+          <option value="oo">🎵 oo [우] 묶음 (book, cook, look · 25단어)</option>
+          <option value="ee_ea">🎵 ee·ea [이:] 묶음 (bee, beach, eat · 44단어)</option>
+          <option value="sh">⚡ sh [쉬] 묶음 (ship, shop, fish · 17단어)</option>
+          <option value="ch">⚡ ch [취/ㅋ] 묶음 (chair, cheese, catch · 22단어)</option>
+          <option value="th">⚡ th [ㄷ/ㅆ] 묶음 (three, bath, they · 37단어)</option>
+          <option value="ck">⚡ ck [ㅋ] 묶음 (back, black, clock · 18단어)</option>
+          <option value="ay">🎵 ay [에이] 묶음 (day, play, say · 16단어)</option>
+          <option value="rctrl">🌀 R통제 [어r] 묶음 (bird, after, her)</option>
+          <option value="soft_cg">✨ 연음 c[ㅅ]·g[쥐] 묶음 (city, age, orange)</option>
+          <option value="silent">🤫 묵음 자음 묶음 (know, write, night)</option>
+          <option value="verb">🏃 초등 핵심 동사 묶음 (166단어)</option>
+        </select>
+      </div>
+
+      <!-- Mode Sub-Controls: Sequential Set -->
+      <div id="pmKid1SeqRow" style="display:none;align-items:center;justify-content:space-between;gap:6px;margin-bottom:7px">
+        <button type="button" class="btn3d sm" id="pmKid1PrevSetBtn">◀ 이전 세트</button>
+        <span style="font-size:12.5px;font-weight:900;color:#1b3247" id="pmKid1SetInfo">세트 1 / 160</span>
+        <button type="button" class="btn3d sm blue" id="pmKid1NextSetBtn">다음 세트 ▶</button>
+      </div>
+
+      <!-- Mode Sub-Controls: Day Select -->
+      <div id="pmKid1DayRow" style="display:none;margin-bottom:7px">
+        <select class="select3d" id="pmKid1DaySelect" style="width:100%;font-size:12.5px;padding:7px 10px"></select>
+      </div>
+
+      <!-- Review / Mistake Auto-Mix Toggle + Re-roll Button -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+        <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:#415b73;cursor:pointer">
+          <input type="checkbox" id="pmKid1MixReview" checked />
+          🔁 복습·틀린 단어 자동 섞기 (1~2개)
+        </label>
+        <button type="button" class="btn3d sm gold" id="pmKid1RerollBtn" style="min-height:32px;padding:5px 11px;font-size:12px">🎲 단어 다시 뽑기</button>
+      </div>
+
+      <div class="today-preview-chips" id="pmKid1PreviewChips"></div>
+      <div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap">
+        <button type="button" class="btn3d sm mint" id="pmQuickTodayPrintBtn" style="flex:1">🖨️ 오늘 학습 단어로 A4 PDF 만들기</button>
+      </div>
+    </div>
+
+    <!-- 1. Offline Audio Status Dashboard -->
+    <div class="pm-box">
+      <div class="pm-lbl">
+        <span>📡 완전 오프라인 음성 저장 현황</span>
+        <span style="font-size:11.5px;color:#189953" id="pmOfflineSummary">계산 중...</span>
+      </div>
+      <div class="stat-chips">
+        <div class="stat-chip" id="statChipPh"><div class="sc-n" id="statPhCnt">0 / 44</div><div class="sc-l">🎵 순수 음가</div></div>
+        <div class="stat-chip" id="statChipSent"><div class="sc-n" id="statSentCnt">0 / 50</div><div class="sc-l">📜 영어 문장</div></div>
+        <div class="stat-chip" id="statChipWord"><div class="sc-n" id="statWordCnt">0 / 950</div><div class="sc-l">📖 원어민 단어</div></div>
+      </div>
+
+      <!-- Gemini API Key & Voice -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <input type="password" class="input3d" id="pmApiKeyInput" placeholder="Gemini API 키 입력 (기존 숲속텐트 키 자동 연동)" style="font-size:12.5px;padding:8px 11px" />
+        <select class="select3d" id="pmGeminiVoiceSelect" style="font-size:12px;padding:7px 9px">
+          <option value="Aoede">👩 Aoede (다정한 여선생님)</option>
+          <option value="Leda">👧 Leda (밝은 파닉스 여선생님)</option>
+          <option value="Kore">👩‍🏫 Kore (또렷한 여선생님)</option>
+          <option value="Puck">👨 Puck (활기찬 남선생님)</option>
+        </select>
+      </div>
+
+      <!-- Batch Generation & Offline Save Buttons -->
+      <div class="pm-grid2" style="margin-bottom:7px">
+        <button type="button" class="btn3d purple sm" id="btnGenPhonemes">✨ 음가 44개 자동생성</button>
+        <button type="button" class="btn3d blue sm" id="btnGenSentences">✨ 문장 50개 자동생성</button>
+        <button type="button" class="btn3d mint sm" id="btnSaveCoreWords">📥 핵심 단어(418) 저장</button>
+        <button type="button" class="btn3d gold sm" id="btnSaveAllWords">📥 전체 단어(950) 저장</button>
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:var(--muted);cursor:pointer;margin-bottom:6px">
+        <input type="checkbox" id="pmFillMissingWithGemini" checked />
+        원어민 사전에 없는 단어는 Gemini 선생님 목소리로 자동 보충 저장
+      </label>
+
+      <!-- Live Progress Bar with Pause/Stop -->
+      <div class="prog-wrap" id="pmProgWrap">
+        <div class="prog-bar"><div class="prog-fill" id="pmProgFill"></div></div>
+        <div class="prog-txt">
+          <span id="pmProgText">준비 중...</span>
+          <button type="button" class="btn3d coral sm" id="btnStopBatch" style="min-height:28px;padding:4px 10px;font-size:11.5px">⏹ 중지</button>
+        </div>
+      </div>
+
+      <!-- ZIP Download / Restore + Individual Checklists -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1.5px dashed #dcebf5">
+        <button type="button" class="btn3d sm gold" id="btnExportZip">📦 오디오팩(.zip) 다운로드</button>
+        <label class="btn3d sm blue" style="cursor:pointer">
+          📂 ZIP / MP3 / WAV 불러오기
+          <input type="file" id="mp3FileInput" accept=".zip,audio/*" multiple style="display:none" />
+        </label>
+        <button type="button" class="btn3d sm" id="pmToggle44Btn">🎵 음가 44 점검/재생성</button>
+        <button type="button" class="btn3d sm" id="pmToggle50Btn">📜 문장 50 점검/재생성</button>
+      </div>
+
+      <div id="pm44ListWrap" style="display:none">
+        <div style="font-size:11px;font-weight:800;color:#5a7285;margin-top:7px">음가를 누르면 미리듣기, 🔄 버튼은 해당 음가만 Gemini로 다시 생성합니다.</div>
+        <div class="phon44-list" id="pm44List"></div>
+      </div>
+      <div id="pm50ListWrap" style="display:none">
+        <div style="font-size:11px;font-weight:800;color:#5a7285;margin-top:7px">문장을 누르면 미리듣기, 🔄 버튼은 해당 문장만 Gemini로 다시 생성합니다.</div>
+        <div class="sent-check-list" id="pm50List"></div>
+      </div>
+    </div>
+
+    <!-- 2. Speed & Fallback Voice -->
+    <div class="pm-box">
+      <div class="pm-lbl">
+        <span>🐢 읽기 속도 (현재: <strong id="pmSpeedLabel" style="color:#d46b00">0.80x 천천히</strong>)</span>
+        <button type="button" class="btn3d sm gold" id="pmTestWordBtn">🔊 테스트 듣기</button>
+      </div>
+      <div class="pm-grid4" id="pmSpeedGrid">
+        <button type="button" class="pill3d" data-rate="0.65">🐌 아주 느림</button>
+        <button type="button" class="pill3d on" data-rate="0.80">🐢 천천히</button>
+        <button type="button" class="pill3d" data-rate="0.92">🚶 보통</button>
+        <button type="button" class="pill3d" data-rate="1.00">🐇 원어민</button>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:800;color:var(--muted)">비상용 기기 TTS:</span>
+        <select class="select3d" id="pmVoiceSelect" style="flex:1;font-size:12px;padding:6px 10px"></select>
+      </div>
+    </div>
+
+    <!-- 3. Profile & SFX -->
+    <div class="pm-box" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:6px">
+        <button type="button" class="btn3d sm coral" id="pmSwitchKid2">🧱 둘째</button>
+        <button type="button" class="btn3d sm purple" id="pmSwitchKid1">⚽ 첫째</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button type="button" class="btn3d sm mint" id="pmSfxToggleBtn">🔊 효과음 켜짐</button>
+        <button type="button" class="btn3d sm" id="pmResetScoreBtn">🔄 학습 기록 초기화</button>
+      </div>
+    </div>
+
+    <!-- 4. Parent Learning Tools -->
+    <div class="pm-box" style="margin-bottom:0">
+      <div class="pm-lbl"><span>📚 부모용 800단어 검색 & A4 일일학습지</span></div>
+      <div class="pm-grid2">
+        <button type="button" class="btn3d blue" id="pmOpenSearchBtn">🔍 800단어 검색기</button>
+        <button type="button" class="btn3d mint" id="pmOpenPrintBtn">🖨️ A4 일일학습지</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Calm Completion Stamp Celebration Modal (Zero Scores/Levels!) -->
+<div class="modal-bg" id="doneModal">
+  <div class="levelup-box">
+    <div style="font-size:66px;line-height:1;margin-bottom:10px" id="doneModalIcon">🌟</div>
+    <div style="font-size:24px;font-weight:900;color:#804300;margin-bottom:6px" id="doneModalTitle">오늘 공부 완료!</div>
+    <div style="font-size:15px;font-weight:800;color:#4a3720;margin-bottom:18px" id="doneModalDesc">칭찬 도장을 쾅 찍었어요!</div>
+    <button type="button" class="btn3d gold lg" id="doneModalClose">잘했어요! 계속하기 🎉</button>
+  </div>
+</div>
+
+<script src="./phonics_assets.js"></script>
+<script>
+window.__bootAlphaland = function() {
+  if (window.__alphalandBooted) return;
+  window.__alphalandBooted = true;
+const VOWELS = new Set(['a','e','i','o','u']);
+const CANONICAL_TOKENS = [
+  'a','au','aw','ay','b','c','ch','ck','d','e','ea','ee','ex','ey',
+  'f','g','gh','gu','h','i','j','k','l','m','n','o','oo','p','ph',
+  'q','r','s','se','sc','sh','t','tion','-sion','tain','th','u','v',
+  'w','x','y','z'
+];
+const SPEED_NAMES = { '0.65':'0.65x 아주 느림', '0.8':'0.80x 천천히', '0.92':'0.92x 보통', '1':'1.00x 원어민' };
+
+const STORE_KEY = 'alphaland_3d_state_v6';
+let appState = {
+  profile: 'kid2',
+  audioRate: 0.80,
+  voiceName: '',
+  apiKey: '',
+  geminiVoice: 'Aoede',
+  sfxOn: true,
+  kid1Plan: {
+    count: 5,
+    source: 'stage_rand', // 'stage_rand' | 'rule_rand' | 'theme_rand' | 'seq' | 'day' | 'pinned'
+    stage: 1,             // 1..5
+    rule: 'magice',       // phonics rule key
+    mixReview: true,      // auto-mix 1~2 wrong/review words
+    offset: 0,
+    day: 1,
+    todayDate: '',
+    todayWordIds: [],     // locked IDs for today
+    todayReviewIds: []    // subset of todayWordIds that came from review/wrong pool
+  },
+  dailyLog: {},           // 'YYYY-MM-DD' -> { kid1: ['word', ...], kid2: ['word', ...] }
+  kid1Progress: {},       // 'YYYY-MM-DD' -> { stage1: [], assemble: [], boss1: [] }
+  kid1MasteredIds: [],    // cumulative mastered word IDs for Kid 1 (for unlearned-first & review!)
+  kid1WrongIds: [],       // cumulative wrong word IDs for Kid 1 (prioritized in review mix!)
+  profiles: {
+    kid2: { name:'둘째', mastered:{} },
+    kid1: { name:'첫째', mastered:{} }
+  },
+  pinnedIds: []
+};
+let curScreen = 'home';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = arr => { const a = arr.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+const WORDS_BY_ID = Object.fromEntries(WORDS_800.map(w => [w.id, w]));
+
+const STAGE_NAMES = {
+  1: '1단계 · 기초 단모음',
+  2: '2단계 · 매직E·장모음',
+  3: '3단계 · 이중자음·이중모음',
+  4: '4단계 · 묵음·R통제·변형',
+  5: '5단계 · 긴 단어·고급'
+};
+
+function getRulePool(ruleKey) {
+  if (ruleKey === 'magice') return WORDS_800.filter(w => w.me === 1);
+  if (ruleKey === 'oo') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'oo' && tk.ko === '[우]'));
+  if (ruleKey === 'ee_ea') return WORDS_800.filter(w => w.t.some(tk => (tk.g === 'ee' || tk.g === 'ea') && tk.ko === '[이:]'));
+  if (ruleKey === 'sh') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'sh'));
+  if (ruleKey === 'ch') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'ch'));
+  if (ruleKey === 'th') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'th'));
+  if (ruleKey === 'ck') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'ck'));
+  if (ruleKey === 'ay') return WORDS_800.filter(w => w.t.some(tk => tk.g === 'ay'));
+  if (ruleKey === 'rctrl') return WORDS_800.filter(w => w.t.some(tk => tk.ko === 'r 앞 [어]' || tk.ko === '맨 뒤 [어] 추가'));
+  if (ruleKey === 'soft_cg') return WORDS_800.filter(w => w.t.some(tk => (tk.g === 'c' && (tk.ko === '[ㅅ]' || tk.ko === '[쉬]')) || (tk.g === 'g' && tk.ko === '[쥐]')));
+  if (ruleKey === 'silent') return WORDS_800.filter(w => w.t.some((tk, i) => tk.ko === '묵음' && !(w.me && i === w.t.length - 1 && tk.g === 'e')));
+  if (ruleKey === 'verb') return WORDS_800.filter(w => w.v === 1);
+  return WORDS_800;
+}
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function ensureTodayTracking() {
+  const tk = getTodayKey();
+  if (!appState.dailyLog) appState.dailyLog = {};
+  if (!appState.dailyLog[tk]) appState.dailyLog[tk] = { kid1: [], kid2: [] };
+  if (!appState.kid1Progress) appState.kid1Progress = {};
+  if (!appState.kid1Progress[tk]) appState.kid1Progress[tk] = { stage1: [], assemble: [], boss1: [] };
+  if (!Array.isArray(appState.kid1MasteredIds)) appState.kid1MasteredIds = [];
+  if (!Array.isArray(appState.kid1WrongIds)) appState.kid1WrongIds = [];
+  return tk;
+}
+function recordLearnedWord(profKey, wordStr) {
+  const w = String(wordStr || '').toLowerCase().trim();
+  if (!w) return;
+  const tk = ensureTodayTracking();
+  const arr = appState.dailyLog[tk][profKey];
+  if (arr && !arr.includes(w)) { arr.push(w); saveState(); }
+}
+function recordKid1Mistake(wordId) {
+  if (!wordId) return;
+  ensureTodayTracking();
+  if (!appState.kid1WrongIds.includes(wordId)) {
+    appState.kid1WrongIds.push(wordId);
+    saveState();
+  }
+}
+function markKid1StepDone(stepKey, wordObj) {
+  if (!wordObj) return;
+  const w = String(wordObj.w || '').toLowerCase().trim();
+  const tk = ensureTodayTracking();
+  const arr = appState.kid1Progress[tk][stepKey];
+  if (arr && !arr.includes(w)) arr.push(w);
+  recordLearnedWord('kid1', w);
+  if ((stepKey === 'assemble' || stepKey === 'boss1') && wordObj.id) {
+    if (!appState.kid1MasteredIds.includes(wordObj.id)) appState.kid1MasteredIds.push(wordObj.id);
+    if (stepKey === 'boss1') {
+      appState.kid1WrongIds = appState.kid1WrongIds.filter(id => id !== wordObj.id);
+    }
+  }
+  saveState();
+  renderHud();
+}
+
+function buildKid1WordSet(forceFresh=false) {
+  const plan = appState.kid1Plan;
+  const cnt = Math.max(1, Math.min(20, Number(plan.count) || 5));
+  const tk = ensureTodayTracking();
+  const masteredSet = new Set(appState.kid1MasteredIds || []);
+  const wrongIds = (appState.kid1WrongIds || []).filter(id => !!WORDS_BY_ID[id]);
+
+  if (plan.source === 'pinned' && appState.pinnedIds && appState.pinnedIds.length) {
+    const pinSet = new Set(appState.pinnedIds);
+    const list = WORDS_800.filter(w => pinSet.has(w.id)).slice(0, cnt);
+    if (list.length) {
+      plan.todayDate = tk;
+      plan.todayWordIds = list.map(w => w.id);
+      plan.todayReviewIds = [];
+      saveState();
+      return list;
+    }
+  }
+  if (plan.source === 'day') {
+    const startDay = Math.max(1, Math.min(80, Number(plan.day) || 1));
+    const startIdx = (startDay - 1) * 10;
+    const out = [];
+    for (let i = 0; i < cnt; i++) out.push(WORDS_800[(startIdx + i) % WORDS_800.length]);
+    plan.todayDate = tk;
+    plan.todayWordIds = out.map(w => w.id);
+    plan.todayReviewIds = [];
+    saveState();
+    return out;
+  }
+  if (plan.source === 'seq') {
+    const off = Math.max(0, Math.min(WORDS_800.length - 1, Number(plan.offset) || 0));
+    const out = [];
+    for (let i = 0; i < cnt; i++) out.push(WORDS_800[(off + i) % WORDS_800.length]);
+    plan.todayDate = tk;
+    plan.todayWordIds = out.map(w => w.id);
+    plan.todayReviewIds = [];
+    saveState();
+    return out;
+  }
+
+  if (!forceFresh && plan.todayDate === tk && Array.isArray(plan.todayWordIds) && plan.todayWordIds.length === cnt) {
+    const valid = plan.todayWordIds.map(id => WORDS_BY_ID[id]).filter(Boolean);
+    if (valid.length === cnt) return valid;
+  }
+
+  let pool = WORDS_800;
+  if (plan.source === 'stage_rand') {
+    const st = Math.max(1, Math.min(5, Number(plan.stage) || 1));
+    pool = WORDS_800.filter(w => w.st === st);
+  } else if (plan.source === 'rule_rand') {
+    pool = getRulePool(plan.rule || 'magice');
+  } else if (plan.source === 'theme_rand') {
+    pool = WORDS_800.filter(w => w.th === 1);
+  }
+  if (!pool.length) pool = WORDS_800;
+
+  const picked = [];
+  const pickedIds = new Set();
+  const reviewIds = [];
+
+  if (plan.mixReview && cnt >= 2) {
+    const revQuota = cnt >= 7 ? 2 : 1;
+    const wrongCands = shuffle(wrongIds.map(id => WORDS_BY_ID[id]).filter(Boolean));
+    for (const w of wrongCands) {
+      if (reviewIds.length >= revQuota) break;
+      if (!pickedIds.has(w.id)) { picked.push(w); pickedIds.add(w.id); reviewIds.push(w.id); }
+    }
+    if (reviewIds.length < revQuota && masteredSet.size > 0) {
+      const todayDoneWords = new Set((appState.dailyLog[tk] && appState.dailyLog[tk].kid1) || []);
+      const revCands = shuffle([...masteredSet].map(id => WORDS_BY_ID[id]).filter(w => w && !pickedIds.has(w.id) && !todayDoneWords.has(w.w.toLowerCase())));
+      for (const w of revCands) {
+        if (reviewIds.length >= revQuota) break;
+        picked.push(w); pickedIds.add(w.id); reviewIds.push(w.id);
+      }
+    }
+  }
+
+  const unlearned = shuffle(pool.filter(w => !masteredSet.has(w.id) && !pickedIds.has(w.id)));
+  for (const w of unlearned) {
+    if (picked.length >= cnt) break;
+    picked.push(w); pickedIds.add(w.id);
+  }
+  if (picked.length < cnt) {
+    const rest = shuffle(pool.filter(w => !pickedIds.has(w.id)));
+    for (const w of rest) {
+      if (picked.length >= cnt) break;
+      picked.push(w); pickedIds.add(w.id);
+    }
+  }
+
+  const finalList = [
+    ...picked.filter(w => !reviewIds.includes(w.id)),
+    ...picked.filter(w => reviewIds.includes(w.id))
+  ];
+  plan.todayDate = tk;
+  plan.todayWordIds = finalList.map(w => w.id);
+  plan.todayReviewIds = reviewIds;
+  saveState();
+  return finalList;
+}
+
+function getKid1TodayWords() {
+  return buildKid1WordSet(false);
+}
+
+function resolveWordObj(wordStr) {
+  const wl = String(wordStr || '').toLowerCase().trim();
+  const found = WORDS_800.find(x => x.w.toLowerCase() === wl);
+  if (found) return found;
+  for (const arr of Object.values(STARTER_BY_LETTER)) {
+    const st = arr.find(it => it.w.toLowerCase() === wl);
+    if (st) {
+      const { tokens, me } = wordToTokens(st.w, st.me);
+      return { id: 0, day: 0, w: st.w, m: st.m, me: me ? 1 : 0, pos: '', v: 0, t: tokens };
+    }
+  }
+  return null;
+}
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || localStorage.getItem('alphaland_3d_state_v5') || localStorage.getItem('alphaland_3d_state_v4') || '{}');
+    if (saved.profiles) {
+      appState = {
+        ...appState,
+        ...saved,
+        kid1Plan: { ...appState.kid1Plan, ...(saved.kid1Plan || {}) },
+        profiles: {
+          kid2: { name:'둘째', mastered: (saved.profiles.kid2 && saved.profiles.kid2.mastered) || {} },
+          kid1: { name:'첫째', mastered: (saved.profiles.kid1 && saved.profiles.kid1.mastered) || {} }
+        }
+      };
+    }
+    if (!appState.audioRate || appState.audioRate < 0.5 || appState.audioRate > 1.2) appState.audioRate = 0.80;
+    if (!appState.apiKey) {
+      const tent = JSON.parse(localStorage.getItem('tent_reader_live_v3') || localStorage.getItem('tent_reader_v2') || '{}');
+      if (tent && tent.apiKey) appState.apiKey = tent.apiKey;
+    }
+  } catch (e) {}
+  ensureTodayTracking();
+}
+function saveState() { try { localStorage.setItem(STORE_KEY, JSON.stringify(appState)); } catch (e) {} }
+function getProf() { return appState.profiles[appState.profile]; }
+
+// Build Complete Word Lists for Offline Pack Downloads
+const CORE_GAME_WORDS = (() => {
+  const s = new Set();
+  Object.values(STARTER_BY_LETTER).forEach(arr => arr.forEach(it => {
+    s.add(it.w.toLowerCase().trim());
+    (it.quiz || []).forEach(q => s.add(q.toLowerCase().trim()));
+  }));
+  ADV_SOUND_QUIZ.forEach(q => {
+    s.add(q.w.toLowerCase().trim());
+    (q.opts || []).forEach(o => s.add(o.toLowerCase().trim()));
+  });
+  SENTENCE_QUESTS.forEach(q => (q.opts || []).forEach(o => s.add(o.toLowerCase().trim())));
+  return [...s].sort();
+})();
+const ALL_APP_WORDS = (() => {
+  const s = new Set(CORE_GAME_WORDS);
+  WORDS_800.forEach(w => s.add(w.w.toLowerCase().trim()));
+  return [...s].sort();
+})();
+
+// ========== IndexedDB Permanent Offline Audio Store ==========
+// Keys:
+//   ph_{slug}    -> 44 pure phonics phoneme audio blobs
+//   sent_{00..49}-> 50 sentence quest audio blobs
+//   word_{clean} -> 950 word audio blobs (native dictionary MP3 or Gemini WAV)
+const DB_NAME = 'alphaland_offline_audio_v4';
+const DB_STORE = 'audio_blobs';
+const storedAudioUrls = {};   // key -> ObjectURL
+const storedAudioMeta = {};   // key -> { size, type }
+const localFolderMiss = {};   // key -> true if local sounds/ fetch failed
+
+function openSoundDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(DB_STORE)) req.result.createObjectStore(DB_STORE); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function loadAllStoredAudio() {
+  try {
+    const db = await openSoundDB();
+    await new Promise(resolve => {
+      const tx = db.transaction(DB_STORE, 'readonly');
+      const req = tx.objectStore(DB_STORE).openCursor();
+      req.onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) {
+          const k = String(cur.key), blob = cur.value;
+          storedAudioUrls[k] = URL.createObjectURL(blob);
+          storedAudioMeta[k] = { size: blob.size || 0, type: blob.type || 'audio/wav' };
+          cur.continue();
+        } else resolve();
+      };
+      req.onerror = () => resolve();
+    });
+  } catch (e) {}
+  updateOfflineStatsUI();
+}
+
+async function saveAudioBlob(key, blob) {
+  try {
+    const db = await openSoundDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      tx.objectStore(DB_STORE).put(blob, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    if (storedAudioUrls[key]) { try { URL.revokeObjectURL(storedAudioUrls[key]); } catch (e) {} }
+    storedAudioUrls[key] = URL.createObjectURL(blob);
+    storedAudioMeta[key] = { size: blob.size || 0, type: blob.type || 'audio/wav' };
+    updateOfflineStatsUI();
+    return true;
+  } catch (e) { return false; }
+}
+
+async function getAllAudioBlobsFromDB() {
+  const out = [];
+  const db = await openSoundDB();
+  await new Promise(resolve => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const req = tx.objectStore(DB_STORE).openCursor();
+    req.onsuccess = e => {
+      const cur = e.target.result;
+      if (cur) { out.push({ key: String(cur.key), blob: cur.value }); cur.continue(); }
+      else resolve();
+    };
+    req.onerror = () => resolve();
+  });
+  return out;
+}
+
+// ========== PCM16 -> WAV Encoder (Zero-Dependency) ==========
+function pcmBase64ToWavBlob(b64, sampleRate = 24000) {
+  const bin = atob(b64);
+  const pcmLen = bin.length;
+  const buf = new ArrayBuffer(44 + pcmLen);
+  const view = new DataView(buf);
+  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + pcmLen, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);          // PCM chunk size
+  view.setUint16(20, 1, true);           // Linear PCM
+  view.setUint16(22, 1, true);           // Mono
+  view.setUint32(24, sampleRate, true);  // Sample rate
+  view.setUint32(28, sampleRate * 2, true); // Byte rate
+  view.setUint16(32, 2, true);           // Block align
+  view.setUint16(34, 16, true);          // Bits per sample
+  writeStr(36, 'data');
+  view.setUint32(40, pcmLen, true);
+  const outBytes = new Uint8Array(buf, 44);
+  for (let i = 0; i < pcmLen; i++) outBytes[i] = bin.charCodeAt(i);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+function base64ToBlob(b64, mime = 'audio/wav') {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+// ========== Gemini REST TTS Generator (Warm Native Teacher Voice) ==========
+async function generateGeminiTtsBlob(promptText, retryCount = 0) {
+  const apiKey = (appState.apiKey || '').trim();
+  if (!apiKey) throw new Error('API_KEY_MISSING');
+  const voiceName = appState.geminiVoice || 'Aoede';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName } }
+        }
+      }
+    })
+  });
+  if (res.status === 429 && retryCount < 4) {
+    // Rate limit backoff with live countdown
+    for (let sec = 12; sec > 0; sec--) {
+      if (batchAbort) throw new Error('ABORTED');
+      setProgStatus(`⏳ API 요청 한도 잠시 대기 중... (${sec}초 후 자동 재개)`);
+      await sleepMs(1000);
+    }
+    return generateGeminiTtsBlob(promptText, retryCount + 1);
+  }
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`;
+    try { const errJson = await res.json(); detail = errJson?.error?.message || detail; } catch (e) {}
+    throw new Error(detail);
+  }
+  const data = await res.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const audioPart = parts.find(p => p.inlineData && p.inlineData.data);
+  if (!audioPart) throw new Error('오디오 데이터가 반환되지 않았습니다.');
+  const mime = String(audioPart.inlineData.mimeType || 'audio/L16;codec=pcm;rate=24000');
+  if (/pcm|L16/i.test(mime)) {
+    const rateMatch = mime.match(/rate=(\d+)/i);
+    const sr = rateMatch ? Number(rateMatch[1]) : 24000;
+    return pcmBase64ToWavBlob(audioPart.inlineData.data, sr);
+  }
+  return base64ToBlob(audioPart.inlineData.data, mime);
+}
+
+// ========== Native Dictionary MP3 Fetch & Permanent Offline Save ==========
+const dictUrlCache = {};
+async function fetchNativeWordBlob(word) {
+  const clean = word.toLowerCase().trim();
+  if (!clean) return null;
+  try {
+    let mp3Url = dictUrlCache[clean];
+    if (mp3Url === undefined) {
+      const ctrl = new AbortController();
+      const tm = setTimeout(() => ctrl.abort(), 3000);
+      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(clean)}`, { signal: ctrl.signal });
+      clearTimeout(tm);
+      if (!res.ok) { dictUrlCache[clean] = null; return null; }
+      const data = await res.json();
+      const urls = [];
+      (data || []).forEach(entry => (entry.phonetics || []).forEach(ph => { if (ph.audio) urls.push(ph.audio); }));
+      mp3Url = urls.find(u => /-us\.mp3/i.test(u)) || urls.find(u => /\.mp3/i.test(u)) || urls[0] || null;
+      dictUrlCache[clean] = mp3Url;
+    }
+    if (!mp3Url) return null;
+    const ctrl2 = new AbortController();
+    const tm2 = setTimeout(() => ctrl2.abort(), 4500);
+    const aRes = await fetch(mp3Url, { signal: ctrl2.signal });
+    clearTimeout(tm2);
+    if (!aRes.ok) return null;
+    const blob = await aRes.blob();
+    if (!blob || blob.size < 400) return null;
+    return blob;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ========== Pure-JS Zero-Dependency ZIP Export & Import ==========
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+async function createStoreZipBlob(entries) {
+  // entries: [{ path: 'sounds/phonemes/b.wav', blob: Blob }]
+  const enc = new TextEncoder();
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+  for (const ent of entries) {
+    const nameBytes = enc.encode(ent.path);
+    const dataBytes = new Uint8Array(await ent.blob.arrayBuffer());
+    const crc = crc32(dataBytes);
+    const size = dataBytes.length;
+
+    const lh = new ArrayBuffer(30 + nameBytes.length);
+    const lv = new DataView(lh);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint16(6, 0x0800, true); // UTF-8
+    lv.setUint16(8, 0, true);      // Store (no compression)
+    lv.setUint32(14, crc, true);
+    lv.setUint32(18, size, true);
+    lv.setUint32(22, size, true);
+    lv.setUint16(26, nameBytes.length, true);
+    new Uint8Array(lh, 30).set(nameBytes);
+    localParts.push(new Uint8Array(lh), dataBytes);
+
+    const ch = new ArrayBuffer(46 + nameBytes.length);
+    const cv = new DataView(ch);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0x0800, true);
+    cv.setUint16(10, 0, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, size, true);
+    cv.setUint32(24, size, true);
+    cv.setUint16(28, nameBytes.length, true);
+    cv.setUint32(42, offset, true);
+    new Uint8Array(ch, 46).set(nameBytes);
+    centralParts.push(new Uint8Array(ch));
+
+    offset += 30 + nameBytes.length + size;
+  }
+  const cdSize = centralParts.reduce((s, a) => s + a.length, 0);
+  const eocd = new ArrayBuffer(22);
+  const ev = new DataView(eocd);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, entries.length, true);
+  ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, cdSize, true);
+  ev.setUint32(16, offset, true);
+  return new Blob([...localParts, ...centralParts, new Uint8Array(eocd)], { type: 'application/zip' });
+}
+
+async function readZipFile(file) {
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  const view = new DataView(buf);
+  const dec = new TextDecoder('utf-8');
+  // Find End of Central Directory (0x06054b50)
+  let eocdPos = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocdPos = i; break; }
+  }
+  if (eocdPos < 0) throw new Error('유효한 ZIP 파일이 아닙니다.');
+  const total = view.getUint16(eocdPos + 10, true);
+  let pos = view.getUint32(eocdPos + 16, true);
+  const results = [];
+  for (let i = 0; i < total; i++) {
+    if (view.getUint32(pos, true) !== 0x02014b50) break;
+    const method = view.getUint16(pos + 10, true);
+    const compSize = view.getUint32(pos + 20, true);
+    const nameLen = view.getUint16(pos + 28, true);
+    const extraLen = view.getUint16(pos + 30, true);
+    const cmtLen = view.getUint16(pos + 32, true);
+    const localOff = view.getUint32(pos + 42, true);
+    const fullName = dec.decode(bytes.subarray(pos + 46, pos + 46 + nameLen));
+    pos += 46 + nameLen + extraLen + cmtLen;
+    if (fullName.endsWith('/')) continue;
+
+    const lNameLen = view.getUint16(localOff + 26, true);
+    const lExtraLen = view.getUint16(localOff + 28, true);
+    const dataStart = localOff + 30 + lNameLen + lExtraLen;
+    const rawData = bytes.subarray(dataStart, dataStart + compSize);
+    let outBytes = rawData;
+    if (method === 8 && typeof DecompressionStream !== 'undefined') {
+      const ds = new DecompressionStream('deflate-raw');
+      const resp = new Response(new Blob([rawData]).stream().pipeThrough(ds));
+      outBytes = new Uint8Array(await resp.arrayBuffer());
+    } else if (method !== 0) {
+      continue;
+    }
+    const mime = /\.mp3$/i.test(fullName) ? 'audio/mpeg' : (/\.ogg$/i.test(fullName) ? 'audio/ogg' : 'audio/wav');
+    results.push({ path: fullName, blob: new Blob([outBytes], { type: mime }) });
+  }
+  return results;
+}
+
+// ========== Unified Offline-First Playback Engine ==========
+let activeAudio = null, enVoices = [], koVoice = null, ttsTimer = null;
+
+function refreshVoices() {
+  if (!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices();
+  enVoices = vs.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+  koVoice = vs.find(v => v.lang && v.lang.toLowerCase().startsWith('ko') && /Google|Yuna|SunHi|Sora/i.test(v.name))
+    || vs.find(v => v.lang && v.lang.toLowerCase().startsWith('ko')) || null;
+  const sel = $('pmVoiceSelect');
+  if (sel) {
+    const prev = appState.voiceName;
+    sel.innerHTML = `<option value="">자동 추천 (부드러운 영어 목소리)</option>` +
+      enVoices.map(v => `<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('');
+    if (prev && enVoices.some(v => v.name === prev)) sel.value = prev;
+  }
+}
+if ('speechSynthesis' in window) {
+  refreshVoices();
+  speechSynthesis.onvoiceschanged = refreshVoices;
+}
+function getBestEnVoice() {
+  if (appState.voiceName) {
+    const exact = enVoices.find(v => v.name === appState.voiceName);
+    if (exact) return exact;
+  }
+  return enVoices.find(v => /Google US English/i.test(v.name))
+    || enVoices.find(v => /Samantha|Aria|Jenny|Natural|Zira/i.test(v.name) && v.lang === 'en-US')
+    || enVoices.find(v => v.lang === 'en-US')
+    || enVoices[0] || null;
+}
+
+function stopAllSpeech() {
+  clearTimeout(ttsTimer);
+  if (activeAudio) { try { activeAudio.pause(); activeAudio.currentTime = 0; } catch(e) {} activeAudio = null; }
+  if ('speechSynthesis' in window) { try { speechSynthesis.cancel(); } catch(e) {} }
+}
+
+function playAudioUrl(url, rate=null, onEnd=null, onFail=null) {
+  stopAllSpeech();
+  const a = new Audio(url);
+  a.preservesPitch = true;
+  if ('mozPreservesPitch' in a) a.mozPreservesPitch = true;
+  if ('webkitPreservesPitch' in a) a.webkitPreservesPitch = true;
+  a.playbackRate = Math.max(0.55, Math.min(1.25, rate !== null ? rate : Number(appState.audioRate || 0.80)));
+  activeAudio = a;
+  let handled = false;
+  a.onended = () => { if (!handled) { handled = true; if (onEnd) onEnd(); } };
+  a.onerror = () => { if (!handled) { handled = true; if (onFail) onFail(); } };
+  const p = a.play();
+  if (p && p.catch) p.catch(() => { if (!handled) { handled = true; if (onFail) onFail(); } });
+}
+
+function speakTTS(text, lang='en-US', customRate=null, onEnd=null) {
+  stopAllSpeech();
+  if (!('speechSynthesis' in window) || !text) { if (onEnd) onEnd(); return; }
+  ttsTimer = setTimeout(() => {
+    try {
+      const u = new SpeechSynthesisUtterance(String(text));
+      u.lang = lang;
+      if (lang.startsWith('ko') && koVoice) u.voice = koVoice;
+      else if (lang.startsWith('en')) { const v = getBestEnVoice(); if (v) u.voice = v; }
+      const base = customRate !== null ? customRate : Math.max(0.52, Number(appState.audioRate || 0.80) - 0.14);
+      u.rate = Math.max(0.45, Math.min(1.1, base));
+      u.pitch = 1.03;
+      if (onEnd) u.onend = onEnd;
+      speechSynthesis.speak(u);
+    } catch (e) { if (onEnd) onEnd(); }
+  }, 35);
+}
+
+// Try local static sounds/ folder (for GitHub Pages / unzipped offline folder)
+function tryStaticUrls(urls, rate, onEnd, onAllFail) {
+  const step = idx => {
+    if (idx >= urls.length) { onAllFail(); return; }
+    playAudioUrl(urls[idx], rate, onEnd, () => step(idx + 1));
+  };
+  step(0);
+}
+
+// 1) Play Word: IndexedDB (Offline!) -> Local sounds/words/ -> Fetch Native Dict MP3 & Permanent Save -> Gemini TTS -> TTS Fallback
+async function speakWord(word, overrideRate=null, onEnd=null) {
+  const clean = word.toLowerCase().trim();
+  const key = 'word_' + clean;
+  // Priority 1: Permanent Offline IndexedDB
+  if (storedAudioUrls[key]) {
+    playAudioUrl(storedAudioUrls[key], overrideRate, onEnd, () => speakTTS(word, 'en-US', overrideRate, onEnd));
+    return;
+  }
+  const fallbackOnlineOrTts = async () => {
+    localFolderMiss[key] = true;
+    if (navigator.onLine) {
+      // Fetch actual MP3 blob and permanently save it to IndexedDB!
+      const blob = await fetchNativeWordBlob(clean);
+      if (blob) {
+        await saveAudioBlob(key, blob);
+        playAudioUrl(storedAudioUrls[key], overrideRate, onEnd, () => speakTTS(word, 'en-US', overrideRate, onEnd));
+        return;
+      }
+      // If dict URL exists but CORS blocked blob fetch, still try direct Audio playback
+      if (dictUrlCache[clean]) {
+        playAudioUrl(dictUrlCache[clean], overrideRate, onEnd, () => speakTTS(word, 'en-US', overrideRate, onEnd));
+        return;
+      }
+      // If API key is configured, auto-generate with Gemini & save permanently!
+      if ((appState.apiKey || '').trim()) {
+        try {
+          const gBlob = await generateGeminiTtsBlob(`Pronounce this single English word clearly and warmly for a child: "${word}"`);
+          await saveAudioBlob(key, gBlob);
+          playAudioUrl(storedAudioUrls[key], overrideRate, onEnd, () => speakTTS(word, 'en-US', overrideRate, onEnd));
+          return;
+        } catch (e) {}
+      }
+    }
+    speakTTS(word, 'en-US', overrideRate, onEnd);
+  };
+
+  if (!localFolderMiss[key] && location.protocol !== 'file:') {
+    tryStaticUrls([`sounds/words/${clean}.mp3`, `sounds/words/${clean}.wav`], overrideRate, onEnd, fallbackOnlineOrTts);
+  } else {
+    fallbackOnlineOrTts();
+  }
+}
+
+// 2) Play Sentence (index 0..49): IndexedDB (Offline!) -> Local sounds/sentences/ -> On-demand Gemini TTS & Save -> TTS Fallback
+async function speakSentenceByIdx(idx, sentenceText, onEnd=null) {
+  const key = 'sent_' + String(idx).padStart(2, '0');
+  if (storedAudioUrls[key]) {
+    playAudioUrl(storedAudioUrls[key], null, onEnd, () => speakTTS(sentenceText, 'en-US', null, onEnd));
+    return;
+  }
+  const fallbackOnlineOrTts = async () => {
+    localFolderMiss[key] = true;
+    if (navigator.onLine && (appState.apiKey || '').trim()) {
+      try {
+        const gBlob = await generateGeminiTtsBlob(`Read this children's English sentence slowly, warmly, and clearly like a friendly kindergarten teacher: "${sentenceText}"`);
+        await saveAudioBlob(key, gBlob);
+        playAudioUrl(storedAudioUrls[key], null, onEnd, () => speakTTS(sentenceText, 'en-US', null, onEnd));
+        return;
+      } catch (e) {}
+    }
+    speakTTS(sentenceText, 'en-US', null, onEnd);
+  };
+  if (!localFolderMiss[key] && location.protocol !== 'file:') {
+    tryStaticUrls([`sounds/sentences/${key}.wav`, `sounds/sentences/${key}.mp3`], null, onEnd, fallbackOnlineOrTts);
+  } else {
+    fallbackOnlineOrTts();
+  }
+}
+function speakSentence(sentence, onEnd=null) {
+  const idx = SENTENCE_QUESTS.findIndex(q => q.s === sentence);
+  if (idx >= 0) speakSentenceByIdx(idx, sentence, onEnd);
+  else speakTTS(sentence, 'en-US', null, onEnd);
+}
+
+// 3) Map (grapheme, ko_pron, pos) -> Exact 44 App-Matched Phoneme/Chunk Slug
+function mapToPhonemeSlug(g, ko, pos) {
+  if (!ko || ko === '묵음') return null;
+  // Exact 7 composite chunks first!
+  if (ko === '[ㅋㅅ]') return 'x_ks';
+  if (ko === '[션]') return 'tion_shun';
+  if (ko === '[쳔]') return 'tion_chun';
+  if (ko === '[젼]') return 'sion_zhun';
+  if (ko === '[틴]' || ko === '[테인]') return 'tain_tin';
+  if (ko === '[엑쓰]' || ko === '[익쓰]') return 'ex_eks';
+  if (ko === '[익즈]') return 'ex_igz';
+  // Vowels
+  if (ko === '[애]') return 'short_a';
+  if (ko === '[에]') return 'short_e';
+  if (ko === '[아]') return 'short_o';
+  if (ko === '[어]') return 'short_u';
+  if (ko === '[에이]') return 'long_a';
+  if (ko === '[이:]') return 'long_e';
+  if (ko === '[이]') {
+    if (g === 'y' && pos === '첫소리') return 'y';
+    if (g === 'e') return 'long_e';
+    return 'short_i';
+  }
+  if (ko === '[아이]') return 'long_i';
+  if (ko === '[오]') return 'aw';
+  if (ko === '[오우]') return 'long_o';
+  if (ko === '[우]') return g === 'w' ? 'w' : 'oo_short';
+  if (ko === '[우:]') return 'oo_long';
+  if (ko === '[유]') return 'long_u';
+  if (ko === 'r 앞 [어]' || ko === '맨 뒤 [어] 추가') return 'er';
+  // Consonants
+  if (ko === '[ㅂ]') return (g === 'v' || g === 'f') ? 'v' : 'b';
+  if (ko === '[ㅍ]') return g === 'p' ? 'p' : 'f';
+  if (ko === '[ㅋ]') return 'k';
+  if (ko === '[ㅅ]') return 's';
+  if (ko === '[ㄷ]') return g === 'th' ? 'th_d' : 'd';
+  if (ko === '[ㅆ]') return 'th_s';
+  if (ko === '[ㄱ]') return 'g';
+  if (ko === '[쥐]') return 'j';
+  if (ko === '[ㅎ]') return 'h';
+  if (ko === '[ㄹ]') return g === 'r' ? 'r' : 'l';
+  if (ko === '[ㅁ]') return 'm';
+  if (ko === '[ㄴ]') return 'n';
+  if (ko === '[응]') return 'ng';
+  if (ko === '[ㅈ]') return 'z';
+  if (ko === '[쉬]') return 'sh';
+  if (ko === '[취]' || ko === 'u 앞 [취]') return 'ch';
+  if (ko === '[ㅌ]') return 't';
+  return g.replace(/[^a-z]/g, '') || null;
+}
+
+function playPhonemeBySlug(slug, fallbackKo='', onEnd=null) {
+  const key = 'ph_' + slug;
+  const info = PH44_MAP[slug];
+  const fallbackPlay = () => {
+    if (info) speakTTS(info.tts, info.lang, info.lang==='ko-KR'?0.88:0.72, onEnd);
+    else if (fallbackKo) speakTTS(fallbackKo.replace(/[\[\]]/g,''), 'ko-KR', 0.88, onEnd);
+    else if (onEnd) onEnd();
+  };
+  if (storedAudioUrls[key]) {
+    playAudioUrl(storedAudioUrls[key], 0.96, onEnd, fallbackPlay);
+    return;
+  }
+  if (!localFolderMiss[key] && location.protocol !== 'file:') {
+    tryStaticUrls([`sounds/phonemes/${slug}.wav`, `sounds/phonemes/${slug}.mp3`, `sounds/${slug}.mp3`], 0.96, onEnd, () => {
+      localFolderMiss[key] = true;
+      fallbackPlay();
+    });
+    return;
+  }
+  fallbackPlay();
+}
+
+// ========== Batch Offline Audio Studio Controller ==========
+let batchRunning = false, batchAbort = false;
+const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+function setProgStatus(txt, pct=null) {
+  $('pmProgWrap').classList.add('show');
+  $('pmProgText').textContent = txt;
+  if (pct !== null) $('pmProgFill').style.width = Math.max(0, Math.min(100, pct)) + '%';
+}
+
+function updateOfflineStatsUI() {
+  const phCnt = PHONEMES_44.filter(p => !!storedAudioUrls['ph_' + p.slug]).length;
+  const sentCnt = SENTENCE_QUESTS.filter((_, i) => !!storedAudioUrls['sent_' + String(i).padStart(2, '0')]).length;
+  const coreCnt = CORE_GAME_WORDS.filter(w => !!storedAudioUrls['word_' + w]).length;
+  const allWCnt = ALL_APP_WORDS.filter(w => !!storedAudioUrls['word_' + w]).length;
+  const totalBytes = Object.values(storedAudioMeta).reduce((s, m) => s + (m.size || 0), 0);
+  const mb = (totalBytes / (1024 * 1024)).toFixed(1);
+
+  if ($('statPhCnt')) {
+    $('statPhCnt').textContent = `${phCnt} / 44`;
+    $('statChipPh').classList.toggle('done', phCnt === 44);
+    $('statSentCnt').textContent = `${sentCnt} / ${SENTENCE_QUESTS.length}`;
+    $('statChipSent').classList.toggle('done', sentCnt === SENTENCE_QUESTS.length);
+    $('statWordCnt').textContent = `${allWCnt} / ${ALL_APP_WORDS.length}`;
+    $('statChipWord').classList.toggle('done', allWCnt === ALL_APP_WORDS.length);
+    const offlineOk = phCnt === 44 && sentCnt === SENTENCE_QUESTS.length && coreCnt >= CORE_GAME_WORDS.length;
+    $('pmOfflineSummary').textContent = `${mb} MB 저장됨 · ${offlineOk ? '완전 오프라인 준비 완료 ✅' : `핵심단어 ${coreCnt}/${CORE_GAME_WORDS.length}`}`;
+  }
+}
+
+async function runBatchPhonemes() {
+  if (batchRunning) return;
+  if (!(appState.apiKey || '').trim()) { alert('먼저 위 입력칸에 Gemini API 키를 입력해 주세요!'); $('pmApiKeyInput').focus(); return; }
+  batchRunning = true; batchAbort = false;
+  let done = 0, skipped = 0, failed = 0;
+  const total = PHONEMES_44.length;
+  try {
+    for (let i = 0; i < total; i++) {
+      if (batchAbort) break;
+      const p = PHONEMES_44[i], key = 'ph_' + p.slug;
+      if (storedAudioUrls[key]) { skipped++; done++; setProgStatus(`음가 확인 중... (${done}/${total})`, done/total*100); continue; }
+      setProgStatus(`✨ 음가 생성 중 [${i+1}/${total}]: ${p.slug} ${p.ko}`, done/total*100);
+      try {
+        const blob = await generateGeminiTtsBlob(p.gprompt);
+        await saveAudioBlob(key, blob);
+        done++;
+      } catch (e) {
+        if (e.message === 'ABORTED') break;
+        failed++;
+        setProgStatus(`⚠️ ${p.slug} 실패: ${e.message}`, done/total*100);
+        if (/API key|401|403/i.test(e.message)) { alert('API 키를 다시 확인해 주세요: ' + e.message); break; }
+      }
+      setProgStatus(`✨ 음가 진행: ${done}/${total} 완료`, done/total*100);
+      await sleepMs(650);
+    }
+    if (!batchAbort) {
+      SFX.correct();
+      setProgStatus(`✅ 음가 생성 완료! (총 ${done}/${total} 저장됨${failed ? `, 실패 ${failed}` : ''})`, 100);
+    } else {
+      setProgStatus(`⏹ 일시정지됨 (${done}/${total} 저장됨 · 다시 누르면 이어서 생성)`, done/total*100);
+    }
+  } finally {
+    batchRunning = false; render44Checklist(); updateOfflineStatsUI();
+  }
+}
+
+async function runBatchSentences() {
+  if (batchRunning) return;
+  if (!(appState.apiKey || '').trim()) { alert('먼저 위 입력칸에 Gemini API 키를 입력해 주세요!'); $('pmApiKeyInput').focus(); return; }
+  batchRunning = true; batchAbort = false;
+  let done = 0, failed = 0;
+  const total = SENTENCE_QUESTS.length;
+  try {
+    for (let i = 0; i < total; i++) {
+      if (batchAbort) break;
+      const q = SENTENCE_QUESTS[i], key = 'sent_' + String(i).padStart(2, '0');
+      if (storedAudioUrls[key]) { done++; setProgStatus(`문장 확인 중... (${done}/${total})`, done/total*100); continue; }
+      setProgStatus(`✨ 문장 생성 중 [${i+1}/${total}]: "${q.s}"`, done/total*100);
+      try {
+        const blob = await generateGeminiTtsBlob(`Read this children's English sentence slowly, warmly, and clearly like a friendly kindergarten teacher: "${q.s}"`);
+        await saveAudioBlob(key, blob);
+        done++;
+      } catch (e) {
+        if (e.message === 'ABORTED') break;
+        failed++;
+        setProgStatus(`⚠️ 문장 ${i+1} 실패: ${e.message}`, done/total*100);
+        if (/API key|401|403/i.test(e.message)) { alert('API 키를 다시 확인해 주세요: ' + e.message); break; }
+      }
+      setProgStatus(`✨ 문장 진행: ${done}/${total} 완료`, done/total*100);
+      await sleepMs(650);
+    }
+    if (!batchAbort) {
+      SFX.correct();
+      setProgStatus(`✅ 문장 50개 생성 완료! (${done}/${total} 저장됨${failed ? `, 실패 ${failed}` : ''})`, 100);
+    } else {
+      setProgStatus(`⏹ 일시정지됨 (${done}/${total} 저장됨 · 다시 누르면 이어서 생성)`, done/total*100);
+    }
+  } finally {
+    batchRunning = false; render50Checklist(); updateOfflineStatsUI();
+  }
+}
+
+async function runBatchWords(wordList, label) {
+  if (batchRunning) return;
+  batchRunning = true; batchAbort = false;
+  const fillWithGemini = $('pmFillMissingWithGemini').checked && !!(appState.apiKey || '').trim();
+  let done = 0, fromDict = 0, fromGemini = 0, missing = 0;
+  const total = wordList.length;
+  const missingWords = [];
+  try {
+    // Phase 1: Fast parallel download from free Native Dictionary API (4 concurrent)
+    const pending = wordList.filter(w => {
+      if (storedAudioUrls['word_' + w]) { done++; return false; }
+      return true;
+    });
+    setProgStatus(`📖 ${label} 원어민 사전 다운로드 시작 (${done}/${total} 이미 저장됨)...`, done/total*100);
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < pending.length && !batchAbort) {
+        const w = pending[cursor++];
+        const blob = await fetchNativeWordBlob(w);
+        if (blob) {
+          await saveAudioBlob('word_' + w, blob);
+          fromDict++; done++;
+        } else {
+          missingWords.push(w);
+        }
+        setProgStatus(`📖 원어민 사전 저장 중... ${done}/${total} (사전 ${fromDict} · 미등록 ${missingWords.length})`, done/total*100);
+      }
+    };
+    await Promise.all([worker(), worker(), worker(), worker()]);
+
+    // Phase 2: Fill words not found in free dictionary using Gemini Teacher Voice!
+    if (!batchAbort && missingWords.length && fillWithGemini) {
+      for (let i = 0; i < missingWords.length; i++) {
+        if (batchAbort) break;
+        const w = missingWords[i];
+        setProgStatus(`✨ 사전에 없는 단어 Gemini 보충 중 [${i+1}/${missingWords.length}]: "${w}"`, done/total*100);
+        try {
+          const gBlob = await generateGeminiTtsBlob(`Pronounce this single English word clearly and warmly for a child: "${w}"`);
+          await saveAudioBlob('word_' + w, gBlob);
+          fromGemini++; done++;
+        } catch (e) {
+          if (e.message === 'ABORTED') break;
+          missing++;
+          if (/API key|401|403/i.test(e.message)) break;
+        }
+        await sleepMs(600);
+      }
+    } else {
+      missing = missingWords.length;
+    }
+
+    if (!batchAbort) {
+      SFX.correct();
+      const note = missing ? ` (사전 미등록 ${missing}개 — API 키 입력 시 자동 보충)` : ' · 100% 오프라인 완료!';
+      setProgStatus(`✅ ${label} 저장 완료! ${done}/${total} (원어민사전 ${fromDict} + Gemini ${fromGemini})${note}`, 100);
+    } else {
+      setProgStatus(`⏹ 일시정지됨 (${done}/${total} 저장됨 · 다시 누르면 이어서 저장)`, done/total*100);
+    }
+  } finally {
+    batchRunning = false; updateOfflineStatsUI();
+  }
+}
+
+async function regenerateSinglePhoneme(slug) {
+  if (batchRunning) return;
+  if (!(appState.apiKey || '').trim()) { alert('먼저 Gemini API 키를 입력해 주세요!'); return; }
+  const p = PH44_MAP[slug]; if (!p) return;
+  batchRunning = true; batchAbort = false;
+  setProgStatus(`🔄 음가 [${slug}] 다시 생성 중...`, 50);
+  try {
+    const blob = await generateGeminiTtsBlob(p.gprompt);
+    await saveAudioBlob('ph_' + slug, blob);
+    setProgStatus(`✅ 음가 [${slug}] 재생성 완료!`, 100);
+    playPhonemeBySlug(slug);
+  } catch (e) {
+    setProgStatus(`⚠️ 재생성 실패: ${e.message}`, 0);
+  } finally {
+    batchRunning = false; render44Checklist();
+  }
+}
+
+async function regenerateSingleSentence(idx) {
+  if (batchRunning) return;
+  if (!(appState.apiKey || '').trim()) { alert('먼저 Gemini API 키를 입력해 주세요!'); return; }
+  const q = SENTENCE_QUESTS[idx]; if (!q) return;
+  const key = 'sent_' + String(idx).padStart(2, '0');
+  batchRunning = true; batchAbort = false;
+  setProgStatus(`🔄 문장 #${idx+1} 다시 생성 중...`, 50);
+  try {
+    const blob = await generateGeminiTtsBlob(`Read this children's English sentence slowly, warmly, and clearly like a friendly kindergarten teacher: "${q.s}"`);
+    await saveAudioBlob(key, blob);
+    setProgStatus(`✅ 문장 #${idx+1} 재생성 완료!`, 100);
+    speakSentenceByIdx(idx, q.s);
+  } catch (e) {
+    setProgStatus(`⚠️ 재생성 실패: ${e.message}`, 0);
+  } finally {
+    batchRunning = false; render50Checklist();
+  }
+}
+
+// ========== Web Audio Arcade SFX ==========
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playTone(freq, dur=0.11, type='triangle', vol=0.15, delay=0) {
+  if (!appState.sfxOn) return;
+  try {
+    const ctx = getAudio(); const t = ctx.currentTime + delay;
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  } catch (e) {}
+}
+const SFX = {
+  pop()     { playTone(480, 0.08, 'sine', 0.14); playTone(660, 0.07, 'sine', 0.10, 0.03); },
+  click()   { playTone(380, 0.06, 'triangle', 0.11); },
+  magic()   { playTone(880, 0.09, 'sine', 0.12, 0); playTone(1174, 0.12, 'sine', 0.12, 0.06); playTone(1568, 0.18, 'sine', 0.10, 0.12); },
+  hush()    { playTone(300, 0.06, 'sine', 0.05); },
+  correct() { playTone(523.25, 0.12, 'triangle', 0.16, 0); playTone(659.25, 0.12, 'triangle', 0.16, 0.09); playTone(783.99, 0.22, 'triangle', 0.18, 0.18); },
+  wrong()   { playTone(240, 0.14, 'sawtooth', 0.09, 0); playTone(190, 0.20, 'sawtooth', 0.09, 0.11); },
+  fanfare() { [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => playTone(f, i===4?0.45:0.14, 'triangle', 0.18, i*0.09)); }
+};
+
+// ========== Confetti ==========
+const Confetti = (() => {
+  const cv = $('confettiCanvas'), ctx = cv.getContext('2d');
+  let parts = [], animId = null;
+  function resize() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  function burst(count=65) {
+    const colors = ['#ffd447','#ff6b8b','#2fd179','#45a3ff','#8b63ff','#ff922b'];
+    for (let i=0;i<count;i++) parts.push({
+      x: cv.width*(0.2+Math.random()*0.6), y: cv.height*0.32,
+      vx: (Math.random()-0.5)*14, vy: -Math.random()*11-4,
+      w: 7+Math.random()*7, h: 5+Math.random()*5,
+      rot: Math.random()*Math.PI*2, vrot: (Math.random()-0.5)*0.28,
+      c: colors[i%colors.length], life: 1
+    });
+    if (!animId) loop();
+  }
+  function loop() {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.36; p.rot+=p.vrot; p.life-=0.014;
+      ctx.save(); ctx.globalAlpha=Math.max(0,p.life); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+    });
+    parts = parts.filter(p => p.life > 0 && p.y < cv.height + 40);
+    if (parts.length) animId = requestAnimationFrame(loop);
+    else { animId = null; ctx.clearRect(0,0,cv.width,cv.height); }
+  }
+  return { burst };
+})();
+
+// ========== Score, Rank & Clean HUD ==========
+function showDoneModal(icon, title, desc) {
+  SFX.fanfare(); Confetti.burst(90);
+  $('doneModalIcon').textContent = icon;
+  $('doneModalTitle').textContent = title;
+  $('doneModalDesc').textContent = desc;
+  $('doneModal').classList.add('open');
+}
+
+function renderStampSlots(container, total, curIdx, doneFlags, clickable=false, onClick=null) {
+  container.innerHTML = Array.from({ length: total }, (_, i) => {
+    const isDone = !!doneFlags[i], isCur = i === curIdx;
+    const cls = isDone ? 'stamp-slot stamped' : (isCur ? 'stamp-slot active' : 'stamp-slot');
+    const txt = isDone ? '⭐' : String(i + 1);
+    return `<button type="button" class="${cls}" data-stidx="${i}" aria-label="${i+1}번 단어">${txt}</button>`;
+  }).join('');
+  if (clickable && onClick) {
+    container.querySelectorAll('.stamp-slot').forEach(b => {
+      b.addEventListener('click', () => onClick(Number(b.dataset.stidx)));
+    });
+  }
+}
+
+function renderHud() {
+  const backBtn = $('backBtn');
+  backBtn.style.display = 'inline-flex';
+  backBtn.style.visibility = curScreen === 'home' ? 'hidden' : 'visible';
+
+  const pill = $('topProgressPill');
+  const kid2MasteredCnt = Object.keys(appState.profiles.kid2.mastered || {}).length;
+  const k1List = getKid1TodayWords();
+  const tk = ensureTodayTracking();
+  const k1Prog = appState.kid1Progress[tk];
+  const k1Set = new Set(k1List.map(w => w.w.toLowerCase()));
+  const c1 = k1Prog.stage1.filter(w => k1Set.has(w)).length;
+  const c2 = k1Prog.assemble.filter(w => k1Set.has(w)).length;
+  const c3 = k1Prog.boss1.filter(w => k1Set.has(w)).length;
+  const tot = k1List.length;
+
+  if (curScreen === 'home') {
+    pill.innerHTML = `<span style="font-size:14.5px;font-weight:900;color:#143659">✨ 알파랜드 3D 파닉스</span>`;
+  } else if (curScreen === 'az' || curScreen === 'stage' || curScreen === 'boss2') {
+    const pct = Math.round((kid2MasteredCnt / 26) * 100);
+    pill.innerHTML = `<div class="k2-top-prog">
+      <span class="sp-who kid2">🧱 둘째</span>
+      <div class="k2-bar-wrap">
+        <div class="k2-bar-txt">알파벳 도장 ${kid2MasteredCnt} / 26</div>
+        <div class="prog-mini"><div class="prog-mini-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  } else if (curScreen === 'hub1' || curScreen === 'stage1' || curScreen === 'assemble' || curScreen === 'boss1') {
+    const d1 = c1 >= tot, d2 = c2 >= tot, d3 = c3 >= tot;
+    const s1Cls = curScreen === 'stage1' ? 'active' : (d1 ? 'done' : '');
+    const s2Cls = curScreen === 'assemble' ? 'active' : (d2 ? 'done' : '');
+    const s3Cls = curScreen === 'boss1' ? 'active' : (d3 ? 'done' : '');
+    pill.innerHTML = `<div class="stepper-track">
+      <span class="step-node ${s1Cls}">${d1?'✓':'①'} 배우기</span>
+      <span class="step-line ${d1?'done':''}"></span>
+      <span class="step-node ${s2Cls}">${d2?'✓':'②'} 조립</span>
+      <span class="step-line ${d2?'done':''}"></span>
+      <span class="step-node ${s3Cls}">${d3?'✓':'③'} 소리찾기</span>
+    </div>`;
+  } else if (curScreen === 'sentence') {
+    pill.innerHTML = `<span class="sp-who kid1">⚽ 첫째</span><span style="font-size:13.5px;font-weight:900;color:#143659">📜 문장 익히기 · ${(sentIdx % SENTENCE_QUESTS.length) + 1} / ${SENTENCE_QUESTS.length}</span>`;
+  } else if (curScreen === 'search') {
+    pill.innerHTML = `<span style="font-size:14px;font-weight:900;color:#143659">🔍 800단어 파닉스 검색기</span>`;
+  } else if (curScreen === 'print') {
+    pill.innerHTML = `<span style="font-size:14px;font-weight:900;color:#143659">🖨️ A4 일일학습지</span>`;
+  }
+
+  $('homeStatKid2').textContent = `⭐ 알파벳 도장 ${kid2MasteredCnt} / 26`;
+  const doneSteps = (c1 >= tot ? 1 : 0) + (c2 >= tot ? 1 : 0) + (c3 >= tot ? 1 : 0);
+  $('homeStatKid1').textContent = doneSteps === 3
+    ? `🌟 오늘 ${tot}단어 3단계 모두 완료!`
+    : `📅 오늘의 영단어 ${tot}개 · ${doneSteps} / 3단계 완료`;
+
+  const rKey = String(appState.audioRate);
+  $('pmSpeedLabel').textContent = SPEED_NAMES[rKey] || `${appState.audioRate}x`;
+  $('pmSpeedGrid').querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', Number(b.dataset.rate) === Number(appState.audioRate)));
+  $('pmSfxToggleBtn').textContent = appState.sfxOn ? '🔊 효과음 켜짐' : '🔇 효과음 꺼짐';
+  $('pmSfxToggleBtn').className = 'btn3d sm ' + (appState.sfxOn ? 'mint' : '');
+  $('pinCountNum').textContent = appState.pinnedIds.length;
+}
+
+// ========== Screen Navigation (Clean 1-Step Back Stack!) ==========
+const BACK_MAP = {
+  az: 'home',
+  stage: 'az',
+  boss2: 'stage',
+  hub1: 'home',
+  stage1: 'hub1',
+  assemble: 'hub1',
+  sentence: 'hub1',
+  boss1: 'hub1',
+  search: 'home',
+  print: 'home'
+};
+function goScreen(name) {
+  clearBlendTimers();
+  stopAllSpeech();
+  curScreen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-' + name));
+  renderHud();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'az') renderAzGrid();
+  if (name === 'hub1') renderKid1Hub();
+  if (name === 'stage1') { kid1StageIdx = 0; renderKid1Stage(true); }
+  if (name === 'assemble') { battleIdx = 0; loadBattleWord(); }
+  if (name === 'sentence') loadSentenceQuest();
+  if (name === 'boss1') { startBoss1Session(); }
+  if (name === 'search') renderSearchResults();
+  if (name === 'print') {
+    $('printProfileSelect').value = appState.profile;
+    $('printChildName').value = getProf().name;
+    renderWorksheet();
+  }
+}
+
+// ========== Single-Line Official Alphablocks Renderer ==========
+function wordToTokens(word, fallbackMagicE=false) {
+  const wl = word.toLowerCase();
+  const found = WORDS_800.find(x => x.w.toLowerCase() === wl);
+  if (found) return { tokens: found.t, me: !!found.me };
+  if (EXTRA_PHONICS[wl]) return { tokens: EXTRA_PHONICS[wl], me: !!fallbackMagicE };
+  const chars = wl.replace(/[^a-z]/g, '').split('');
+  return {
+    tokens: chars.map((ch, idx) => ({
+      g: ch, ko: (fallbackMagicE && idx===chars.length-1 && ch==='e')?'묵음':'', ipa:'', pos: idx===0?'첫소리':(idx===chars.length-1?'끝소리':'중간')
+    })),
+    me: !!fallbackMagicE
+  };
+}
+function countTotalChars(tokens) {
+  return Math.max(2, tokens.reduce((sum, tk) => sum + tk.g.replace(/^-/, '').length, 0));
+}
+function buildTokenUnitHtml(tok, idx, totalLen, isMagicE) {
+  const rawG = tok.g.replace(/^-/, '');
+  const isLast = idx === totalLen - 1;
+  const isSilent = tok.ko === '묵음';
+  const useMagicE = isMagicE && isLast && rawG === 'e' && isSilent;
+  const isTeam = rawG.length > 1;
+  const imgsHtml = useMagicE
+    ? `<img class="ab-char-img" src="${AB_IMGS.magicE}" alt="Magic E" />`
+    : rawG.split('').map(ch => `<img class="ab-char-img" src="${AB_IMGS[ch]||AB_IMGS.a}" alt="${esc(ch)}" />`).join('');
+  const wrapClass = useMagicE ? 'ab-magic-box' : (isTeam ? 'ab-team-box' : '');
+  const unitClasses = ['ab-unit'];
+  if (isSilent && !useMagicE) unitClasses.push('silent');
+  if (useMagicE) unitClasses.push('magic-e');
+  const labelTxt = useMagicE ? '🎩 매직E' : (tok.ko ? `${tok.g} ${tok.ko}` : tok.g);
+  const silentBadge = (isSilent && !useMagicE) ? `<span class="ab-silent-tag">🤫</span>` : '';
+  const slug = mapToPhonemeSlug(tok.g, tok.ko, tok.pos) || '';
+  return `<div class="${unitClasses.join(' ')}" data-slug="${esc(slug)}" data-ko="${esc(tok.ko)}" data-magice="${useMagicE?1:0}">
+    ${silentBadge}
+    <div class="${wrapClass}">${imgsHtml}</div>
+    <span class="ab-phon-pill">${esc(labelTxt)}</span>
+  </div>`;
+}
+
+function findHyphenTokenSplit(wordStr, tokens) {
+  if (!wordStr || !wordStr.includes('-')) return -1;
+  const leftLen = wordStr.indexOf('-');
+  let acc = 0;
+  for (let i = 0; i < tokens.length; i++) {
+    acc += tokens[i].g.replace(/[^a-z]/gi, '').length;
+    if (acc === leftLen) return i + 1;
+  }
+  return -1;
+}
+
+function renderAlphablocksInto(container, tokens, isMagicE, size='md', interactive=true, wordStr='') {
+  const totalChars = countTotalChars(tokens);
+  const hyphenSplit = findHyphenTokenSplit(wordStr, tokens);
+  // Long words (8+ chars or 7+ tokens) in lg/md stage cleanly split into 2 balanced rows so zero overlap!
+  const shouldSplit = (size === 'lg' || size === 'md') && (totalChars >= 8 || tokens.length >= 7);
+
+  if (shouldSplit) {
+    let splitAt = hyphenSplit > 0 ? hyphenSplit : -1;
+    if (splitAt < 0) {
+      const half = Math.ceil(totalChars / 2);
+      let acc = 0;
+      splitAt = Math.ceil(tokens.length / 2);
+      for (let i = 0; i < tokens.length; i++) {
+        acc += tokens[i].g.replace(/^-/, '').length;
+        if (acc >= half) { splitAt = Math.min(tokens.length - 1, Math.max(1, i + 1)); break; }
+      }
+    }
+    const row1 = tokens.slice(0, splitAt);
+    const row2 = tokens.slice(splitAt);
+    const r1Html = row1.map((tk, i) => buildTokenUnitHtml(tk, i, tokens.length, isMagicE)).join('')
+      + (hyphenSplit === splitAt ? `<span class="ab-hyphen">-</span>` : '');
+    const r2Html = row2.map((tk, i) => buildTokenUnitHtml(tk, splitAt + i, tokens.length, isMagicE)).join('');
+    container.innerHTML = `<div class="ab-rows-stack">
+      <div class="ab-row split-row ${size}" style="--chars:${Math.max(4, countTotalChars(row1))}">${r1Html}</div>
+      <div class="ab-row split-row ${size}" style="--chars:${Math.max(4, countTotalChars(row2))}">${r2Html}</div>
+    </div>`;
+  } else {
+    let html = '';
+    tokens.forEach((tk, i) => {
+      if (hyphenSplit === i) html += `<span class="ab-hyphen">-</span>`;
+      html += buildTokenUnitHtml(tk, i, tokens.length, isMagicE);
+    });
+    if (container.classList.contains('ab-row')) {
+      container.style.setProperty('--chars', totalChars);
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = `<div class="ab-row ${size}" style="--chars:${totalChars}">${html}</div>`;
+    }
+  }
+
+  if (interactive) {
+    container.querySelectorAll('.ab-unit').forEach(unit => {
+      unit.addEventListener('click', () => {
+        unit.classList.remove('jumping'); void unit.offsetWidth; unit.classList.add('jumping');
+        if (unit.dataset.magice === '1') { SFX.magic(); return; }
+        if (unit.dataset.ko === '묵음') { SFX.hush(); return; }
+        SFX.pop();
+        playPhonemeBySlug(unit.dataset.slug, unit.dataset.ko);
+      });
+    });
+  }
+}
+
+// ================================================================
+// KID 2: ALPHABLOCKS MODE (Grid -> 3-Button Word Stage -> Boss)
+// ================================================================
+let curLetter = 'c', curWordIdx = 0, boss2Target = null, boss2Solved = false, blendTimers = [];
+
+function clearBlendTimers() {
+  blendTimers.forEach(t => clearTimeout(t)); blendTimers = [];
+  document.querySelectorAll('.ab-unit.speaking-now').forEach(u => u.classList.remove('speaking-now'));
+}
+
+function renderAzGrid() {
+  const prof = getProf();
+  let mastered = 0;
+  // ONLY on Kid 2's 26-letter selection tiles: Uppercase + Lowercase (Aa, Bb, Cc...)
+  $('azGrid').innerHTML = 'abcdefghijklmnopqrstuvwxyz'.split('').map(ch => {
+    const isV = VOWELS.has(ch), isM = !!prof.mastered[ch];
+    if (isM) mastered++;
+    return `<button type="button" class="az-tile ${isV?'vowel':'cons'}" data-az="${ch}">
+      ${isM ? '<span class="az-star">⭐</span>' : ''}
+      <img src="${AB_IMGS[ch]}" alt="${ch.toUpperCase()}${ch}" />
+      <span class="az-lbl"><span class="az-up">${ch.toUpperCase()}</span><span class="az-lo">${ch}</span></span>
+    </button>`;
+  }).join('');
+  $('azStarCount').textContent = `⭐ 알파벳 도장 ${mastered} / 26`;
+  $('azGrid').querySelectorAll('.az-tile').forEach(btn => {
+    btn.addEventListener('click', () => {
+      SFX.pop(); curLetter = btn.dataset.az; curWordIdx = 0;
+      goScreen('stage'); renderAlphaStage(true);
+    });
+  });
+}
+
+let kid2SeenMap = {};
+function renderAlphaStage(autoSpeak=false) {
+  clearBlendTimers();
+  const list = STARTER_BY_LETTER[curLetter] || STARTER_BY_LETTER.c;
+  if (curWordIdx < 0) curWordIdx = 0;
+  if (curWordIdx >= list.length) curWordIdx = list.length - 1;
+  const item = list[curWordIdx];
+
+  kid2SeenMap[curLetter + '_' + curWordIdx] = true;
+  const doneFlags = list.map((_, i) => !!kid2SeenMap[curLetter + '_' + i]);
+  renderStampSlots($('stageDots'), list.length, curWordIdx, doneFlags, true, idx => {
+    SFX.click(); curWordIdx = idx; renderAlphaStage(true);
+  });
+
+  const { tokens, me } = wordToTokens(item.w, item.me);
+  renderAlphablocksInto($('alphaBlockStage'), tokens, me, 'lg', true, item.w);
+  $('alphaBigWord').textContent = item.w;
+  $('alphaBigKo').textContent = item.m;
+  $('alphaMagicNote').innerHTML = me
+    ? `<div class="magic-note">🎩 매직E가 앞 모음을 길게 바꿔요!</div>`
+    : '';
+
+  $('alphaPrevBtn').style.visibility = curWordIdx === 0 ? 'hidden' : 'visible';
+  const nextBtn = $('alphaNextBtn');
+  if (curWordIdx === list.length - 1) {
+    nextBtn.className = 'btn3d coral lg';
+    nextBtn.textContent = '🎯 소리 찾기!';
+  } else {
+    nextBtn.className = 'btn3d blue round-lg';
+    nextBtn.textContent = '▶';
+  }
+
+  recordLearnedWord('kid2', item.w);
+  if (autoSpeak) speakWord(item.w);
+}
+
+function waveStageBlocks() {
+  $('alphaBlockStage').querySelectorAll('.ab-unit').forEach((u, i) => {
+    setTimeout(() => { u.classList.remove('jumping'); void u.offsetWidth; u.classList.add('jumping'); }, i * 110);
+  });
+}
+
+function playBlendedWord() {
+  clearBlendTimers();
+  const item = STARTER_BY_LETTER[curLetter][curWordIdx];
+  const units = [...$('alphaBlockStage').querySelectorAll('.ab-unit')];
+  let delay = 0;
+  units.forEach(u => {
+    const slug = u.dataset.slug, ko = u.dataset.ko, isMagic = u.dataset.magice === '1';
+    blendTimers.push(setTimeout(() => {
+      units.forEach(x => x.classList.remove('speaking-now'));
+      u.classList.add('speaking-now', 'jumping');
+      setTimeout(() => u.classList.remove('jumping'), 460);
+      if (isMagic) SFX.magic();
+      else if (ko === '묵음') SFX.hush();
+      else playPhonemeBySlug(slug, ko);
+    }, delay));
+    delay += (ko === '묵음' ? 500 : 820);
+  });
+  blendTimers.push(setTimeout(() => {
+    units.forEach(x => x.classList.remove('speaking-now'));
+    waveStageBlocks();
+    speakWord(item.w);
+  }, delay + 200));
+}
+
+let boss2Queue = [], boss2Pos = 0;
+function startBoss2Session() {
+  boss2Queue = shuffle(STARTER_BY_LETTER[curLetter] || STARTER_BY_LETTER.c);
+  boss2Pos = 0;
+  loadBoss2();
+}
+function loadBoss2() {
+  if (!boss2Queue.length) boss2Queue = shuffle(STARTER_BY_LETTER[curLetter] || STARTER_BY_LETTER.c);
+  boss2Target = boss2Queue[boss2Pos % boss2Queue.length];
+  boss2Solved = false;
+  const total = boss2Queue.length;
+  const isLast = boss2Pos >= total - 1;
+
+  $('boss2Pill').textContent = `🎯 ${curLetter.toUpperCase()}${curLetter} 소리 찾기 (${boss2Pos + 1} / ${total})`;
+  renderStampSlots($('boss2Stamps'), total, boss2Pos, boss2Queue.map((_, i) => i < boss2Pos), false);
+  $('boss2Msg').textContent = '';
+  $('boss2Reveal').classList.remove('show');
+  $('boss2NextBtn').textContent = isLast ? '⭐ 알파벳 도장 받기!' : '다음 문제 ▶';
+
+  const wrap = $('boss2Opts');
+  wrap.innerHTML = shuffle(boss2Target.quiz).map(opt =>
+    `<button type="button" class="quiz-opt" data-opt="${esc(opt)}">${esc(opt)}</button>`
+  ).join('');
+  wrap.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (boss2Solved) return;
+      const val = btn.dataset.opt;
+      if (val === boss2Target.w) {
+        boss2Solved = true; btn.classList.add('correct');
+        SFX.correct(); Confetti.burst(55);
+        recordLearnedWord('kid2', boss2Target.w);
+        renderStampSlots($('boss2Stamps'), total, boss2Pos, boss2Queue.map((_, i) => i <= boss2Pos), false);
+        $('boss2Msg').textContent = `정답이에요! 🎉 "${boss2Target.w}"`;
+        const { tokens, me } = wordToTokens(boss2Target.w, boss2Target.me);
+        renderAlphablocksInto($('boss2Blocks'), tokens, me, 'md', true, boss2Target.w);
+        $('boss2Ans').textContent = `${boss2Target.w} · ${boss2Target.m}`;
+        $('boss2Reveal').classList.add('show');
+        speakWord(boss2Target.w);
+      } else {
+        btn.classList.add('wrong'); SFX.wrong();
+        $('boss2Msg').textContent = `방금 건 "${val}" 소리예요! 다시 들어 봐요!`;
+        speakWord(val, 0.72);
+        setTimeout(() => btn.classList.remove('wrong'), 480);
+      }
+    });
+  });
+  setTimeout(() => speakWord(boss2Target.w), 240);
+}
+
+// ================================================================
+// KID 1: DAILY N-WORD MISSION HUB, ALPHABLOCKS STAGE 1, TEXT ASSEMBLY & SILENT SOUND QUIZ
+// ================================================================
+let kid1StageIdx = 0;
+
+function renderKid1Hub() {
+  const list = getKid1TodayWords();
+  const tk = ensureTodayTracking();
+  const prog = appState.kid1Progress[tk];
+  const wordSet = new Set(list.map(w => w.w.toLowerCase()));
+  const c1 = prog.stage1.filter(w => wordSet.has(w)).length;
+  const c2 = prog.assemble.filter(w => wordSet.has(w)).length;
+  const c3 = prog.boss1.filter(w => wordSet.has(w)).length;
+  const total = list.length;
+
+  $('hub1MissionTitle').textContent = `📅 첫째 오늘의 영단어 (${total}단어)`;
+  const preview = list.slice(0, 6).map(w => w.w).join(' · ') + (list.length > 6 ? ` 외 ${list.length - 6}개` : '');
+  $('hub1MissionWords').textContent = preview;
+
+  $('hubBadge1').textContent = c1 >= total ? '✅ 1. 배우기' : `1. 배우기 (${c1}/${total})`;
+  $('hubBadge1').classList.toggle('done', c1 >= total);
+  $('hubBadge2').textContent = c2 >= total ? '✅ 2. 조립' : `2. 조립 (${c2}/${total})`;
+  $('hubBadge2').classList.toggle('done', c2 >= total);
+  $('hubBadge3').textContent = c3 >= total ? '✅ 3. 소리찾기' : `3. 소리찾기 (${c3}/${total})`;
+  $('hubBadge3').classList.toggle('done', c3 >= total);
+
+  $('hubCard1Stat').textContent = c1 >= total ? '🌟 완료!' : `${c1} / ${total} 단어`;
+  $('hubCard2Stat').textContent = c2 >= total ? '🌟 완료!' : `${c2} / ${total} 단어`;
+  $('hubCard3Stat').textContent = c3 >= total ? '🌟 완료!' : `${c3} / ${total} 단어`;
+  renderHud();
+}
+
+function renderKid1Stage(autoSpeak=false) {
+  clearBlendTimers();
+  const list = getKid1TodayWords();
+  if (kid1StageIdx < 0) kid1StageIdx = 0;
+  if (kid1StageIdx >= list.length) kid1StageIdx = list.length - 1;
+  const item = list[kid1StageIdx];
+
+  markKid1StepDone('stage1', item);
+  const tk = ensureTodayTracking();
+  const doneSet = new Set(appState.kid1Progress[tk].stage1);
+  const doneFlags = list.map(w => doneSet.has(w.w.toLowerCase()));
+  renderStampSlots($('stage1Dots'), list.length, kid1StageIdx, doneFlags, true, idx => {
+    SFX.click(); kid1StageIdx = idx; renderKid1Stage(true);
+  });
+  const doneCnt = doneFlags.filter(Boolean).length;
+  $('stage1Counter').textContent = `${kid1StageIdx + 1} / ${list.length}`;
+  $('stage1LinearFill').style.width = `${Math.round((doneCnt / list.length) * 100)}%`;
+
+  renderAlphablocksInto($('kid1BlockStage'), item.t, !!item.me, 'lg', true, item.w);
+  $('kid1BigWord').textContent = item.w;
+  $('kid1BigKo').textContent = item.m;
+  $('kid1MagicNote').innerHTML = item.me
+    ? `<div class="magic-note">🎩 매직E가 앞 모음을 길게 바꿔요!</div>`
+    : '';
+
+  $('kid1PrevBtn').style.visibility = kid1StageIdx === 0 ? 'hidden' : 'visible';
+  const nextBtn = $('kid1NextBtn');
+  if (kid1StageIdx === list.length - 1) {
+    nextBtn.className = 'btn3d mint lg';
+    nextBtn.textContent = '② 블록 조립 ▶';
+  } else {
+    nextBtn.className = 'btn3d blue round-lg';
+    nextBtn.textContent = '▶';
+  }
+
+  if (autoSpeak) speakWord(item.w);
+}
+
+function waveKid1StageBlocks() {
+  $('kid1BlockStage').querySelectorAll('.ab-unit').forEach((u, i) => {
+    setTimeout(() => { u.classList.remove('jumping'); void u.offsetWidth; u.classList.add('jumping'); }, i * 85);
+  });
+}
+
+function playKid1BlendedWord() {
+  clearBlendTimers();
+  const list = getKid1TodayWords();
+  const item = list[kid1StageIdx];
+  const units = [...$('kid1BlockStage').querySelectorAll('.ab-unit')];
+  const stepMs = units.length >= 7 ? 580 : 780;
+  let delay = 0;
+  units.forEach(u => {
+    const slug = u.dataset.slug, ko = u.dataset.ko, isMagic = u.dataset.magice === '1';
+    blendTimers.push(setTimeout(() => {
+      units.forEach(x => x.classList.remove('speaking-now'));
+      u.classList.add('speaking-now', 'jumping');
+      setTimeout(() => u.classList.remove('jumping'), 440);
+      if (isMagic) SFX.magic();
+      else if (ko === '묵음') SFX.hush();
+      else playPhonemeBySlug(slug, ko);
+    }, delay));
+    delay += (ko === '묵음' ? 420 : stepMs);
+  });
+  blendTimers.push(setTimeout(() => {
+    units.forEach(x => x.classList.remove('speaking-now'));
+    waveKid1StageBlocks();
+    speakWord(item.w);
+  }, delay + 180));
+}
+
+let battleIdx = 0, battleWord = null, battlePlaced = [], battlePool = [], battleSolved = false;
+
+function updateBattleProgressUI() {
+  const list = getKid1TodayWords();
+  const tk = ensureTodayTracking();
+  const doneSet = new Set(appState.kid1Progress[tk].assemble);
+  const doneFlags = list.map(w => doneSet.has(w.w.toLowerCase()));
+  renderStampSlots($('battleDots'), list.length, battleIdx, doneFlags, true, idx => {
+    SFX.click(); battleIdx = idx; loadBattleWord();
+  });
+  const doneCnt = doneFlags.filter(Boolean).length;
+  $('battleCounter').textContent = `${battleIdx + 1} / ${list.length}`;
+  $('battleLinearFill').style.width = `${Math.round((doneCnt / list.length) * 100)}%`;
+}
+
+function loadBattleWord() {
+  const list = getKid1TodayWords();
+  if (battleIdx < 0) battleIdx = 0;
+  if (battleIdx >= list.length) battleIdx = 0;
+  battleWord = list[battleIdx];
+  battlePlaced = []; battleSolved = false;
+  battlePool = shuffle(battleWord.t.map((tk, origIdx) => ({ ...tk, origIdx })));
+
+  updateBattleProgressUI();
+  $('battleKo').textContent = battleWord.m;
+  $('battleMsg').textContent = '';
+
+  const nextBtn = $('battleNextBtn');
+  if (battleIdx === list.length - 1) {
+    nextBtn.className = 'btn3d purple lg';
+    nextBtn.textContent = '③ 소리 찾기 ▶';
+  } else {
+    nextBtn.className = 'btn3d mint lg';
+    nextBtn.textContent = '다음 ▶';
+  }
+
+  renderBattleBoard();
+  setTimeout(() => speakWord(battleWord.w), 240);
+}
+
+function renderBattleBoard() {
+  const tray = $('battleSlotTray'), total = battleWord.t.length;
+  const hyphenSplit = findHyphenTokenSplit(battleWord.w, battleWord.t);
+  tray.classList.toggle('complete', battleSolved);
+
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    if (hyphenSplit === i) html += `<span class="word-hyphen-sep">-</span>`;
+    if (i < battlePlaced.length) {
+      const p = battlePlaced[i], rawG = p.g.replace(/^-/, '');
+      const isMagic = !!battleWord.me && p.origIdx === total - 1 && rawG === 'e' && p.ko === '묵음';
+      const isSil = p.ko === '묵음' && !isMagic;
+      const cls = isMagic ? 'c-magic' : (isSil ? 'c-silent' : (rawG.length > 1 ? 'c-team' : ''));
+      const koTxt = isMagic ? '🎩매직E' : p.ko;
+      html += `<span class="letter-chunk-filled ${cls}">
+        <span class="lcf-txt">${esc(rawG)}</span>
+        <span class="lcf-ko">${esc(koTxt)}</span>
+      </span>`;
+    } else {
+      html += `<span class="letter-chunk-empty">${i + 1}</span>`;
+    }
+  }
+  tray.innerHTML = html;
+
+  const usedSet = new Set(battlePlaced.map(p => p.poolIdx));
+  const poolEl = $('battleTilePool');
+  poolEl.classList.toggle('compact', total >= 7);
+  poolEl.innerHTML = battlePool.map((p, poolIdx) => {
+    const rawG = p.g.replace(/^-/, '');
+    const isMagic = !!battleWord.me && p.origIdx === total - 1 && rawG === 'e' && p.ko === '묵음';
+    const imgs = isMagic
+      ? `<img src="${AB_IMGS.magicE}" alt="MagicE"/>`
+      : rawG.split('').map(ch => `<img src="${AB_IMGS[ch]||AB_IMGS.a}" alt="${esc(ch)}"/>`).join('');
+    return `<button type="button" class="piece-btn${usedSet.has(poolIdx)?' used':''}" data-pidx="${poolIdx}">
+      <div class="p-imgs">${imgs}</div>
+      <span class="p-lbl">${isMagic ? '🎩 e' : esc(p.g)}</span>
+      <span class="p-ko">${isMagic ? '매직E' : esc(p.ko)}</span>
+    </button>`;
+  }).join('');
+
+  poolEl.querySelectorAll('.piece-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (battleSolved) return;
+      const poolIdx = Number(btn.dataset.pidx), chosen = battlePool[poolIdx];
+      const expected = battleWord.t[battlePlaced.length];
+      if (chosen.g === expected.g) {
+        battlePlaced.push({ ...chosen, poolIdx });
+        const finishedNow = battlePlaced.length === battleWord.t.length;
+        if (finishedNow) {
+          battleSolved = true;
+          renderBattleBoard();
+          SFX.correct(); Confetti.burst(45);
+          markKid1StepDone('assemble', battleWord);
+          updateBattleProgressUI();
+          $('battleMsg').textContent = `🎉 완성! "${battleWord.w}" (${battleWord.m})`;
+          speakWord(battleWord.w);
+        } else {
+          renderBattleBoard();
+          const isMagic = !!battleWord.me && chosen.origIdx === total - 1 && chosen.g.replace(/^-/, '') === 'e' && chosen.ko === '묵음';
+          if (isMagic) SFX.magic();
+          else if (chosen.ko === '묵음') SFX.hush();
+          else { SFX.pop(); playPhonemeBySlug(mapToPhonemeSlug(chosen.g, chosen.ko, chosen.pos), chosen.ko); }
+        }
+      } else {
+        SFX.wrong();
+        recordKid1Mistake(battleWord.id);
+        btn.style.animation = 'shakeWrong .32s ease';
+        $('battleMsg').textContent = `앗! 다른 블록을 골라 볼까요?`;
+        setTimeout(() => btn.style.animation = '', 350);
+      }
+    });
+  });
+}
+
+let sentIdx = 0, sentMode = 'blank', sentSolved = false, relayWords = [], relayPicked = [], relayPool = [];
+
+function loadSentenceQuest() {
+  const q = SENTENCE_QUESTS[sentIdx % SENTENCE_QUESTS.length];
+  sentSolved = false;
+  $('sentKoDisplay').textContent = q.k;
+  $('sentMsg').textContent = '';
+  renderHud();
+
+  if (sentMode === 'blank') {
+    $('sentBlankArea').style.display = 'block'; $('sentRelayArea').style.display = 'none';
+    const reBlank = new RegExp(`\\b${q.blank}\\b`, 'i');
+    $('sentEnDisplay').innerHTML = esc(q.s).replace(reBlank, `<span class="sent-blank" id="sentBlankSpan">?</span>`);
+    const wrap = $('sentBlankOpts');
+    wrap.innerHTML = shuffle(q.opts).map(o => `<button type="button" class="quiz-opt" data-sopt="${esc(o)}">${esc(o)}</button>`).join('');
+    wrap.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (sentSolved) return;
+        const val = btn.dataset.sopt;
+        if (val.toLowerCase() === q.blank.toLowerCase()) {
+          sentSolved = true; btn.classList.add('correct');
+          const sp = $('sentBlankSpan'); if (sp) { sp.textContent = val; sp.classList.add('filled'); }
+          SFX.correct(); Confetti.burst(45);
+          $('sentMsg').textContent = '🌟 문장 완성! 정말 잘했어요!';
+          speakSentenceByIdx(sentIdx % SENTENCE_QUESTS.length, q.s);
+        } else {
+          btn.classList.add('wrong'); SFX.wrong();
+          setTimeout(() => btn.classList.remove('wrong'), 450);
+        }
+      });
+    });
+  } else {
+    $('sentBlankArea').style.display = 'none'; $('sentRelayArea').style.display = 'block';
+    $('sentEnDisplay').innerHTML = `<span style="color:#6985a1;font-size:19px">단어 블록을 순서대로 터치하세요!</span>`;
+    relayWords = q.s.split(' '); relayPicked = [];
+    relayPool = shuffle(relayWords.map((w, i) => ({ w, i })));
+    renderRelayBoard();
+  }
+  setTimeout(() => speakSentenceByIdx(sentIdx % SENTENCE_QUESTS.length, q.s), 240);
+}
+
+function renderRelayBoard() {
+  const q = SENTENCE_QUESTS[sentIdx % SENTENCE_QUESTS.length];
+  $('sentRelayTray').innerHTML = relayPicked.length
+    ? relayPicked.map(item => `<span class="word-tile3d picked">${esc(item.w)}</span>`).join('')
+    : `<span style="color:#789ab5;font-weight:800;font-size:14px">여기에 문장이 조립돼요</span>`;
+  const used = new Set(relayPicked.map(x => x.pidx));
+  const poolEl = $('sentRelayPool');
+  poolEl.innerHTML = relayPool.map((item, pidx) =>
+    `<button type="button" class="word-tile3d" data-rp="${pidx}" style="${used.has(pidx)?'opacity:.22;pointer-events:none':''}">${esc(item.w)}</button>`
+  ).join('');
+  poolEl.querySelectorAll('.word-tile3d').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (sentSolved) return;
+      const pidx = Number(btn.dataset.rp), item = relayPool[pidx];
+      if (item.w === relayWords[relayPicked.length]) {
+        SFX.pop(); relayPicked.push({ ...item, pidx }); renderRelayBoard();
+        if (relayPicked.length === relayWords.length) {
+          sentSolved = true; $('sentEnDisplay').textContent = q.s;
+          SFX.correct(); Confetti.burst(45);
+          $('sentMsg').textContent = '🌟 문장 조립 완료! 멋져요!';
+          speakSentenceByIdx(sentIdx % SENTENCE_QUESTS.length, q.s);
+        }
+      } else {
+        SFX.wrong(); btn.style.animation = 'shakeWrong .32s ease';
+        setTimeout(() => btn.style.animation = '', 350);
+      }
+    });
+  });
+}
+
+let boss1Queue = [], boss1Pos = 0, boss1Target = null, boss1Solved = false;
+
+function startBoss1Session() {
+  boss1Queue = shuffle(getKid1TodayWords());
+  boss1Pos = 0;
+  loadBoss1();
+}
+
+function updateBoss1ProgressUI(stampedCurrent=false) {
+  const total = boss1Queue.length;
+  const doneFlags = boss1Queue.map((_, i) => i < boss1Pos || (stampedCurrent && i === boss1Pos));
+  renderStampSlots($('boss1Stamps'), total, boss1Pos, doneFlags, false);
+  const doneCnt = doneFlags.filter(Boolean).length;
+  $('boss1LinearFill').style.width = `${Math.round((doneCnt / total) * 100)}%`;
+}
+
+function loadBoss1() {
+  if (!boss1Queue.length) boss1Queue = shuffle(getKid1TodayWords());
+  boss1Target = boss1Queue[boss1Pos % boss1Queue.length];
+  boss1Solved = false;
+  const total = boss1Queue.length;
+  const isLast = boss1Pos >= total - 1;
+
+  $('boss1RulePill').textContent = `🎧 3단계 · 오늘의 소리 찾기 (${Math.min(boss1Pos + 1, total)} / ${total})`;
+  updateBoss1ProgressUI(false);
+  $('boss1Msg').textContent = '';
+  $('boss1Reveal').classList.remove('show');
+  $('boss1NextBtn').textContent = isLast ? '🌟 오늘 공부 완료!' : '다음 문제 ▶';
+
+  const wl = boss1Target.w.toLowerCase();
+  const distractors = SIMILAR_800[wl] || ['cat', 'bat', 'hat'];
+  const opts = shuffle([boss1Target.w, ...distractors]);
+
+  const wrap = $('boss1Opts');
+  wrap.innerHTML = opts.map(o => `<button type="button" class="quiz-opt" data-aopt="${esc(o)}" style="${o.length>=10?'font-size:clamp(17px,4vw,22px)':''}">${esc(o)}</button>`).join('');
+  wrap.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (boss1Solved) return;
+      const val = btn.dataset.aopt;
+      if (val.toLowerCase() === wl) {
+        boss1Solved = true; btn.classList.add('correct');
+        SFX.correct(); Confetti.burst(55);
+        markKid1StepDone('boss1', boss1Target);
+        updateBoss1ProgressUI(true);
+        $('boss1Msg').textContent = `정답이에요! 🌟 "${boss1Target.w}"`;
+        renderAlphablocksInto($('boss1Blocks'), boss1Target.t, !!boss1Target.me, 'md', true, boss1Target.w);
+        $('boss1Ans').textContent = `${boss1Target.w} · ${boss1Target.m}`;
+        $('boss1Reveal').classList.add('show');
+        speakWord(boss1Target.w);
+      } else {
+        btn.classList.add('wrong'); SFX.wrong();
+        recordKid1Mistake(boss1Target.id);
+        $('boss1Msg').textContent = `아쉬워요! 위 스피커를 다시 듣고 골라 봐요!`;
+        setTimeout(() => btn.classList.remove('wrong'), 480);
+      }
+    });
+  });
+  setTimeout(() => speakWord(boss1Target.w), 240);
+}
+
+// ================================================================
+// PARENT TOOLS: 44-PHONEME CHECKLIST, 800 SEARCH, A4 WORKSHEET
+// ================================================================
+function render44Checklist() {
+  updateOfflineStatsUI();
+  $('pm44List').innerHTML = PHONEMES_44.map(p => {
+    const ok = !!storedAudioUrls['ph_' + p.slug];
+    return `<div class="ph44-item${ok?' loaded':''}" data-phslug="${p.slug}">
+      <span class="ph-play" data-phslug="${p.slug}">${ok?'✅':'⬜'} <strong>${p.slug}</strong> <span style="color:#64748b">${p.ko}</span></span>
+      <span class="ph-act">
+        <button type="button" class="ph-mini-btn" data-regenph="${p.slug}" title="이 음가만 다시 생성">🔄</button>
+      </span>
+    </div>`;
+  }).join('');
+  $('pm44List').querySelectorAll('.ph-play').forEach(el => {
+    el.addEventListener('click', () => { SFX.click(); playPhonemeBySlug(el.dataset.phslug); });
+  });
+  $('pm44List').querySelectorAll('[data-regenph]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); SFX.click(); regenerateSinglePhoneme(btn.dataset.regenph); });
+  });
+}
+
+function render50Checklist() {
+  updateOfflineStatsUI();
+  $('pm50List').innerHTML = SENTENCE_QUESTS.map((q, i) => {
+    const key = 'sent_' + String(i).padStart(2, '0');
+    const ok = !!storedAudioUrls[key];
+    return `<div class="sent-row${ok?' loaded':''}">
+      <span class="s-play" data-sidx="${i}" style="cursor:pointer;flex:1;text-align:left">${ok?'✅':'⬜'} <strong>${i+1}.</strong> ${esc(q.s)}</span>
+      <button type="button" class="ph-mini-btn" data-regensent="${i}" title="이 문장만 다시 생성">🔄</button>
+    </div>`;
+  }).join('');
+  $('pm50List').querySelectorAll('.s-play').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = Number(el.dataset.sidx);
+      SFX.click(); speakSentenceByIdx(i, SENTENCE_QUESTS[i].s);
+    });
+  });
+  $('pm50List').querySelectorAll('[data-regensent]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); SFX.click(); regenerateSingleSentence(Number(btn.dataset.regensent)); });
+  });
+}
+
+let sToken='all', sSubPron='all', sPos='all', sDay='all', sQuery='', sLimit=30;
+function initParentTools() {
+  const d1 = $('searchDaySelect'), d2 = $('printDaySelect'), d3 = $('pmKid1DaySelect');
+  for (let d=1; d<=80; d++) {
+    const lbl = `Day ${String(d).padStart(2,'0')} (${(d-1)*10+1}~${d*10})`;
+    const o1 = document.createElement('option'); o1.value = d; o1.textContent = lbl; d1.appendChild(o1);
+    const o2 = document.createElement('option'); o2.value = d; o2.textContent = lbl; d2.appendChild(o2);
+    const o3 = document.createElement('option'); o3.value = d; o3.textContent = lbl; d3.appendChild(o3);
+  }
+  const row = $('searchTokenRow');
+  row.innerHTML = `<button type="button" class="pill3d on" data-stok="all">전체 46종</button>` +
+    CANONICAL_TOKENS.map(tk => `<button type="button" class="pill3d" data-stok="${esc(tk)}">${esc(tk)}</button>`).join('');
+  row.querySelectorAll('.pill3d').forEach(btn => {
+    btn.addEventListener('click', () => {
+      SFX.click(); sToken = btn.dataset.stok; sSubPron = 'all'; sLimit = 30;
+      row.querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.stok === sToken));
+      renderSubPronChips(); renderSearchResults();
+    });
+  });
+}
+function renderSubPronChips() {
+  const wrap = $('searchSubPronWrap'), row = $('searchSubPronRow');
+  if (sToken === 'all') { wrap.style.display = 'none'; return; }
+  const prons = new Set();
+  WORDS_800.forEach(w => w.t.forEach(tk => { if (tk.g === sToken) prons.add(tk.ko); }));
+  const arr = [...prons];
+  if (arr.length <= 1) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  row.innerHTML = `<button type="button" class="pill3d on" data-spron="all">${esc(sToken)} 전체</button>` +
+    arr.map(p => `<button type="button" class="pill3d" data-spron="${esc(p)}">${esc(sToken)} ${esc(p)}</button>`).join('');
+  row.querySelectorAll('.pill3d').forEach(btn => {
+    btn.addEventListener('click', () => {
+      SFX.click(); sSubPron = btn.dataset.spron; sLimit = 30;
+      row.querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.spron === sSubPron));
+      renderSearchResults();
+    });
+  });
+}
+function renderSearchResults() {
+  const q = sQuery.trim().toLowerCase();
+  const list = WORDS_800.filter(w => {
+    if (sPos === 'verb' && !w.v) return false;
+    if (sPos === 'nonverb' && w.v) return false;
+    if (sPos === 'magice' && !w.me) return false;
+    if (sDay !== 'all' && w.day !== Number(sDay)) return false;
+    if (sToken !== 'all' && !w.t.some(tk => tk.g === sToken && (sSubPron === 'all' || tk.ko === sSubPron))) return false;
+    if (q && !w.w.toLowerCase().includes(q) && !w.m.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  $('searchCountBadge').textContent = `${list.length}단어`;
+  const grid = $('searchResultsGrid'), shown = list.slice(0, sLimit);
+  if (!shown.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px;font-weight:800;color:var(--muted)">조건에 맞는 단어가 없어요.</div>`;
+    $('searchLoadMoreBtn').style.display = 'none'; return;
+  }
+  const pinSet = new Set(appState.pinnedIds);
+  grid.innerHTML = shown.map(w => {
+    const pCls = w.pos==='동사'?'v':(w.pos==='동사+타품사'?'vm':(w.pos==='조동사'?'mod':'nv'));
+    const isPin = pinSet.has(w.id);
+    return `<div class="w-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;font-weight:900;color:#6c879e">#${String(w.id).padStart(3,'0')} · Day ${String(w.day).padStart(2,'0')}</span>
+        <div style="display:flex;gap:4px">${w.me?'<span class="pos-tag mod">🎩매직E</span>':''}<span class="pos-tag ${pCls}">${esc(w.pos)}</span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:21px;font-weight:900;color:#123456;cursor:pointer" data-say="${esc(w.w)}">${esc(w.w)} 🔊</span>
+        <span style="font-size:13.5px;font-weight:800;color:#c95a00">${esc(w.m)}</span>
+      </div>
+      <div class="ab-row sm" data-wid="${w.id}"></div>
+      <div style="display:flex;justify-content:space-between;gap:6px;padding-top:4px;border-top:1.5px dashed #e1eef7">
+        <button type="button" class="btn3d sm gold" data-say="${esc(w.w)}">🔊 듣기</button>
+        <button type="button" class="btn3d sm ${isPin?'mint':''}" data-pin="${w.id}">${isPin?'✅ 담김':'📌 학습지'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  const wMap = new Map(shown.map(w => [w.id, w]));
+  grid.querySelectorAll('.ab-row[data-wid]').forEach(el => {
+    const w = wMap.get(Number(el.dataset.wid));
+    if (w) renderAlphablocksInto(el, w.t, !!w.me, 'sm', true);
+  });
+  grid.querySelectorAll('[data-say]').forEach(el => el.addEventListener('click', () => { SFX.pop(); speakWord(el.dataset.say); }));
+  grid.querySelectorAll('[data-pin]').forEach(btn => btn.addEventListener('click', () => {
+    SFX.click(); const id = Number(btn.dataset.pin), idx = appState.pinnedIds.indexOf(id);
+    if (idx >= 0) appState.pinnedIds.splice(idx, 1); else appState.pinnedIds.push(id);
+    saveState(); renderHud(); renderSearchResults();
+  }));
+  const more = $('searchLoadMoreBtn');
+  if (list.length > sLimit) { more.style.display = 'inline-flex'; more.textContent = `더 보기 (+30개 · 남은 ${list.length - sLimit}개)`; }
+  else more.style.display = 'none';
+}
+
+let printSeed = 0;
+function renderWorksheet() {
+  const preset = $('printPresetSelect').value;
+  const profKey = $('printProfileSelect').value || appState.profile;
+  const count = Number($('printCountSelect').value) || 10;
+  $('printDaySelect').style.display = preset === 'day' ? 'inline-block' : 'none';
+  $('printCountSelect').style.display = (preset === 'today' || preset === 'kid1plan') ? 'none' : 'inline-block';
+
+  const tk = ensureTodayTracking();
+  let pool = [], title = '', subtitle = '알파블럭스를 보며 소리 내어 읽고 아래 칸에 써 보세요!';
+
+  if (preset === 'today') {
+    const logged = (appState.dailyLog[tk] && appState.dailyLog[tk][profKey]) || [];
+    if (profKey === 'kid1') {
+      // Combine today's learned words with today's configured N words so every planned/learned word is included!
+      const planned = getKid1TodayWords();
+      const map = new Map();
+      logged.forEach(w => { const obj = resolveWordObj(w); if (obj) map.set(obj.w.toLowerCase(), obj); });
+      planned.forEach(obj => { if (!map.has(obj.w.toLowerCase())) map.set(obj.w.toLowerCase(), obj); });
+      pool = [...map.values()];
+      title = `⭐ 오늘 학습한 영단어 일일학습지 (${pool.length}단어)`;
+      subtitle = logged.length
+        ? `오늘 직접 학습한 단어 ${logged.length}개 포함 · 알파블럭스를 보며 소리 내어 쓰고 읽어 보세요!`
+        : `오늘 배울 첫째 맞춤 ${pool.length}단어 · 알파블럭스를 보며 소리 내어 쓰고 읽어 보세요!`;
+    } else {
+      pool = logged.map(w => resolveWordObj(w)).filter(Boolean);
+      if (pool.length) {
+        title = `⭐ 둘째 오늘 학습한 단어 일일학습지 (${pool.length}단어)`;
+        subtitle = `오늘 알파블럭스 모드에서 직접 공부한 ${pool.length}단어예요!`;
+      } else {
+        pool = (STARTER_BY_LETTER.c || []).map(it => resolveWordObj(it.w)).filter(Boolean);
+        title = `⭐ 둘째 일일학습지 (오늘 학습 전 · 예시 단어)`;
+        subtitle = `둘째가 알파블럭스 모드에서 단어를 배우면 그날 배운 단어가 자동으로 들어와요!`;
+      }
+    }
+  } else if (preset === 'kid1plan') {
+    pool = getKid1TodayWords();
+    title = `⚽ 첫째 오늘 설정 영단어 (${pool.length}단어)`;
+  } else if (preset === 'day') {
+    const d = Number($('printDaySelect').value) || 1;
+    pool = WORDS_800.filter(w => w.day === d);
+    title = `Day ${String(d).padStart(2,'0')} 초등필수 영단어 일일학습지`;
+  } else if (preset === 'oo') { pool = WORDS_800.filter(w=>w.t.some(tk=>tk.g==='oo'&&tk.ko==='[우]')); title = '파닉스 특강: oo [우] 학습지'; }
+  else if (preset === 'ch') { pool = WORDS_800.filter(w=>w.t.some(tk=>tk.g==='ch')); title = '파닉스 특강: ch [취/ㅋ/쉬] 학습지'; }
+  else if (preset === 'sh') { pool = WORDS_800.filter(w=>w.t.some(tk=>tk.g==='sh')); title = '파닉스 특강: sh [쉬] 학습지'; }
+  else if (preset === 'th') { pool = WORDS_800.filter(w=>w.t.some(tk=>tk.g==='th')); title = '파닉스 특강: th [ㄷ/ㅆ] 학습지'; }
+  else if (preset === 'eaee') { pool = WORDS_800.filter(w=>w.t.some(tk=>(tk.g==='ea'||tk.g==='ee')&&tk.ko==='[이:]')); title = '파닉스 특강: ea·ee [이:] 학습지'; }
+  else if (preset === 'magice') { pool = WORDS_800.filter(w=>w.me===1); title = '🎩 매직E (Magic E) 집중 학습지'; }
+  else if (preset === 'cs') { pool = [...WORDS_800.filter(w=>w.t.some(tk=>tk.g==='c'&&tk.ko==='[ㅅ]')).slice(0,5), ...WORDS_800.filter(w=>w.t.some(tk=>tk.g==='c'&&tk.ko==='[ㅋ]')).slice(0,5)]; title = 'c [ㅅ] vs c [ㅋ] 비교 학습지'; }
+  else if (preset === 'verb') { pool = WORDS_800.filter(w=>w.v===1); title = '🏃 초등 핵심 동사 일일학습지'; }
+  else if (preset === 'pinned') { const st = new Set(appState.pinnedIds); pool = WORDS_800.filter(w=>st.has(w.id)); title = '📌 내가 담은 맞춤 파닉스 학습지'; }
+
+  if (!pool.length) pool = WORDS_800.slice(0, count);
+  if (preset !== 'today' && preset !== 'kid1plan' && preset !== 'day' && preset !== 'pinned' && pool.length > count) {
+    const start = (printSeed * count) % pool.length;
+    pool = [...pool.slice(start), ...pool.slice(0, start)].slice(0, count);
+  } else if (preset !== 'today' && preset !== 'kid1plan') {
+    pool = pool.slice(0, count);
+  }
+
+  const child = $('printChildName').value.trim() || appState.profiles[profKey].name;
+  const now = new Date(), dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  const cardsHtml = pool.map((w, idx) => {
+    const imgs = w.t.map((tk, ti) => {
+      const rawG = tk.g.replace(/^-/, ''), isMagic = !!w.me && ti===w.t.length-1 && rawG==='e' && tk.ko==='묵음', isSil = tk.ko==='묵음' && !isMagic;
+      if (isMagic) return `<img src="${AB_IMGS.magicE}" alt="MagicE"/>`;
+      return rawG.split('').map(ch => `<img class="${isSil?'ws-sil':''}" src="${AB_IMGS[ch]||AB_IMGS.a}" alt="${esc(ch)}"/>`).join('');
+    }).join('');
+    const phonStr = w.t.map(tk => `${tk.g}${tk.ko.startsWith('[')?tk.ko:'('+tk.ko+')'}`).join(' + ');
+    return `<div class="ws-item">
+      <div class="ws-item-top"><span class="ws-word">${idx+1}. ${esc(w.w)}</span><span class="ws-meaning">${esc(w.m)}</span></div>
+      <div class="ws-blocks" style="--chars:${countTotalChars(w.t)}">${imgs}</div>
+      <div class="ws-phon">${esc(phonStr)}</div>
+      <div class="ws-lines"></div>
+    </div>`;
+  }).join('');
+  const blanksHtml = pool.slice(0, Math.min(8, pool.length)).map((w, i) => {
+    const hi = Math.min(1, Math.max(0, w.w.length - 2));
+    return `<div>${i+1}) ${esc(w.w.slice(0,hi) + ' ___ ' + w.w.slice(hi+1))} <span style="color:#b45309">(${esc(w.m)})</span></div>`;
+  }).join('');
+
+  $('a4Sheet').innerHTML = `
+    <div class="ws-head">
+      <div><div class="ws-title">${esc(title)}</div><div style="font-size:9.5pt;font-weight:700;color:#475569;margin-top:2px">${esc(subtitle)}</div></div>
+      <div class="ws-meta"><div>이름: <strong>${esc(child)}</strong> | 날짜: ${dateStr}</div><div>별점: ☆ ☆ ☆ ☆ ☆</div></div>
+    </div>
+    <div class="ws-grid">${cardsHtml}</div>
+    <div class="ws-mini-box"><div class="ws-mini-title">🎯 오늘 배운 단어 빈칸 채우기 미션</div><div class="ws-mini-grid">${blanksHtml}</div></div>
+  `;
+}
+
+// ================================================================
+// PARENT SETTINGS: KID 1 DAILY WORD PLAN UI + ADDITION MATH GATE
+// ================================================================
+function renderParentKid1PlanUI() {
+  const plan = appState.kid1Plan;
+  const cnt = Math.max(1, Math.min(20, Number(plan.count) || 5));
+  plan.count = cnt;
+  $('pmKid1CountInput').value = cnt;
+  document.querySelectorAll('[data-k1cnt]').forEach(b => b.classList.toggle('on', Number(b.dataset.k1cnt) === cnt));
+
+  const src = plan.source || 'stage_rand';
+  $('pmKid1SourceSelect').value = src;
+  $('pmKid1StageRow').style.display = src === 'stage_rand' ? 'block' : 'none';
+  $('pmKid1RuleRow').style.display = src === 'rule_rand' ? 'block' : 'none';
+  $('pmKid1SeqRow').style.display = src === 'seq' ? 'flex' : 'none';
+  $('pmKid1DayRow').style.display = src === 'day' ? 'block' : 'none';
+  $('pmKid1DaySelect').value = plan.day || 1;
+  $('pmKid1RuleSelect').value = plan.rule || 'magice';
+  $('pmKid1MixReview').checked = plan.mixReview !== false;
+  $('pmKid1RerollBtn').style.display = (src === 'stage_rand' || src === 'rule_rand' || src === 'theme_rand') ? 'inline-flex' : 'none';
+
+  const curStage = Math.max(1, Math.min(5, Number(plan.stage) || 1));
+  document.querySelectorAll('[data-k1st]').forEach(b => b.classList.toggle('on', Number(b.dataset.k1st) === curStage));
+
+  const masteredSet = new Set(appState.kid1MasteredIds || []);
+  const wrongCnt = (appState.kid1WrongIds || []).length;
+  const stageWords = WORDS_800.filter(w => w.st === curStage);
+  const stageDone = stageWords.filter(w => masteredSet.has(w.id)).length;
+  $('pmKid1StageProg').textContent = `${STAGE_NAMES[curStage]} 완료: ${stageDone} / ${stageWords.length} (오답 복습 대기 ${wrongCnt}개)`;
+
+  const list = getKid1TodayWords();
+  const revSet = new Set(plan.todayReviewIds || []);
+  const tk = ensureTodayTracking();
+  const learnedSet = new Set((appState.dailyLog[tk] && appState.dailyLog[tk].kid1) || []);
+
+  if (src === 'stage_rand') {
+    $('pmKid1RangeLbl').textContent = `${STAGE_NAMES[curStage]} · 미학습 랜덤`;
+  } else if (src === 'rule_rand') {
+    const sel = $('pmKid1RuleSelect');
+    const rTxt = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text.split('(')[0].trim() : '규칙 묶음';
+    $('pmKid1RangeLbl').textContent = `${rTxt} · 랜덤`;
+  } else if (src === 'theme_rand') {
+    const tPool = WORDS_800.filter(w => w.th === 1);
+    const tDone = tPool.filter(w => masteredSet.has(w.id)).length;
+    $('pmKid1RangeLbl').textContent = `입문 핵심 주제별 (${tDone}/${tPool.length} 완료)`;
+  } else if (src === 'seq') {
+    const setNum = Math.floor((plan.offset || 0) / cnt) + 1;
+    const totalSets = Math.ceil(WORDS_800.length / cnt);
+    $('pmKid1SetInfo').textContent = `세트 ${setNum} / ${totalSets}`;
+    $('pmKid1RangeLbl').textContent = `#${String(list[0].id).padStart(3,'0')} ~ #${String(list[list.length-1].id).padStart(3,'0')} (${list.length}단어)`;
+  } else if (src === 'day') {
+    $('pmKid1RangeLbl').textContent = `Day ${String(plan.day).padStart(2,'0')} 기준 (${list.length}단어)`;
+  } else {
+    $('pmKid1RangeLbl').textContent = appState.pinnedIds.length ? `검색기 담은 단어 (${list.length}단어)` : `담은 단어 없음`;
+  }
+
+  $('pmKid1PreviewChips').innerHTML = list.map((w, i) => {
+    const isDone = learnedSet.has(w.w.toLowerCase());
+    const isRev = revSet.has(w.id);
+    const cls = isDone ? 'tp-chip done' : (isRev ? 'tp-chip rev' : 'tp-chip');
+    const prefix = isDone ? '✅ ' : (isRev ? '🔁 ' : '');
+    return `<span class="${cls}">${prefix}${i+1}. ${esc(w.w)} (${esc(w.m)})</span>`;
+  }).join('');
+}
+
+let gateAns = 0;
+function openParentGate() {
+  const a = 12 + Math.floor(Math.random() * 17); // 12..28
+  const b = 13 + Math.floor(Math.random() * 17); // 13..29
+  gateAns = a + b;
+  $('gateEqText').textContent = `${a} + ${b} = ?`;
+  $('gateAnswerInput').value = '';
+  $('gateErrMsg').textContent = '';
+  $('parentGateModal').classList.add('open');
+  setTimeout(() => $('gateAnswerInput').focus(), 100);
+}
+function checkParentGate() {
+  const val = parseInt($('gateAnswerInput').value, 10);
+  if (val === gateAns) {
+    SFX.correct();
+    $('parentGateModal').classList.remove('open');
+    openParentSettingsDirect();
+  } else {
+    SFX.wrong();
+    $('gateErrMsg').textContent = '앗! 다시 계산해 주세요.';
+    $('gateAnswerInput').value = '';
+    $('gateAnswerInput').focus();
+  }
+}
+function openParentSettingsDirect() {
+  $('pmApiKeyInput').value = appState.apiKey || '';
+  $('pmGeminiVoiceSelect').value = appState.geminiVoice || 'Aoede';
+  renderParentKid1PlanUI();
+  renderHud(); render44Checklist(); render50Checklist();
+  $('parentModal').classList.add('open');
+}
+
+// ================================================================
+// EVENT BINDINGS & INIT
+// ================================================================
+$('door1Mascots').innerHTML = ['c','a','t'].map(ch => `<img src="${AB_IMGS[ch]}" alt="${ch}"/>`).join('');
+$('door2Mascots').innerHTML = ['b','i','k'].map(ch => `<img src="${AB_IMGS[ch]}" alt="${ch}"/>`).join('') + `<img src="${AB_IMGS.magicE}" alt="MagicE"/>`;
+
+$('backBtn').addEventListener('click', () => { SFX.click(); goScreen(BACK_MAP[curScreen] || 'home'); });
+$('enterAlphaBtn').addEventListener('click', () => { SFX.pop(); appState.profile='kid2'; saveState(); goScreen('az'); });
+$('enterBattleBtn').addEventListener('click', () => { SFX.pop(); appState.profile='kid1'; saveState(); goScreen('hub1'); });
+
+// Kid 2 Stage
+$('alphaWordBtn').addEventListener('click', () => {
+  const item = STARTER_BY_LETTER[curLetter][curWordIdx];
+  clearBlendTimers(); SFX.pop(); waveStageBlocks(); recordLearnedWord('kid2', item.w); speakWord(item.w);
+});
+$('alphaBlendBtn').addEventListener('click', () => { SFX.click(); playBlendedWord(); });
+$('alphaPrevBtn').addEventListener('click', () => { SFX.click(); curWordIdx--; renderAlphaStage(true); });
+$('alphaNextBtn').addEventListener('click', () => {
+  const list = STARTER_BY_LETTER[curLetter];
+  SFX.click();
+  if (curWordIdx === list.length - 1) { goScreen('boss2'); startBoss2Session(); }
+  else { curWordIdx++; renderAlphaStage(true); }
+});
+$('stageBossShortcut').addEventListener('click', () => { SFX.click(); goScreen('boss2'); startBoss2Session(); });
+$('boss2SpeakBtn').addEventListener('click', () => { if (boss2Target) { SFX.click(); speakWord(boss2Target.w); } });
+$('boss2NextBtn').addEventListener('click', () => {
+  SFX.click();
+  if (boss2Pos >= boss2Queue.length - 1) {
+    appState.profiles.kid2.mastered[curLetter] = true;
+    saveState(); renderHud();
+    showDoneModal('⭐', `${curLetter.toUpperCase()}${curLetter} 알파벳 도장 쾅!`, `오늘 ${curLetter.toUpperCase()}${curLetter} 소리 찾기를 모두 끝냈어요!`);
+    goScreen('az');
+  } else {
+    boss2Pos++;
+    loadBoss2();
+  }
+});
+
+// Kid 1 Hub & Stages
+$('goStage1Btn').addEventListener('click', () => { SFX.pop(); goScreen('stage1'); });
+$('goAssembleBtn').addEventListener('click', () => { SFX.pop(); goScreen('assemble'); });
+$('goSentenceBtn').addEventListener('click', () => { SFX.pop(); goScreen('sentence'); });
+$('goBoss1Btn').addEventListener('click', () => { SFX.pop(); goScreen('boss1'); });
+
+// Kid 1 Stage 1 (Alphablocks Learning Mode — No Length Limit!)
+$('kid1WordBtn').addEventListener('click', () => {
+  const list = getKid1TodayWords();
+  const item = list[kid1StageIdx];
+  clearBlendTimers(); SFX.pop(); waveKid1StageBlocks();
+  markKid1StepDone('stage1', item);
+  speakWord(item.w);
+});
+$('kid1BlendBtn').addEventListener('click', () => { SFX.click(); playKid1BlendedWord(); });
+$('kid1PrevBtn').addEventListener('click', () => { SFX.click(); kid1StageIdx--; renderKid1Stage(true); });
+$('kid1NextBtn').addEventListener('click', () => {
+  const list = getKid1TodayWords();
+  SFX.click();
+  if (kid1StageIdx === list.length - 1) goScreen('assemble');
+  else { kid1StageIdx++; renderKid1Stage(true); }
+});
+$('stage1ToAssembleBtn').addEventListener('click', () => { SFX.click(); goScreen('assemble'); });
+
+// Kid 1 Step 2: Block Assembly
+$('battleListenBtn').addEventListener('click', () => { if (battleWord) { SFX.click(); speakWord(battleWord.w); } });
+$('battleHintBtn').addEventListener('click', () => {
+  if (!battleWord || battleSolved) return;
+  const expected = battleWord.t[battlePlaced.length], used = new Set(battlePlaced.map(p => p.poolIdx));
+  const idx = battlePool.findIndex((p, i) => !used.has(i) && p.g === expected.g);
+  if (idx >= 0) {
+    SFX.pop(); battlePlaced.push({ ...battlePool[idx], poolIdx: idx });
+    if (battlePlaced.length === battleWord.t.length) {
+      battleSolved = true; renderBattleBoard();
+      SFX.correct(); markKid1StepDone('assemble', battleWord); updateBattleProgressUI();
+      $('battleMsg').textContent = `💡 힌트로 "${battleWord.w}" 완성!`; speakWord(battleWord.w);
+    } else {
+      renderBattleBoard();
+    }
+  }
+});
+$('battleNextBtn').addEventListener('click', () => {
+  const list = getKid1TodayWords();
+  SFX.click();
+  if (battleIdx >= list.length - 1) goScreen('boss1');
+  else { battleIdx++; loadBattleWord(); }
+});
+
+// Kid 1 Sentence Quest
+$('sentModeBlank').addEventListener('click', () => { SFX.click(); sentMode='blank'; $('sentModeBlank').classList.add('on'); $('sentModeRelay').classList.remove('on'); loadSentenceQuest(); });
+$('sentModeRelay').addEventListener('click', () => { SFX.click(); sentMode='relay'; $('sentModeRelay').classList.add('on'); $('sentModeBlank').classList.remove('on'); loadSentenceQuest(); });
+$('sentSpeakBtn').addEventListener('click', () => { SFX.click(); const si = sentIdx % SENTENCE_QUESTS.length; speakSentenceByIdx(si, SENTENCE_QUESTS[si].s); });
+$('sentNextBtn').addEventListener('click', () => { SFX.click(); sentIdx++; loadSentenceQuest(); });
+
+// Kid 1 Step 3: Today's Sound Detective Boss
+$('boss1SpeakBtn').addEventListener('click', () => { if (boss1Target) { SFX.click(); speakWord(boss1Target.w); } });
+$('boss1NextBtn').addEventListener('click', () => {
+  SFX.click();
+  if (boss1Pos >= boss1Queue.length - 1) {
+    showDoneModal('🌟', '오늘 영단어 공부 완료!', `오늘의 ${boss1Queue.length}단어를 3단계까지 모두 마쳤어요!`);
+    goScreen('hub1');
+  } else {
+    boss1Pos++;
+    loadBoss1();
+  }
+});
+
+// Parent Gate (Addition Math Problem!)
+$('gateSubmitBtn').addEventListener('click', checkParentGate);
+$('gateAnswerInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkParentGate(); });
+$('gateRefreshBtn').addEventListener('click', () => { SFX.click(); openParentGate(); });
+$('gateCancelBtn').addEventListener('click', () => { SFX.click(); $('parentGateModal').classList.remove('open'); });
+$('parentGateModal').addEventListener('click', e => { if (e.target === $('parentGateModal')) $('parentGateModal').classList.remove('open'); });
+
+// Kid 1 Plan Controls inside Parent Modal
+function refreshKid1PlanAndScreens(forceFresh=true) {
+  buildKid1WordSet(forceFresh);
+  renderParentKid1PlanUI();
+  renderHud();
+  if (curScreen === 'hub1') renderKid1Hub();
+  if (curScreen === 'stage1') { kid1StageIdx = 0; renderKid1Stage(false); }
+  if (curScreen === 'assemble') { battleIdx = 0; loadBattleWord(); }
+  if (curScreen === 'boss1') startBoss1Session();
+}
+
+document.querySelectorAll('[data-k1cnt]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    SFX.pop();
+    appState.kid1Plan.count = Number(btn.dataset.k1cnt);
+    saveState(); refreshKid1PlanAndScreens(true);
+  });
+});
+$('pmKid1CountInput').addEventListener('change', e => {
+  appState.kid1Plan.count = Math.max(1, Math.min(20, parseInt(e.target.value, 10) || 5));
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmKid1SourceSelect').addEventListener('change', e => {
+  SFX.click();
+  appState.kid1Plan.source = e.target.value;
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+document.querySelectorAll('[data-k1st]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    SFX.pop();
+    appState.kid1Plan.stage = Number(btn.dataset.k1st);
+    saveState(); refreshKid1PlanAndScreens(true);
+  });
+});
+$('pmKid1RuleSelect').addEventListener('change', e => {
+  SFX.click();
+  appState.kid1Plan.rule = e.target.value;
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmKid1MixReview').addEventListener('change', e => {
+  SFX.click();
+  appState.kid1Plan.mixReview = !!e.target.checked;
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmKid1RerollBtn').addEventListener('click', () => {
+  SFX.pop();
+  refreshKid1PlanAndScreens(true);
+});
+$('pmKid1PrevSetBtn').addEventListener('click', () => {
+  SFX.click();
+  const cnt = appState.kid1Plan.count || 5;
+  appState.kid1Plan.offset = Math.max(0, (appState.kid1Plan.offset || 0) - cnt);
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmKid1NextSetBtn').addEventListener('click', () => {
+  SFX.click();
+  const cnt = appState.kid1Plan.count || 5;
+  appState.kid1Plan.offset = ((appState.kid1Plan.offset || 0) + cnt) % WORDS_800.length;
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmKid1DaySelect').addEventListener('change', e => {
+  SFX.click();
+  appState.kid1Plan.day = Number(e.target.value) || 1;
+  saveState(); refreshKid1PlanAndScreens(true);
+});
+$('pmQuickTodayPrintBtn').addEventListener('click', () => {
+  SFX.click();
+  $('parentModal').classList.remove('open');
+  appState.profile = 'kid1'; saveState();
+  $('printPresetSelect').value = 'today';
+  goScreen('print');
+});
+
+// Parent Modal Controls
+$('openParentBtn').addEventListener('click', () => { SFX.click(); openParentGate(); });
+$('closeParentBtn').addEventListener('click', () => { SFX.click(); $('parentModal').classList.remove('open'); });
+$('parentModal').addEventListener('click', e => { if (e.target === $('parentModal')) $('parentModal').classList.remove('open'); });
+
+$('pmApiKeyInput').addEventListener('input', e => { appState.apiKey = e.target.value.trim(); saveState(); });
+$('pmGeminiVoiceSelect').addEventListener('change', e => { appState.geminiVoice = e.target.value; saveState(); });
+
+$('btnGenPhonemes').addEventListener('click', () => { SFX.click(); runBatchPhonemes(); });
+$('btnGenSentences').addEventListener('click', () => { SFX.click(); runBatchSentences(); });
+$('btnSaveCoreWords').addEventListener('click', () => { SFX.click(); runBatchWords(CORE_GAME_WORDS, '핵심 놀이 단어(418)'); });
+$('btnSaveAllWords').addEventListener('click', () => { SFX.click(); runBatchWords(ALL_APP_WORDS, '전체 단어(950)'); });
+$('btnStopBatch').addEventListener('click', () => { batchAbort = true; setProgStatus('⏹ 중지 요청됨...'); });
+
+$('btnExportZip').addEventListener('click', async () => {
+  SFX.click();
+  const items = await getAllAudioBlobsFromDB();
+  if (!items.length) { alert('아직 저장된 오디오가 없어요! 먼저 음가/문장 생성 또는 단어 저장을 눌러 주세요.'); return; }
+  setProgStatus(`📦 오디오 ${items.length}개 ZIP 압축 파일로 묶는 중...`, 60);
+  try {
+    const entries = items.map(({ key, blob }) => {
+      const ext = /mpeg|mp3/i.test(blob.type) ? 'mp3' : (/ogg/i.test(blob.type) ? 'ogg' : 'wav');
+      if (key.startsWith('ph_')) return { path: `sounds/phonemes/${key.slice(3)}.${ext}`, blob };
+      if (key.startsWith('sent_')) return { path: `sounds/sentences/${key}.${ext}`, blob };
+      if (key.startsWith('word_')) return { path: `sounds/words/${key.slice(5)}.${ext}`, blob };
+      return { path: `sounds/${key}.${ext}`, blob };
+    });
+    const zipBlob = await createStoreZipBlob(entries);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = `alphaland_offline_audio_${items.length}files.zip`;
+    a.click();
+    SFX.correct();
+    setProgStatus(`✅ 오디오 팩(${items.length}개, ${(zipBlob.size/(1024*1024)).toFixed(1)}MB) 다운로드 완료!`, 100);
+  } catch (e) {
+    setProgStatus(`⚠️ ZIP 생성 오류: ${e.message}`, 0);
+  }
+});
+
+$('mp3FileInput').addEventListener('change', async e => {
+  const files = [...(e.target.files || [])];
+  if (!files.length) return;
+  let imported = 0;
+  setProgStatus(`📂 파일 불러오는 중...`, 20);
+  const classifyAndSave = async (path, blob) => {
+    const fname = path.split('/').pop().toLowerCase();
+    const base = fname.replace(/\.[^.]+$/, '');
+    if (/^sent_\d+$/.test(base)) { await saveAudioBlob(base, blob); return true; }
+    if (path.includes('/phonemes/') || PH44_MAP[base]) {
+      const slug = base.startsWith('ph_') ? base.slice(3) : base;
+      if (PH44_MAP[slug]) { await saveAudioBlob('ph_' + slug, blob); return true; }
+    }
+    if (path.includes('/words/') || base.startsWith('word_')) {
+      const w = base.startsWith('word_') ? base.slice(5) : base;
+      if (w) { await saveAudioBlob('word_' + w, blob); return true; }
+    }
+    if (/^[a-z' -]+$/.test(base) && base.length >= 1) {
+      await saveAudioBlob('word_' + base, blob); return true;
+    }
+    return false;
+  };
+  try {
+    for (const file of files) {
+      if (/\.zip$/i.test(file.name)) {
+        const entries = await readZipFile(file);
+        for (let i = 0; i < entries.length; i++) {
+          if (await classifyAndSave(entries[i].path, entries[i].blob)) imported++;
+          if (i % 15 === 0) setProgStatus(`📂 ZIP 복원 중... (${imported}개)`, Math.round((i+1)/entries.length*100));
+        }
+      } else {
+        if (await classifyAndSave(file.name, file)) imported++;
+      }
+    }
+    render44Checklist(); render50Checklist(); updateOfflineStatsUI();
+    SFX.correct();
+    setProgStatus(`✅ 총 ${imported}개 오디오를 기기에 영구 저장했어요! (오프라인 사용 가능)`, 100);
+  } catch (err) {
+    alert('파일 불러오기 중 오류: ' + err.message);
+  }
+  e.target.value = '';
+});
+
+$('pmToggle44Btn').addEventListener('click', () => {
+  SFX.click();
+  const w = $('pm44ListWrap');
+  w.style.display = w.style.display === 'none' ? 'block' : 'none';
+  if (w.style.display === 'block') render44Checklist();
+});
+$('pmToggle50Btn').addEventListener('click', () => {
+  SFX.click();
+  const w = $('pm50ListWrap');
+  w.style.display = w.style.display === 'none' ? 'block' : 'none';
+  if (w.style.display === 'block') render50Checklist();
+});
+
+$('pmSpeedGrid').querySelectorAll('.pill3d').forEach(btn => {
+  btn.addEventListener('click', () => {
+    SFX.pop(); appState.audioRate = Number(btn.dataset.rate); saveState(); renderHud();
+    speakWord('apple');
+  });
+});
+$('pmTestWordBtn').addEventListener('click', () => { SFX.click(); speakWord('apple'); });
+$('pmVoiceSelect').addEventListener('change', e => { appState.voiceName = e.target.value; saveState(); speakTTS('I can ride my bike.', 'en-US'); });
+$('pmSwitchKid2').addEventListener('click', () => { SFX.pop(); appState.profile='kid2'; saveState(); renderHud(); });
+$('pmSwitchKid1').addEventListener('click', () => { SFX.pop(); appState.profile='kid1'; saveState(); renderHud(); });
+$('pmSfxToggleBtn').addEventListener('click', () => { appState.sfxOn = !appState.sfxOn; saveState(); renderHud(); if (appState.sfxOn) SFX.pop(); });
+$('pmResetScoreBtn').addEventListener('click', () => {
+  const p = getProf();
+  if (confirm(`${p.name}의 학습 도장과 진행 기록을 초기화할까요?`)) {
+    if (appState.profile === 'kid2') {
+      appState.profiles.kid2.mastered = {};
+      kid2SeenMap = {};
+    } else {
+      appState.kid1MasteredIds = [];
+      appState.kid1WrongIds = [];
+      const tk = ensureTodayTracking();
+      appState.kid1Progress[tk] = { stage1: [], assemble: [], boss1: [] };
+      buildKid1WordSet(true);
+    }
+    saveState(); renderHud(); renderParentKid1PlanUI();
+    if (curScreen === 'az') renderAzGrid();
+    if (curScreen === 'hub1') renderKid1Hub();
+  }
+});
+$('pmOpenSearchBtn').addEventListener('click', () => { SFX.click(); $('parentModal').classList.remove('open'); goScreen('search'); });
+$('pmOpenPrintBtn').addEventListener('click', () => { SFX.click(); $('parentModal').classList.remove('open'); goScreen('print'); });
+$('doneModalClose').addEventListener('click', () => { SFX.pop(); $('doneModal').classList.remove('open'); });
+$('doneModal').addEventListener('click', e => { if (e.target === $('doneModal')) $('doneModal').classList.remove('open'); });
+
+// Search & Print Tool Controls
+$('searchTextInput').addEventListener('input', e => { sQuery = e.target.value; sLimit = 30; renderSearchResults(); });
+$('searchDaySelect').addEventListener('change', e => { sDay = e.target.value; sLimit = 30; renderSearchResults(); });
+$('searchPosRow').querySelectorAll('.pill3d').forEach(btn => btn.addEventListener('click', () => {
+  SFX.click(); sPos = btn.dataset.spos; sLimit = 30;
+  $('searchPosRow').querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.spos === sPos));
+  renderSearchResults();
+}));
+$('searchResetBtn').addEventListener('click', () => {
+  SFX.click(); sToken='all'; sSubPron='all'; sPos='all'; sDay='all'; sQuery=''; sLimit=30;
+  $('searchTextInput').value=''; $('searchDaySelect').value='all';
+  $('searchPosRow').querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.spos === 'all'));
+  $('searchTokenRow').querySelectorAll('.pill3d').forEach(b => b.classList.toggle('on', b.dataset.stok === 'all'));
+  $('searchSubPronWrap').style.display='none'; renderSearchResults();
+});
+$('searchLoadMoreBtn').addEventListener('click', () => { SFX.click(); sLimit += 30; renderSearchResults(); });
+$('goPrintPinnedBtn').addEventListener('click', () => { $('printPresetSelect').value='pinned'; goScreen('print'); });
+
+['printPresetSelect','printDaySelect','printCountSelect'].forEach(id => $(id).addEventListener('change', () => { SFX.click(); renderWorksheet(); }));
+$('printProfileSelect').addEventListener('change', e => { SFX.click(); $('printChildName').value = appState.profiles[e.target.value].name; renderWorksheet(); });
+$('printChildName').addEventListener('input', renderWorksheet);
+$('printShuffleBtn').addEventListener('click', () => { SFX.pop(); printSeed++; renderWorksheet(); });
+$('doPrintBtn').addEventListener('click', () => { SFX.click(); renderWorksheet(); setTimeout(() => window.print(), 120); });
+
+// Init
+loadState();
+initParentTools();
+renderHud();
+loadAllStoredAudio();
+};
+
+(function() {
+  function boot() {
+    try {
+      window.__bootAlphaland();
+    } catch (err) {
+      console.error(err);
+      alert('실행 중 오류가 발생했습니다: ' + (err && err.message ? err.message : err));
+    }
+  }
+  if (typeof WORDS_800 !== 'undefined' && typeof AB_IMGS !== 'undefined') {
+    boot();
+    return;
+  }
+  var s = document.createElement('script');
+  s.src = 'https://lycosjam.github.io/ai-english-friend/phonics_assets.js';
+  s.onload = function() {
+    if (typeof WORDS_800 !== 'undefined') boot();
+  };
+  s.onerror = function() {
+    var app = document.querySelector('.app-wrap');
+    if (app) {
+      app.innerHTML = '<div class="clay-panel" style="text-align:center;max-width:520px;margin:40px auto">' +
+        '<div style="font-size:48px;margin-bottom:10px">📦</div>' +
+        '<h2 style="font-size:20px;margin-bottom:8px;color:#123456">데이터 파일(phonics_assets.js)이 필요합니다</h2>' +
+        '<p style="font-size:14px;line-height:1.6;color:#4a657a;font-weight:700">GitHub 저장소(<b>lycosjam/ai-english-friend</b>)에<br><b>phonics_assets.js</b> 파일을 먼저 한 번 올려주시면<br>모든 화면과 800단어가 바로 실행됩니다!</p>' +
+        '</div>';
+    }
+  };
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
