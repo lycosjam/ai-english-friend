@@ -410,6 +410,46 @@ html, body {
 }
 .speed-pill-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 0 var(--tertiary-box); }
 
+
+/* Week Pin / Graduated Filter Strip */
+.week-pin-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 13px;
+  background: #f1f7fd !important;
+  border: 1.5px solid #d4e7fa;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--primary-ink) !important;
+}
+.week-pin-bar.pinned {
+  background: #edfdf4 !important;
+  border-color: #a9ebc6;
+  color: var(--secondary-ink) !important;
+}
+.pin-act-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  background: #ffffff !important;
+  color: var(--primary) !important;
+  box-shadow: 0 2px 0 0 #b7d7f6;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.week-pin-bar.pinned .pin-act-btn {
+  color: var(--secondary) !important;
+  box-shadow: 0 2px 0 0 #8ee3b6;
+}
+
 /* Sub-tabs: Seipen vs Check */
 .subtab-bar {
   flex-shrink: 0;
@@ -909,6 +949,115 @@ html, body {
 }
 .prog-fill.p1 { background: var(--primary-box) !important; }
 .prog-fill.p2 { background: linear-gradient(90deg, #3de085 0%, #68faa6 100%) !important; }
+
+
+/* ===== VIEW 1C: OFFICIAL TEST PHASE 1 (부모 동반 1차 노출) ===== */
+.p1-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+.p1-word-card {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: 26px;
+  padding: 20px 16px;
+  background: var(--surface-low) !important;
+  border: 2.5px solid #dbeafe;
+  box-shadow: 0 7px 0 0 var(--primary-box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+.p1-word-big {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: clamp(44px, 12vw, 72px);
+  font-weight: 700;
+  color: var(--ink) !important;
+  line-height: 1.05;
+  word-break: break-word;
+}
+.p1-sub-cue {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--outline) !important;
+  background: #ffffff;
+  padding: 5px 12px;
+  border-radius: 9999px;
+}
+.p1-parent-hint {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-soft) !important;
+  text-align: center;
+}
+.p1-btn-row {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  padding-bottom: 4px;
+}
+.p1-rate-btn {
+  height: clamp(68px, 11dvh, 84px);
+  border: none;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: transform 0.09s;
+}
+.p1-rate-btn:active { transform: translateY(4px); }
+.p1-rate-btn .ico { font-size: 22px; line-height: 1; }
+.p1-rate-btn .lbl { font-size: clamp(13.5px, 3.6vw, 16px); }
+.p1-rate-btn.know {
+  background: var(--secondary-box) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 6px 0 0 var(--secondary-edge);
+}
+.p1-rate-btn.conf {
+  background: var(--tertiary-fixed) !important;
+  color: var(--tertiary-ink) !important;
+  box-shadow: 0 6px 0 0 var(--tertiary-box);
+}
+.p1-rate-btn.unk {
+  background: var(--error-box) !important;
+  color: var(--error-ink) !important;
+  box-shadow: 0 6px 0 0 var(--error);
+}
+
+/* ===== VIEW 1D: HANDOFF TO CHILD (1차 -> 2차 4지선다 전환) ===== */
+.handoff-board {
+  flex: 1;
+  min-height: 0;
+  border-radius: 26px;
+  padding: 24px 18px;
+  background: #f2f9ff !important;
+  border: 2.5px solid #c5e2ff;
+  box-shadow: 0 7px 0 0 var(--primary-box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 14px;
+}
+.handoff-emoji { font-size: 54px; line-height: 1; }
+.handoff-title { font-size: clamp(21px, 5.4vw, 28px); font-weight: 900; color: var(--primary-ink) !important; }
+.handoff-desc { font-size: 14.5px; font-weight: 700; color: var(--ink-soft) !important; line-height: 1.5; max-width: 340px; }
 
 /* ===== VIEW 2: STEP 1 - 4-CHOICE MEANING QUIZ ===== */
 .p2-body {
@@ -1751,9 +1900,14 @@ html, body {
         <button type="button" id="quickSpeedBtn" class="speed-pill-btn" aria-label="발음 속도 변경">🔊 0.8x</button>
       </div>
 
+      <div id="weekPinBar" class="week-pin-bar" style="display:none">
+        <span id="weekPinText">🎯 졸업 단어 제외 중 · 미졸업 3단어씩 자동 배정</span>
+        <button type="button" id="weekPinBtn" class="pin-act-btn">📌 5일치 고정</button>
+      </div>
+
       <div class="subtab-bar">
         <button type="button" id="tabSeipenBtn" class="subtab-btn active">🔊 ① 세이펜 듣기</button>
-        <button type="button" id="tabCheckBtn" class="subtab-btn">✅ ② 암기 체크</button>
+        <button type="button" id="tabCheckBtn" class="subtab-btn">✏️ ② 단어 연습 (서포트)</button>
       </div>
 
       <div class="seipen-scroll" id="seipenScroll">
@@ -1782,7 +1936,7 @@ html, body {
 
       <div class="seipen-footer">
         <button type="button" id="startDayCheckBtn" class="btn-check-cta">
-          <span>✅ 학습지 다 풀었어요! 암기 체크 시작</span>
+          <span>✏️ 학습지 다 풀었어요! 오늘 단어 연습하기</span>
         </button>
       </div>
     </section>
@@ -1806,12 +1960,70 @@ html, body {
       </div>
     </section>
 
+
+    <!-- ==================== VIEW 1C: 공식 테스트 1차 (부모 동반 읽기+뜻 말하기) ==================== -->
+    <section id="p1View" class="view-panel">
+      <div class="prog-head">
+        <div class="prog-row">
+          <div class="prog-left">
+            <div class="phase-badge p1">공식 1차 · 읽기 &amp; 뜻 말하기 (부모님 판정)</div>
+          </div>
+          <div class="prog-right">
+            <div class="count-pill"><span id="p1CurNum" class="cur">1</span> / <span id="p1TotNum">10</span></div>
+            <button type="button" id="p1BackBtn" class="back-mini-btn" aria-label="돌아가기">✕</button>
+          </div>
+        </div>
+        <div class="prog-track"><div id="p1ProgFill" class="prog-fill p1" style="width:10%"></div></div>
+      </div>
+
+      <div class="p1-body">
+        <div id="p1WordCard" class="p1-word-card" role="button" tabindex="0">
+          <div id="p1MainWord" class="p1-word-big">cat</div>
+          <button type="button" id="p1SpeakBtn" class="p2-spk-btn" aria-label="발음 듣기">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9.5 9.5 0 0 1 0 14"/></svg>
+          </button>
+          <span id="p1PhonicsCue" class="p1-sub-cue">단모음 a (/æ/)</span>
+        </div>
+
+        <div class="p1-parent-hint">아이가 읽고 뜻을 말하면 부모님이 눌러주세요 (❌ 몰라요는 2차 퀴즈 없이 바로 통과)</div>
+
+        <div class="p1-btn-row">
+          <button type="button" id="p1KnowBtn" class="p1-rate-btn know">
+            <span class="ico">⭕</span>
+            <span class="lbl">알아요</span>
+          </button>
+          <button type="button" id="p1ConfBtn" class="p1-rate-btn conf">
+            <span class="ico">🔺</span>
+            <span class="lbl">헷갈려요</span>
+          </button>
+          <button type="button" id="p1UnkBtn" class="p1-rate-btn unk">
+            <span class="ico">❌</span>
+            <span class="lbl">몰라요</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 1D: 1차 -> 2차 아이 넘겨주기 안내 ==================== -->
+    <section id="handoffView" class="view-panel">
+      <div class="handoff-board">
+        <div class="handoff-emoji" aria-hidden="true">📱✨</div>
+        <div>
+          <h2 class="handoff-title">1차 확인 완료! 이제 아이 차례예요</h2>
+          <p id="handoffDesc" class="handoff-desc">알아요·헷갈려요 단어 8개를 순서를 섞어 4지선다로 최종 확인해요.</p>
+        </div>
+        <button type="button" id="startPhase2Btn" class="btn-start-big">
+          <span id="startPhase2BtnText">2차 4지선다 시작하기</span>
+        </button>
+      </div>
+    </section>
+
     <!-- ==================== VIEW 2: STEP 1 — 뜻 맞추기 (4지선다) ==================== -->
     <section id="quizView" class="view-panel">
       <div class="prog-head">
         <div class="prog-row">
           <div class="prog-left">
-            <div class="phase-badge p1">1단계 · 뜻 맞추기</div>
+            <div id="quizPhaseBadge" class="phase-badge p1">1단계 · 뜻 맞추기</div>
           </div>
           <div class="prog-right">
             <div class="count-pill"><span id="qCurNum" class="cur">1</span> / <span id="qTotNum">3</span></div>
@@ -1896,9 +2108,9 @@ html, body {
           </div>
 
           <div class="done-stats-grid">
-            <div class="stat-tile t-grad"><span class="stat-lbl">완전 암기</span><span id="statGrad" class="stat-val">0</span></div>
-            <div class="stat-tile t-conf"><span class="stat-lbl">헷갈려요</span><span id="statConf" class="stat-val">0</span></div>
-            <div class="stat-tile t-unk"><span class="stat-lbl">몰라요</span><span id="statUnk" class="stat-val">0</span></div>
+            <div class="stat-tile t-grad"><span id="statGradLbl" class="stat-lbl">완전 암기 (졸업)</span><span id="statGrad" class="stat-val">0</span></div>
+            <div class="stat-tile t-conf"><span id="statConfLbl" class="stat-lbl">헷갈려요</span><span id="statConf" class="stat-val">0</span></div>
+            <div class="stat-tile t-unk"><span id="statUnkLbl" class="stat-lbl">몰라요</span><span id="statUnk" class="stat-val">0</span></div>
           </div>
 
           <div id="doneWordChips" class="done-word-chips"></div>
@@ -1978,15 +2190,30 @@ html, body {
       <div class="sec-grp">
         <div class="sec-lbl"><span>2. 학습 모드</span></div>
         <div class="grid-3 seg-box">
-          <button type="button" data-mode="day" class="opt-btn mode-btn"><span>📖 학습지 DAY</span><span style="font-size:10.5px;opacity:.75">매일 메인</span></button>
-          <button type="button" data-mode="alphablocks" class="opt-btn mode-btn"><span>🧱 알파블럭스</span><span style="font-size:10.5px;opacity:.75">음가별</span></button>
-          <button type="button" data-mode="elem800" class="opt-btn mode-btn"><span>📚 초등800</span><span style="font-size:10.5px;opacity:.75">주제별</span></button>
+          <button type="button" data-mode="day" class="opt-btn mode-btn"><span>📖 학습지 DAY</span><span style="font-size:10px;opacity:.8">서포트 · 졸업X</span></button>
+          <button type="button" data-mode="alphablocks" class="opt-btn mode-btn"><span>🧱 알파블럭스</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
+          <button type="button" data-mode="elem800" class="opt-btn mode-btn"><span>📚 초등800</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
+        </div>
+        <div class="sec-lbl" style="margin-top:4px"><span style="font-size:13px">공식 테스트 1회 단어 수 (알파블럭스 · 초등800)</span></div>
+        <div class="grid-3">
+          <button type="button" data-batch="10" class="opt-btn batch-btn"><span>10단어</span><span style="font-size:10px;opacity:.75">권장</span></button>
+          <button type="button" data-batch="15" class="opt-btn batch-btn"><span>15단어</span><span style="font-size:10px;opacity:.75">조금 길게</span></button>
+          <button type="button" data-batch="0" class="opt-btn batch-btn"><span>전체</span><span style="font-size:10px;opacity:.75">단계 전체</span></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:13.5px;font-weight:800">졸업 단어 자동 제외 (미졸업 3단어씩)</div>
+            <div class="sec-sub">켜면 PDF와 똑같이 이미 졸업한 단어를 빼고 배정해요</div>
+          </div>
+          <button type="button" id="excludeGradToggle" class="switch-btn on" aria-label="졸업 단어 자동 제외">
+            <span class="switch-knob"></span>
+          </button>
         </div>
       </div>
 
       <!-- 3. Spelling Mode Switch -->
       <div class="sec-grp">
-        <div class="sec-lbl"><span>3. 2단계 철자 입력 방식</span><span class="sec-sub">아이 성장에 맞춰 전환</span></div>
+        <div class="sec-lbl"><span>3. 학습지 DAY 연습 · 철자 입력 방식</span><span class="sec-sub">공부 서포트용</span></div>
         <div class="grid-2 seg-box">
           <button type="button" data-spell="blocks" class="opt-btn spell-mode-btn"><span>🧱 글자 블록 조립</span><span style="font-size:10.5px;opacity:.75">초반 추천 · 오타 적음</span></button>
           <button type="button" data-spell="qwerty" class="opt-btn spell-mode-btn"><span>⌨️ 쿼티 키보드</span><span style="font-size:10.5px;opacity:.75">익숙해지면 전환</span></button>
@@ -2076,6 +2303,10 @@ let cfg = {
   spellInputMode: 'blocks', // 'blocks' | 'qwerty'
   enableSpell: true,
   rate: 0.8,
+  officialBatchSize: 10,
+  excludeGraduatedInDay: true,
+  pinnedWeekDays: { first: null, second: null },
+  dayPracticeDone: { first: {}, second: {} },
   csvUrl: '',
   webhookUrl: '',
   stickerBase: 'stickers/'
@@ -2089,7 +2320,11 @@ let localStickerBlobs = {}; // wordLower -> objectURL (IndexedDB)
 
 // Session state
 let currentView = 'day';
+let isSupportSession = false; // true = 학습지 DAY 공부 서포트(졸업 판정·시트 저장 절대 안 함!) / false = 알파블럭스·초등800 공식 졸업 판정
 let sessionWords = [];
+let p1Idx = 0;
+let p1RatingMap = {};  // wordLower -> 'know' | 'conf' | 'unk'
+let p2Queue = [];      // official 2nd phase shuffled queue
 let qIdx = 0;
 let qWrongCount = 0;
 let qAnswered = false;
@@ -2468,21 +2703,69 @@ async function loadWordsFromSheet(url) {
 }
 
 function rebuildIndexes() {
-  // 1) Build DAY groups
-  const dMap = new Map();
-  allWords.filter(w => w.day).sort((a, b) => a.dayNum - b.dayNum || a.seq - b.seq).forEach(w => {
-    if (!dMap.has(w.day)) {
-      dMap.set(w.day, {
-        dayCode: w.day,
-        dayNum: w.dayNum,
-        weekNum: Math.floor((w.dayNum - 1) / 5) + 1,
-        topic: w.topic,
-        words: []
+  // 1) Build DAY groups (졸업 단어 자동 제외 모드 vs 고정 DAY 모드)
+  const ordered = allWords.filter(w => w.day).sort((a, b) => a.dayNum - b.dayNum || a.seq - b.seq);
+  const byLower = new Map();
+  ordered.forEach(w => byLower.set(w.word.toLowerCase(), w));
+
+  if (cfg.excludeGraduatedInDay) {
+    const pinned = (cfg.pinnedWeekDays && cfg.pinnedWeekDays[cfg.childKey]) || null;
+    const usedSet = new Set();
+    const groups = [];
+
+    // 주간 5일치 고정(인쇄 PDF와 100% 일치 유지)이 켜져 있으면 앞 5일 고정 배치
+    if (Array.isArray(pinned) && pinned.length) {
+      pinned.forEach((wordKeys, idx) => {
+        const wObjs = wordKeys.map(k => byLower.get(String(k).toLowerCase())).filter(Boolean);
+        if (!wObjs.length) return;
+        wObjs.forEach(w => usedSet.add(w.word.toLowerCase()));
+        const dNum = idx + 1;
+        const topics = [...new Set(wObjs.map(w => w.topic).filter(Boolean))];
+        groups.push({
+          dayCode: `DAY ${String(dNum).padStart(3, '0')}`,
+          dayNum: dNum,
+          weekNum: 1,
+          topic: topics.slice(0, 2).join(' / ') || '매일 영단어',
+          words: wObjs,
+          isPinned: true
+        });
       });
     }
-    dMap.get(w.day).words.push(w);
-  });
-  dayGroups = [...dMap.values()].sort((a, b) => a.dayNum - b.dayNum);
+
+    // 나머지 미졸업 단어들을 커리큘럼 순번대로 3개씩 묶기 (Colab 3단계 PDF와 동일 알고리즘)
+    const remaining = ordered.filter(w => !usedSet.has(w.word.toLowerCase()) && getChildRec(w.word).status !== '졸업');
+    for (let i = 0; i < remaining.length; i += 3) {
+      const chunk = remaining.slice(i, i + 3);
+      const dNum = groups.length + 1;
+      const topics = [...new Set(chunk.map(w => w.topic).filter(Boolean))];
+      groups.push({
+        dayCode: `DAY ${String(dNum).padStart(3, '0')}`,
+        dayNum: dNum,
+        weekNum: Math.floor((dNum - 1) / 5) + 1,
+        topic: topics.slice(0, 2).join(' / ') || '매일 영단어',
+        words: chunk,
+        isPinned: false
+      });
+    }
+    dayGroups = groups;
+  } else {
+    const dMap = new Map();
+    ordered.forEach(w => {
+      if (!dMap.has(w.day)) {
+        dMap.set(w.day, {
+          dayCode: w.day,
+          dayNum: w.dayNum,
+          weekNum: Math.floor((w.dayNum - 1) / 5) + 1,
+          topic: w.topic,
+          words: [],
+          isPinned: false
+        });
+      }
+      dMap.get(w.day).words.push(w);
+    });
+    dayGroups = [...dMap.values()].sort((a, b) => a.dayNum - b.dayNum);
+  }
+
   if (dayGroups.length && !dayGroups.some(g => g.dayCode === cfg.dayCode)) {
     cfg.dayCode = dayGroups[0].dayCode;
   }
@@ -2524,9 +2807,14 @@ function getCurrentDayObj() {
   return dayGroups.find(g => g.dayCode === cfg.dayCode) || dayGroups[0] || null;
 }
 
+function getDaySignature(dayObj) {
+  if (!dayObj || !dayObj.words.length) return '';
+  return dayObj.words.map(w => w.word.toLowerCase()).join('|');
+}
 function isDayCompleted(dayObj) {
   if (!dayObj || !dayObj.words.length) return false;
-  return dayObj.words.every(w => !!getChildRec(w.word).status);
+  const doneBox = (cfg.dayPracticeDone && cfg.dayPracticeDone[cfg.childKey]) || {};
+  return !!doneBox[getDaySignature(dayObj)];
 }
 
 function findRecommendedDayCode() {
@@ -2559,6 +2847,7 @@ async function syncFromSheetLive(showToast = false) {
         });
       });
       saveRecords();
+      rebuildIndexes();
       if (cfg.mode === 'day' && !cfg.reviewOnly) {
         cfg.dayCode = findRecommendedDayCode();
         saveCfg();
@@ -2626,7 +2915,7 @@ function stopSeqPlay() {
 function showView(name) {
   if (name !== 'day') stopSeqPlay();
   currentView = name;
-  ['dayView', 'homeView', 'quizView', 'spellView', 'doneView'].forEach(id => {
+  ['dayView', 'homeView', 'p1View', 'handoffView', 'quizView', 'spellView', 'doneView'].forEach(id => {
     $(id).classList.toggle('active', id === name + 'View');
   });
 }
@@ -2683,10 +2972,38 @@ function attachStickerImg(imgEl, fallbackEl, candidates) {
   }
 }
 
+function renderWeekPinBar() {
+  const bar = $('weekPinBar');
+  if (!bar) return;
+  if (!cfg.excludeGraduatedInDay) {
+    bar.style.display = 'none';
+    return;
+  }
+  bar.style.display = 'flex';
+  const pinned = (cfg.pinnedWeekDays && cfg.pinnedWeekDays[cfg.childKey]) || null;
+  const gradCnt = allWords.filter(w => w.day && getChildRec(w.word).status === '졸업').length;
+  if (Array.isArray(pinned) && pinned.length) {
+    bar.classList.add('pinned');
+    $('weekPinText').textContent = `📌 이번 주 5일치 인쇄본 고정 중 (졸업 ${gradCnt}단어 제외됨)`;
+    $('weekPinBtn').textContent = '🔄 새 5일치 갱신';
+  } else {
+    bar.classList.remove('pinned');
+    $('weekPinText').textContent = `🎯 졸업 ${gradCnt}단어 제외 · 미졸업 3단어씩 배정`;
+    $('weekPinBtn').textContent = '📌 이번 주 5일치 고정';
+  }
+}
+
 function renderDaySeipen() {
   stopSeqPlay();
+  renderWeekPinBar();
   const dObj = getCurrentDayObj();
-  if (!dObj) return;
+  if (!dObj) {
+    $('dayCodeBadge').textContent = '완료!';
+    $('dayTopicTxt').textContent = '모든 단어를 졸업했어요 🎉';
+    $('seipenWordList').innerHTML = '<div style="text-align:center;padding:24px;font-weight:800;color:#006d3d">🎉 모든 단어를 졸업했어요! 설정에서 전체 보기 또는 복습을 선택할 수 있어요.</div>';
+    $('seipenSentList').innerHTML = '';
+    return;
+  }
 
   const dIdx = dayGroups.findIndex(g => g.dayCode === dObj.dayCode);
   $('prevDayBtn').disabled = dIdx <= 0;
@@ -2793,7 +3110,7 @@ function renderDaySeipen() {
     sList.appendChild(card);
   });
 
-  $('startDayCheckBtn').innerHTML = `<span>✅ 학습지 다 풀었어요! 오늘 ${dObj.words.length}단어 암기 체크 →</span>`;
+  $('startDayCheckBtn').innerHTML = `<span>✏️ 학습지 다 풀었어요! 오늘 ${dObj.words.length}단어 연습하기 (서포트용) →</span>`;
 }
 
 function toggleSequentialSentences() {
@@ -2849,27 +3166,31 @@ function getModeTargetWords() {
 
 function renderModeHome() {
   const targets = getModeTargetWords();
+  const batch = Number(cfg.officialBatchSize) || 0;
+  const runCnt = (batch > 0 && targets.length > batch) ? batch : targets.length;
   if (cfg.reviewOnly) {
-    $('homeMainTitle').textContent = '🔁 오답·취약 단어 집중 복습';
+    $('homeMainTitle').textContent = '🔁 오답·취약 단어 공식 재확인';
     $('homeMainDesc').textContent = targets.length
-      ? `${getActiveChildName()}의 헷갈리거나 몰랐던 단어 ${targets.length}개를 다시 체크해요.`
+      ? `${getActiveChildName()}의 헷갈리거나 몰랐던 단어 ${targets.length}개 중 ${runCnt}개를 1차(부모)+2차(4지선다)로 공식 판정해요.`
       : '축하해요! 복습할 오답 단어가 하나도 없어요.';
-    $('startModeBtnText').textContent = targets.length ? `오답 ${targets.length}단어 체크 시작` : '학습지 DAY로 돌아가기';
+    $('startModeBtnText').textContent = targets.length ? `공식 재확인 시작 (${runCnt}단어)` : '학습지 DAY로 돌아가기';
   } else {
-    $('homeMainTitle').textContent = cfg.mode === 'alphablocks' ? '🧱 알파블럭스 음가별 체크' : '📚 초등 영단어 800 주제별 체크';
+    $('homeMainTitle').textContent = cfg.mode === 'alphablocks' ? '🧱 알파블럭스 공식 졸업 테스트' : '📚 초등 800 공식 졸업 테스트';
     $('homeMainDesc').textContent = targets.length
-      ? `"${cfg.stageName}" 미졸업 단어 ${targets.length}개를 확인해요.`
+      ? `"${cfg.stageName}" 미졸업 ${targets.length}단어 중 ${runCnt}개를 테스트해요. (여기서 졸업한 단어만 일일학습지에서 자동 제외돼요)`
       : `"${cfg.stageName}" 단어를 모두 졸업했어요!`;
-    $('startModeBtnText').textContent = targets.length ? `${targets.length}단어 암기 체크 시작` : '다음 단계로 가기';
+    $('startModeBtnText').textContent = targets.length ? `공식 테스트 시작 (${runCnt}단어)` : '다음 단계로 가기';
   }
 }
 
-// ========== CHECK SESSION: STEP 1 (4-Choice) -> STEP 2 (Blocks / QWERTY) ==========
+// ========== SESSION LAUNCHER: Official Graduation Test vs DAY Study Support ==========
 function startCheckSession(customWords) {
   stopSeqPlay();
+  isSupportSession = (cfg.mode === 'day' && !cfg.reviewOnly);
+
   let targets = customWords;
   if (!targets) {
-    if (cfg.mode === 'day' && !cfg.reviewOnly) {
+    if (isSupportSession) {
       const dObj = getCurrentDayObj();
       targets = dObj ? dObj.words.slice() : [];
     } else {
@@ -2888,30 +3209,218 @@ function startCheckSession(customWords) {
   }
 
   playTone(580, 0.08);
-  sessionWords = targets.slice();
-  qIdx = 0;
-  qGradeMap = {};
   sessionResults = [];
+  qGradeMap = {};
+  p1RatingMap = {};
+  p2Queue = [];
+
+  if (isSupportSession) {
+    // [공부 서포트 모드 · 학습지 DAY] 4지선다 연습 -> 철자 연습 (졸업 판정·시트 저장 절대 안 함!)
+    sessionWords = targets.slice();
+    qIdx = 0;
+    showView('quiz');
+    renderQuizCard();
+  } else {
+    // [공식 졸업 판정 모드 · 알파블럭스 / 초등800 / 오답복습] 1차(부모 읽기·뜻 판정) -> 2차(아이 4지선다 검증) -> 시트 공식 기록!
+    const batch = Number(cfg.officialBatchSize) || 0;
+    sessionWords = (batch > 0 && targets.length > batch) ? targets.slice(0, batch) : targets.slice();
+    p1Idx = 0;
+    showView('p1');
+    renderPhase1Card();
+  }
+}
+
+// ========== OFFICIAL PHASE 1: Parent-Guided Reading & Meaning Check ==========
+function renderPhase1Card() {
+  const item = sessionWords[p1Idx];
+  const cur = p1Idx + 1, tot = sessionWords.length;
+  $('p1CurNum').textContent = cur;
+  $('p1TotNum').textContent = tot;
+  $('p1ProgFill').style.width = Math.max(8, Math.round((cur / tot) * 100)) + '%';
+  $('p1MainWord').textContent = item.word;
+  $('p1PhonicsCue').textContent = item.phonics || item.stageName || '';
+}
+
+function ratePhase1(rating) {
+  const item = sessionWords[p1Idx];
+  if (!item) return;
+  p1RatingMap[item.word.toLowerCase()] = rating;
+
+  if (rating === 'know') {
+    playTone(660, 0.08);
+    p2Queue.push(item);
+  } else if (rating === 'conf') {
+    playTone(500, 0.08);
+    p2Queue.push(item);
+  } else {
+    // ❌ 몰라요: 2차 4지선다 건너뛰고 즉시 몰라요로 확정 (아이 스트레스 방지)
+    playTone(330, 0.08, 'sine');
+    finalizeOfficialWordGrade(item.word, 'unk', false);
+  }
+
+  p1Idx += 1;
+  if (p1Idx < sessionWords.length) {
+    renderPhase1Card();
+  } else {
+    if (p2Queue.length > 0) {
+      // 순서를 섞어 2차 4지선다 준비
+      p2Queue = p2Queue.slice().sort(() => Math.random() - 0.5);
+      const unkCnt = sessionWords.length - p2Queue.length;
+      $('handoffDesc').textContent = unkCnt > 0
+        ? `1차 통과·헷갈림 ${p2Queue.length}단어를 4지선다로 최종 확인해요! (몰라요 ${unkCnt}단어는 바로 기록됨)`
+        : `1차 확인한 ${p2Queue.length}단어를 순서를 섞어 4지선다로 최종 확인해요!`;
+      $('startPhase2BtnText').textContent = `2차 4지선다 시작 (${p2Queue.length}문제)`;
+      showView('handoff');
+    } else {
+      // 전부 몰라요인 경우 바로 완료 및 시트 저장
+      finishOfficialSession();
+    }
+  }
+}
+
+function startOfficialPhase2() {
+  playTone(600, 0.08);
+  sessionWords = p2Queue.slice();
+  qIdx = 0;
   showView('quiz');
   renderQuizCard();
 }
 
-function buildDistractors(targetWord) {
-  const pool = allWords.filter(w =>
-    w.word.toLowerCase() !== targetWord.word.toLowerCase() &&
-    w.meaning.trim() !== targetWord.meaning.trim()
-  );
-  const picked = [];
-  const used = new Set([targetWord.meaning.trim()]);
-  const shuffled = pool.slice().sort(() => Math.random() - 0.5);
-  for (const cand of shuffled) {
-    const m = cand.meaning.trim();
-    if (!used.has(m)) {
-      used.add(m);
-      picked.push(cand);
-      if (picked.length === 3) break;
+// ========== Semantic Similarity Distractor Engine (유사 의미군 4지선다 + 동의어 충돌 차단) ==========
+const SEMANTIC_CLUSTERS = [{"id":"family_people","words":["man","woman","boy","girl","baby","kid","child","father","mother","grandfather","brother","sister","uncle","aunt","cousin","son","daughter","husband","wife","parent","lady","gentleman","guy","adult","friend","partner","human","people","family","member","couple"],"extras":["남자","여자","할머니","엄마","아빠","할아버지","소년","소녀","아기","이모","삼촌","친구","형제","자매"]},{"id":"buildings_places","words":["school","library","hospital","bank","church","shop","store","market","park","farm","office","college","restaurant","zoo","city","town","country","nation","area","place","company","court"],"extras":["학교","도서관","소방서","경찰서","병원","우체국","은행","공원","식당","동물원","박물관","약국","미술관","놀이터"]},{"id":"home_spaces","words":["home","house","apartment","hut","room","kitchen","restroom","garden","door","window","wall","floor","bridge","street","road","corner"],"extras":["집","부엌","화장실","거실","방","정원","아파트","창문","문","벽","바닥","현관","지붕"]},{"id":"jobs_roles","words":["doctor","nurse","police","pilot","king","queen","prince","hero","staff","customer","spy","fool"],"extras":["의사","간호사","경찰관","소방관","선생님","요리사","조종사","농부","가수","왕","여왕","왕자"]},{"id":"animals","words":["cat","dog","puppy","pig","cow","ox","fox","bird","duck","fish","bear","lion","tiger","elephant","monkey","rabbit","frog","horse","mouse","rat","chicken","hen","bee","bug","snail","animal","pet"],"extras":["고양이","강아지","토끼","곰","사자","호랑이","코끼리","원숭이","돼지","여우","오리","물고기","개구리","말"]},{"id":"body_parts","words":["head","face","hair","eye","ear","nose","mouth","lip","chin","tooth","neck","arm","hand","finger","leg","foot","back","body","heart","bone","skin","blood","tail","wing"],"extras":["머리","얼굴","눈","코","입","귀","손","손가락","발","팔","다리","목","어깨","무릎","이"]},{"id":"fruits","words":["apple","banana","grape","orange","watermelon","fruit"],"extras":["사과","바나나","포도","딸기","수박","오렌지","복숭아","귤","체리","키위","파인애플"]},{"id":"veggies","words":["carrot","potato","tomato","vegetable"],"extras":["당근","감자","토마토","오이","양파","고구마","호박","브로콜리","양배추","야채"]},{"id":"food_meals","words":["bread","cake","cookie","doughnut","biscuit","sandwich","pizza","hamburger","spaghetti","cheese","butter","egg","meat","beef","steak","soup","salad","chocolate","candy","jam","gum","cream","sugar","salt","oil","food","breakfast","lunch","dinner"],"extras":["빵","케이크","쿠키","피자","햄버거","샌드위치","치즈","계란","고기","수프","초콜릿","사탕","아이스크림"]},{"id":"drinks","words":["water","milk","juice","coffee","wine","ice"],"extras":["물","우유","주스","커피","녹차","콜라","레모네이드","코코아","얼음"]},{"id":"colors","words":["red","blue","yellow","green","black","white","pink","brown","gray","color"],"extras":["빨간색","파란색","노란색","초록색","검정색","하얀색","분홍색","보라색","주황색","갈색","회색"]},{"id":"numbers_cardinal","words":["one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","twenty","thirty","hundred","number","double","twice"],"extras":["하나(1)","둘(2)","셋(3)","넷(4)","다섯(5)","여섯(6)","일곱(7)","여덟(8)","아홉(9)","열(10)"]},{"id":"numbers_ordinal","words":["first","second","third","twenty-first","twenty-second","twenty-third"],"extras":["첫 번째의","두 번째의","세 번째의","네 번째의","다섯 번째의","열 번째의"]},{"id":"clothes_wear","words":["hat","cap","shirt","skirt","pants","dress","coat","jacket","sock","shoe","boot","belt","ring","ribbon","wig","helmet","clothes","umbrella","bag","button"],"extras":["모자","셔츠","치마","바지","코트","재킷","양말","신발","장갑","목도리","가방","우산","허리띠"]},{"id":"school_items","words":["pen","pencil","crayon","book","notebook","textbook","paper","scissors","tape","card","letter","newspaper","note","page","file","line","picture","board","map","ticket"],"extras":["연필","펜","지우개","크레용","공책","책","가위","테이프","필통","자","종이","칠판","교과서"]},{"id":"school_subjects","words":["math","art","science","history","music","class","lesson","test","quiz","homework","project","course","example","problem","question","answer","dialogue","word","story"],"extras":["수학","미술","과학","역사","음악","국어","체육","숙제","시험","수업","퀴즈","질문","대답"]},{"id":"home_objects","words":["bed","desk","chair","table","clock","telephone","television","radio","curtain","mat","tub","pot","pan","cup","glass","bottle","spoon","fork","knife","box","basket","bin","fan","mop","brush","tap","key","camera","bell","pin","tin","plastic","tent","medal","laser"],"extras":["침대","책상","의자","식탁","시계","전화기","텔레비전","컵","숟가락","포크","접시","상자","열쇠","소파","거울"]},{"id":"vehicles","words":["car","bus","train","subway","taxi","truck","van","bike","airplane","boat","ship","track","trip","camp","holiday","speed","gas"],"extras":["자동차","버스","기차","지하철","택시","자전거","비행기","배","화물차","구급차","소방차","경찰차","헬리콥터"]},{"id":"weather_sky","words":["sun","moon","star","cloud","rain","snow","wind","fog","sky","weather","air","light","fire","heat","spring","summer","autumn","fall","winter","season","space","earth"],"extras":["태양","달","별","구름","비","눈","바람","안개","하늘","번개","무지개","봄","여름","가을","겨울"]},{"id":"nature_land","words":["sea","river","lake","beach","mountain","hill","forest","field","stone","rock","sand","mud","land","ground","pit","tree","pine","wood","flower","rose","grass","log","nature","gold"],"extras":["바다","강","호수","산","언덕","숲","들판","해변","나무","꽃","풀","돌","바위","모래","나뭇잎"]},{"id":"time_calendar","words":["morning","afternoon","evening","night","today","tomorrow","yesterday","tonight","day","week","weekend","month","year","hour","time","date","future","end","last","next","early","late","now","age"],"extras":["아침","점심","오후","저녁","밤","오늘","내일","어제","주말","시간","날짜","미래","일주일","한 달"]},{"id":"sports","words":["soccer","football","baseball","basketball","tennis","badminton","marathon","sport","ball","bat","net","goal","score","team","race","exercise","point"],"extras":["축구","야구","농구","테니스","배드민턴","수영","달리기","태권도","피구","줄넘기","공","경기"]},{"id":"instruments","words":["piano","guitar","violin","drum","band","song"],"extras":["피아노","기타","바이올린","북","플루트","실로폰","트럼펫","하모니카","탬버린","노래"]},{"id":"toys_hobbies","words":["game","toy","doll","robot","slide","party","festival","movie","film","video","comic","album","hobby","fun","magic","model","club","recreation","present"],"extras":["인형","로봇","장난감","놀이","파티","축제","영화","만화책","취미","선물","블록","퍼즐","미끄럼틀"]},{"id":"verbs_motion","words":["go","come","walk","run","jog","jump","hop","swim","fly","climb","sit","stand","lie","bend","move","turn","stop","start","arrive","return","enter","cross","pass","follow","ride","drive","sail","travel","visit","skate","ski","hike","dance","play","hurry","wait","stay","drop","wake","sleep","hide","row"],"extras":["가다","오다","걷다","달리다","뛰다","수영하다","날다","앉다","서다","멈추다","오르다","타다","춤추다","놀다"]},{"id":"verbs_action","words":["eat","drink","cook","bake","taste","smell","wash","brush","wear","cut","chop","dig","fix","hit","kick","catch","hold","take","give","put","set","pick","bring","carry","send","push","touch","open","close","fill","cover","hang","make","build","break","draw","paint","write","print","clean","blow","burn","pop","pat","tip","pull","use","buy","sell","pay","save","collect","find","keep","miss","join","win","fail","fight","hunt","kill","die","live","grow","change","finish","begin","act","add","do","have","borrow","marry","kiss","glow","service","control","design","compute"],"extras":["먹다","마시다","요리하다","씻다","자르다","잡다","열다","닫다","만들다","그리다","쓰다","밀다","찾다","사다","주다"]},{"id":"verbs_mind_talk","words":["say","speak","talk","tell","ask","call","yell","sing","read","listen","see","look","watch","know","think","learn","study","teach","understand","remember","forget","guess","believe","decide","choose","discuss","focus","like","love","hate","want","need","wish","hope","feel","worry","smile","cry","help","thank","welcome","invite","introduce","congratulate","agree","care","please","try","tire","become","show"],"extras":["말하다","듣다","읽다","보다","알다","생각하다","배우다","공부하다","가르치다","기억하다","잊다","좋아하다","사랑하다","웃다","울다","돕다"]},{"id":"adj_size_state","words":["big","large","small","little","tall","short","long","high","low","fat","fast","quick","slow","far","near","deep","new","old","young","clean","wet","dry","hot","warm","cool","cold","bright","dark","hard","soft","heavy","full","rich","poor","cheap","free","safe","strong","same","clear","true","wrong","ready","difficult","busy","quiet","fit","open","dead","fresh","delicious","circle","cube","size","dot"],"extras":["큰","작은","긴","짧은","높은","낮은","빠른","느린","뜨거운","차가운","깨끗한","무거운","가벼운","단단한","부드러운","새로운","오래된"]},{"id":"adj_emotion","words":["happy","glad","sad","mad","sorry","afraid","shy","alone","good","bad","nice","fine","great","kind","brave","clever","honest","lazy","pretty","ugly","comic","favorite","certain","sure","alright","sick","okay"],"extras":["행복한","기쁜","슬픈","화난","무서운","부끄러운","친절한","용감한","영리한","게으른","예쁜","멋진","착한","아픈","심심한"]},{"id":"pronouns_person","words":["I","you","he","she","we","they"],"extras":["내가, 나는","당신","그가, 그는","그녀가, 그녀는","우리가, 우리는","그들은"]},{"id":"pronouns_demo","words":["it","this","that","a(an)","the"],"extras":["그것","이것","저것","하나의","그~, 저~","이것들","저것들"]},{"id":"question_words","words":["what","who","where","when","why","how"],"extras":["무엇","누구","어디","언제","왜","어떻게","어느 것"]},{"id":"prepositions","words":["in","on","at","under","over","above","below","by","beside","between","behind","ahead","inside","around","across","along","into","from","to","with","for","of","about","after","before","during","against","as","than","up","down","out","off","away"],"extras":["~안에서","~위에","~아래에서","~옆에","~뒤에","~앞에","~사이에","~속으로","~로부터","~와 함께","~동안","~후에"]},{"id":"directions","words":["left","right","east","west","north","south","center","middle","front","top","bottom","side","here","there"],"extras":["왼쪽","오른쪽","동쪽","서쪽","남쪽","북쪽","중앙","앞","뒤","꼭대기","맨 아래","여기에서","그곳에"]},{"id":"auxiliaries","words":["be","can","could","will","should","must","may","might"],"extras":["~할 수 있다","~할 것이다","~해야 한다","~해도 좋다","~일지도 모른다","~이다"]},{"id":"conj_greet","words":["and","but","or","if","because","so","however","yes","no","not","hello","goodbye"],"extras":["그리고","그러나","또는","만약 ~라면","~때문에","그래서","네(대답)","아니요","안녕","잘 가"]},{"id":"quant_adverbs","words":["all","both","many","much","some","any","every","another","nothing","enough","always","often","never","again","already","almost","also","too","only","just","very","well","together","ago"],"extras":["항상","종종","결코 ~않은","다시","함께","매우","이미","거의","오직","또한","모두","많은","약간의","모든"]},{"id":"abstract_media","words":["name","life","birth","death","wedding","bath","dream","thirst","voice","idea","memory","mind","habit","luck","plan","chance","fact","issue","condition","culture","energy","power","war","work","job","business","money","cash","bill","check","cost","sale","part","base","case","form","type","style","thing","sound","news","internet","website","software","program","mail","image","beauty","campaign"],"extras":["이름","생각","기억","습관","행운","계획","기회","사실","문제","문화","에너지","직업","돈","뉴스","인터넷","목소리","꿈"]}];
+const SYNONYM_GROUPS = [["남자","(성인) 남자","아저씨"],["여자","숙녀"],["아버지","아빠"],["어머니","엄마"],["아이","어린이"],["개","강아지"],["쥐","생쥐"],["큰","거대한","넓은","(키가) 큰"],["작은"],["빠른"],["좋은","맑은","착한"],["말하다","이야기하다"],["보다","바라보다"],["모자"],["배"],["가게","상점","시장"],["집","가정"],["가을"],["길","선로","거리"],["축구"],["나무","소나무"],["놓다","두다"],["자르다","썰다"],["종류","유형"],["점수","요점"],["문제","이슈"],["저녁","저녁 식사"],["또한","역시","너무"],["그러나","하지만"],["행복한","기쁜"],["슬픈","유감의"],["땅","지구"],["도시","마을"],["나라","국가"],["돈","현금"],["식당","음식점"],["경찰","경찰관"],["빨강","빨간색","붉은색의"],["파랑","파란색","푸른"],["노랑","노란색","노랑색","노랑색의"],["초록","초록색","녹색","녹색의"],["검정","검정색","검은"],["하양","하얀색","백색","흰"],["분홍","분홍색","핑크색의"],["갈색","밤색의"],["회색","회색의"],["~앞에","~전에"],["~옆에","~곁에"],["~위에","~위로","~위쪽에","위에"],["~아래에","~아래에서","아래로"],["~안에","~안에서","~속으로"],["아니다","아니요"],["그~","저~","그~, 저~"]];
+
+const WORD_CLUSTER_MAP = (() => {
+  const map = new Map();
+  SEMANTIC_CLUSTERS.forEach(cl => {
+    cl.words.forEach(w => map.set(w.toLowerCase(), cl));
+  });
+  return map;
+})();
+
+function extractMeaningTokens(meaning) {
+  const cleaned = String(meaning || '')
+    .replace(/\([^)]*\)/g, '')
+    .replace(/~/g, '')
+    .trim();
+  const parts = cleaned.split(/[,;:/]+/).map(p => p.trim()).filter(Boolean);
+  const set = new Set(parts);
+  if (cleaned) set.add(cleaned);
+  return set;
+}
+
+function isSynonymOrDuplicate(m1, m2) {
+  const t1 = extractMeaningTokens(m1);
+  const t2 = extractMeaningTokens(m2);
+  for (const x of t1) {
+    if (t2.has(x)) return true;
+  }
+  for (const grp of SYNONYM_GROUPS) {
+    let hit1 = false, hit2 = false;
+    for (const g of grp) {
+      if (t1.has(g)) hit1 = true;
+      if (t2.has(g)) hit2 = true;
+      if (hit1 && hit2) return true;
     }
   }
+  return false;
+}
+
+function detectKoPos(meaning) {
+  const m = String(meaning || '').trim();
+  if (m.startsWith('~')) return 'prep';
+  const first = m.split(/[,;:/]/)[0].trim();
+  if (first.endsWith('다')) return 'verb';
+  if (/(한|은|운|인|른|쁜|픈|긴|큰|높은|낮은|깊은|넓은|좁은|밝은|어두운|추운|더운|쉬운|어려운|새로운|오래된|늙은|젊은|젖은|마른|아픈|슬픈|기쁜|나쁜|좋은|예쁜|못생긴|짧은|작은|많은|적은|같은|다른|옳은|참된|의)$/.test(first)) {
+    return 'adj';
+  }
+  return 'noun';
+}
+
+function buildDistractors(targetWord) {
+  const tLow = String(targetWord.word || '').toLowerCase().trim();
+  const tClean = tLow.replace(/\([^)]*\)/g, '').trim();
+  const tMean = String(targetWord.meaning || '').trim();
+  const tTopic = String(targetWord.topic || targetWord.themeName || '').trim();
+  const tPos = detectKoPos(tMean);
+
+  const picked = [];
+  const usedMeanings = [tMean];
+
+  const tryAdd = (wordStr, meaningStr) => {
+    const m = String(meaningStr || '').trim();
+    if (!m) return false;
+    if (usedMeanings.some(um => isSynonymOrDuplicate(m, um))) return false;
+    usedMeanings.push(m);
+    picked.push({ word: wordStr, meaning: m });
+    return true;
+  };
+
+  const shuffleArr = arr => arr.slice().sort(() => Math.random() - 0.5);
+
+  // Tier 1: 정밀 유사 의미군 (예: man -> 여자/할머니/엄마, school -> 도서관/소방서/경찰서)
+  const cluster = WORD_CLUSTER_MAP.get(tLow) || WORD_CLUSTER_MAP.get(tClean);
+  if (cluster) {
+    const clSet = new Set(cluster.words.map(w => w.toLowerCase()));
+    const realSibs = allWords
+      .filter(w => {
+        const wl = w.word.toLowerCase();
+        return wl !== tLow && (clSet.has(wl) || clSet.has(wl.replace(/\([^)]*\)/g, '').trim()));
+      })
+      .map(w => ({ word: w.word, meaning: w.meaning }));
+    const extraSibs = (cluster.extras || []).map((ex, i) => ({ word: `__extra_${cluster.id}_${i}`, meaning: ex }));
+
+    // 실제 단어장의 유사 단어 + 보강 보기(할머니·소방서·경찰서 등)를 고르게 섞어 매번 자연스러운 3개 선택
+    const combined = shuffleArr([...realSibs, ...extraSibs]);
+    for (const cand of combined) {
+      if (picked.length >= 3) break;
+      tryAdd(cand.word, cand.meaning);
+    }
+  }
+
+  // Tier 2: 같은 주제(초등800 주제) + 같은 품사
+  if (picked.length < 3 && tTopic) {
+    const sameTopicPos = shuffleArr(allWords.filter(w =>
+      w.word.toLowerCase() !== tLow &&
+      String(w.topic || w.themeName || '').trim() === tTopic &&
+      detectKoPos(w.meaning) === tPos
+    ));
+    for (const cand of sameTopicPos) {
+      if (picked.length >= 3) break;
+      tryAdd(cand.word, cand.meaning);
+    }
+  }
+
+  // Tier 3: 같은 주제 전체
+  if (picked.length < 3 && tTopic) {
+    const sameTopic = shuffleArr(allWords.filter(w =>
+      w.word.toLowerCase() !== tLow &&
+      String(w.topic || w.themeName || '').trim() === tTopic
+    ));
+    for (const cand of sameTopic) {
+      if (picked.length >= 3) break;
+      tryAdd(cand.word, cand.meaning);
+    }
+  }
+
+  // Tier 4: 같은 품사 -> 전체 단어 안전 폴백
+  if (picked.length < 3) {
+    const samePos = shuffleArr(allWords.filter(w =>
+      w.word.toLowerCase() !== tLow && detectKoPos(w.meaning) === tPos
+    ));
+    for (const cand of samePos) {
+      if (picked.length >= 3) break;
+      tryAdd(cand.word, cand.meaning);
+    }
+  }
+  if (picked.length < 3) {
+    const anyPool = shuffleArr(allWords.filter(w => w.word.toLowerCase() !== tLow));
+    for (const cand of anyPool) {
+      if (picked.length >= 3) break;
+      tryAdd(cand.word, cand.meaning);
+    }
+  }
+
   return picked;
 }
 
@@ -2929,6 +3438,7 @@ function renderQuizCard() {
   qAnswered = false;
 
   const cur = qIdx + 1, tot = sessionWords.length;
+  $('quizPhaseBadge').textContent = isSupportSession ? '연습 1단계 · 뜻 맞추기 (서포트)' : '공식 2차 · 4지선다 검증';
   $('qCurNum').textContent = cur;
   $('qTotNum').textContent = tot;
   $('qProgFill').style.width = Math.max(10, Math.round((cur / tot) * 100)) + '%';
@@ -2973,26 +3483,36 @@ function handleQuizChoice(item, cardEl) {
     showOverlayToast('quizToast', 'quizToastText', qWrongCount === 0 ? '정답이에요! 🎉' : '찾았어요! 잘했어요! 🌟', true);
     cardEl.classList.add('bounce-correct');
 
-    // 확정 판정: 1회 정답=grad, 2회 정답=conf, 3회 이상=unk
-    const grade = qWrongCount === 0 ? 'grad' : (qWrongCount === 1 ? 'conf' : 'unk');
-    qGradeMap[item.word.toLowerCase()] = grade;
+    if (isSupportSession) {
+      // [공부 서포트용] 연습 피드백만 임시 집계 (공식 records·시트 절대 미수정!)
+      const pGrade = qWrongCount === 0 ? 'good' : (qWrongCount === 1 ? 'mid' : 'retry');
+      qGradeMap[item.word.toLowerCase()] = pGrade;
+    } else {
+      // [공식 졸업 판정] 1차(know/conf) + 2차(1회 정답 여부) 공식 매트릭스 판정!
+      const p1 = p1RatingMap[item.word.toLowerCase()] || 'conf';
+      finalizeOfficialWordGrade(item.word, p1, qWrongCount === 0);
+    }
 
     setTimeout(() => {
       qIdx += 1;
       if (qIdx < sessionWords.length) {
         renderQuizCard();
       } else {
-        if (cfg.enableSpell) {
-          sIdx = 0;
-          showView('spell');
-          renderSpellCard();
+        if (isSupportSession) {
+          if (cfg.enableSpell) {
+            sIdx = 0;
+            showView('spell');
+            renderSpellCard();
+          } else {
+            sessionWords.forEach(w => {
+              const g = qGradeMap[w.word.toLowerCase()] || 'mid';
+              recordSupportPracticeItem(w.word, g, 'good');
+            });
+            finishSupportSession();
+          }
         } else {
-          // 4지선다만 진행한 경우 바로 결과 집계
-          sessionWords.forEach(w => {
-            const g = qGradeMap[w.word.toLowerCase()] || 'conf';
-            finalizeWordGrade(w.word, g, 'grad');
-          });
-          finishSession();
+          // 공식 알파블럭스 / 초등800 테스트 완료 -> 공식 졸업 판정 & 시트 전송!
+          finishOfficialSession();
         }
       }
     }, 720);
@@ -3062,7 +3582,7 @@ function renderSpellCard() {
 
   const cur = sIdx + 1, tot = sessionWords.length;
   const isQwerty = cfg.spellInputMode === 'qwerty';
-  $('spellPhaseBadge').textContent = isQwerty ? '2단계 · 쿼티 철자 입력' : '2단계 · 글자 블록 조립';
+  $('spellPhaseBadge').textContent = isQwerty ? '연습 2단계 · 쿼티 철자 (서포트)' : '연습 2단계 · 글자 블록 (서포트)';
   $('spellModeIndicator').textContent = isQwerty ? '⌨️ 쿼티 키보드 모드 (설정에서 변경 가능)' : '🧱 글자 블록 조립 모드 (설정에서 변경 가능)';
   $('sCurNum').textContent = cur;
   $('sTotNum').textContent = tot;
@@ -3221,34 +3741,97 @@ function onSpellWordCompleted() {
   speakEn(item.word);
   showOverlayToast('spellToast', 'spellToastText', `완성! ${item.word} 🎉`, true);
 
-  // 확정 판정표: 오타 0~2회 & 힌트 미사용=grad / 오타 3회 또는 힌트=conf / 오타 4회+=unk
-  let spellGrade = 'grad';
-  if (sWrongCount >= 4) spellGrade = 'unk';
-  else if (sWrongCount === 3 || sUsedHint) spellGrade = 'conf';
+  // 공부 서포트 연습 피드백 (공식 졸업 판정 미반영)
+  let spellGrade = 'good';
+  if (sWrongCount >= 4) spellGrade = 'retry';
+  else if (sWrongCount === 3 || sUsedHint) spellGrade = 'mid';
 
-  const quizGrade = qGradeMap[item.word.toLowerCase()] || 'grad';
-  finalizeWordGrade(item.word, quizGrade, spellGrade);
+  const quizGrade = qGradeMap[item.word.toLowerCase()] || 'good';
+  recordSupportPracticeItem(item.word, quizGrade, spellGrade);
 
   setTimeout(() => {
     sIdx += 1;
     if (sIdx < sessionWords.length) {
       renderSpellCard();
     } else {
-      finishSession();
+      finishSupportSession();
     }
   }, 900);
 }
 
-function finalizeWordGrade(word, quizGrade, spellGrade) {
-  let finalStatus = '졸업';
+// ========== (A) 공부 서포트(학습지 DAY) 결과: 졸업 판정 X · 시트 쓰기 X ==========
+function recordSupportPracticeItem(word, quizGrade, spellGrade) {
+  let level = 'good';
+  if (quizGrade === 'retry' || spellGrade === 'retry') level = 'retry';
+  else if (quizGrade === 'mid' || spellGrade === 'mid') level = 'mid';
+  sessionResults.push({ word, level });
+}
+
+function finishSupportSession() {
+  playCelebrationChord();
+
+  // 기기 내 학습지 연습 완료 표시만 저장 (공식 records·시트는 절대 수정하지 않음!)
+  const dObj = getCurrentDayObj();
+  if (dObj) {
+    if (!cfg.dayPracticeDone) cfg.dayPracticeDone = { first: {}, second: {} };
+    if (!cfg.dayPracticeDone[cfg.childKey]) cfg.dayPracticeDone[cfg.childKey] = {};
+    cfg.dayPracticeDone[cfg.childKey][getDaySignature(dObj)] = todayStr();
+    saveCfg();
+  }
+
+  const childName = getActiveChildName();
+  const label = dObj ? dObj.dayCode : cfg.dayCode;
+  const good  = sessionResults.filter(r => r.level === 'good').length;
+  const mid   = sessionResults.filter(r => r.level === 'mid').length;
+  const retry = sessionResults.filter(r => r.level === 'retry').length;
+
+  $('doneTitle').textContent = `${childName} · ${label} 연습 완료! 🎉`;
+  $('doneSubtitle').textContent = `오늘의 학습지 단어 ${sessionResults.length}개를 재미있게 연습했어요.`;
+  $('statGradLbl').textContent = '한 번에 척척';
+  $('statConfLbl').textContent = '조금 헷갈림';
+  $('statUnkLbl').textContent  = '한 번 더 봐요';
+  $('statGrad').textContent = good;
+  $('statConf').textContent = mid;
+  $('statUnk').textContent  = retry;
+
+  const chips = $('doneWordChips');
+  chips.innerHTML = '';
+  sessionResults.forEach(r => {
+    const span = document.createElement('span');
+    const cls = r.level === 'good' ? 'grad' : r.level === 'mid' ? 'conf' : 'unk';
+    const ico = r.level === 'good' ? '⭐' : r.level === 'mid' ? '💡' : '🔁';
+    span.className = 'done-chip ' + cls;
+    span.textContent = `${ico} ${r.word}`;
+    chips.appendChild(span);
+  });
+
+  $('syncHeadline').textContent = '📖 공부 서포트 연습 완료 (졸업 판정 미반영)';
+  $('syncSubtext').textContent = '공식 졸업 판정은 [🧱 알파블럭스 / 📚 초등800] 테스트에서만 기록돼요';
+  $('syncPill').textContent = '서포트 완료';
+
+  $('doneHomeBtn').textContent = '🔊 세이펜 다시 보기';
+  $('doneNextBtn').textContent = '다음 DAY로 ▶';
+
+  showView('done');
+  renderHeader();
+}
+
+// ========== (B) 공식 졸업 판정(알파블럭스 / 초등800 / 오답복습): 시트 자동 누적 ==========
+function finalizeOfficialWordGrade(word, p1Rating, p2FirstTryOk) {
+  let finalStatus = '몰라요';
   let addConfused = 0, addUnknown = 0;
 
-  if (quizGrade === 'unk' || spellGrade === 'unk') {
-    finalStatus = '몰라요';
-    addUnknown = 1;
-  } else if (quizGrade === 'conf' || spellGrade === 'conf') {
+  if (p1Rating === 'know' && p2FirstTryOk) {
+    finalStatus = '졸업';
+  } else if (p1Rating === 'know' && !p2FirstTryOk) {
     finalStatus = '헷갈려요';
     addConfused = 1;
+  } else if (p1Rating === 'conf' && p2FirstTryOk) {
+    finalStatus = '헷갈려요';
+    addConfused = 1;
+  } else {
+    finalStatus = '몰라요';
+    addUnknown = 1;
   }
 
   const wKey = word.toLowerCase();
@@ -3264,22 +3847,25 @@ function finalizeWordGrade(word, quizGrade, spellGrade) {
   sessionResults.push({ word, finalStatus, addConfused, addUnknown, date });
 }
 
-// ========== Finish Session & Auto-POST to Google Sheets ==========
-async function finishSession() {
+async function finishOfficialSession() {
   saveRecords();
+  rebuildIndexes(); // 공식 졸업이 반영되었으므로 미졸업 DAY 인덱스 갱신
   playCelebrationChord();
 
   const childName = getActiveChildName();
-  const label = cfg.reviewOnly ? '오답 집중 복습' : (cfg.mode === 'day' ? cfg.dayCode : cfg.stageName);
+  const label = cfg.reviewOnly ? '오답 공식 재확인' : cfg.stageName;
   const grad = sessionResults.filter(r => r.finalStatus === '졸업').length;
   const conf = sessionResults.filter(r => r.finalStatus === '헷갈려요').length;
   const unk  = sessionResults.filter(r => r.finalStatus === '몰라요').length;
 
-  $('doneTitle').textContent = `${childName} · ${label} 완료! 🎉`;
-  $('doneSubtitle').textContent = `총 ${sessionResults.length}단어 암기 체크를 끝냈어요.`;
+  $('doneTitle').textContent = `${childName} · 공식 테스트 완료! 🏆`;
+  $('doneSubtitle').textContent = `${label} · ${sessionResults.length}단어 공식 판정이 완료되었어요.`;
+  $('statGradLbl').textContent = '완전 암기 (졸업)';
+  $('statConfLbl').textContent = '헷갈려요';
+  $('statUnkLbl').textContent  = '몰라요';
   $('statGrad').textContent = grad;
   $('statConf').textContent = conf;
-  $('statUnk').textContent = unk;
+  $('statUnk').textContent  = unk;
 
   const chips = $('doneWordChips');
   chips.innerHTML = '';
@@ -3292,8 +3878,8 @@ async function finishSession() {
     chips.appendChild(span);
   });
 
-  $('doneHomeBtn').textContent = (cfg.mode === 'day' && !cfg.reviewOnly) ? '🔊 세이펜 다시 보기' : '🏠 처음으로';
-  $('doneNextBtn').textContent = (cfg.mode === 'day' && !cfg.reviewOnly) ? '다음 DAY로 ▶' : '다음 단계로 ▶';
+  $('doneHomeBtn').textContent = '🏠 처음으로';
+  $('doneNextBtn').textContent = '계속 테스트 ▶';
 
   showView('done');
   renderHeader();
@@ -3301,14 +3887,14 @@ async function finishSession() {
   const webhook = (cfg.webhookUrl || '').trim();
   const colRange = cfg.childKey === 'second' ? 'U~X열' : 'Q~T열';
   if (!webhook) {
-    $('syncHeadline').textContent = `✓ 기기에 ${childName} 기록 저장됨`;
+    $('syncHeadline').textContent = `✓ 기기에 ${childName} 공식 판정 저장됨`;
     $('syncSubtext').textContent = '구글 시트 동기화는 설정(⚙️)에서 /exec 주소를 입력하세요';
     $('syncPill').textContent = '기기 저장';
     return;
   }
 
-  $('syncHeadline').textContent = `구글 시트 ${childName} (${colRange}) 저장 중...`;
-  $('syncSubtext').textContent = '다른 기기에서도 똑같이 이어집니다';
+  $('syncHeadline').textContent = `구글 시트 ${childName} (${colRange}) 공식 기록 전송 중...`;
+  $('syncSubtext').textContent = '졸업 단어는 다음 일일학습지 PDF에서 자동 제외됩니다';
   $('syncPill').textContent = '전송 중';
 
   try {
@@ -3323,7 +3909,7 @@ async function finishSession() {
         results: sessionResults
       })
     });
-    $('syncHeadline').textContent = `✓ 구글 시트 ${childName} (${colRange}) 자동 저장 완료!`;
+    $('syncHeadline').textContent = `✓ 구글 시트 ${childName} (${colRange}) 공식 저장 완료!`;
     $('syncSubtext').textContent = `졸업 ${grad} · 헷갈려요 ${conf} · 몰라요 ${unk} 반영됨`;
     $('syncPill').textContent = '동기화됨';
   } catch (e) {
@@ -3341,6 +3927,11 @@ function moveToNextUnit() {
       saveCfg();
     }
   } else {
+    if (!cfg.reviewOnly && getModeTargetWords().length > 0) {
+      // 현재 단계에 남은 미졸업 단어가 있으면 다음 묶음 이어서 테스트
+      renderMainScreen();
+      return;
+    }
     cfg.reviewOnly = false;
     const idx = stages.findIndex(s => s.name === cfg.stageName);
     if (idx >= 0 && idx + 1 < stages.length) {
@@ -3445,7 +4036,7 @@ function renderWeekFilteredDays(totalWeeks) {
         <span class="stage-item-name">${doneAll ? '✅ ' : ''}${esc(g.dayCode)} · ${esc(g.topic)}</span>
         <span class="stage-item-words">${esc(wordsPreview)}</span>
       </div>
-      <span class="stage-item-sub">${gradCnt}/${g.words.length} 졸업</span>`;
+      <span class="stage-item-sub">${doneAll ? '연습 완료' : g.words.length + '단어'}</span>`;
     btn.addEventListener('click', () => {
       playTone(560, 0.06);
       cfg.dayCode = g.dayCode;
@@ -3514,6 +4105,8 @@ function paintSettingsUI() {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('on-mint', b.dataset.mode === draft.mode));
   document.querySelectorAll('.spell-mode-btn').forEach(b => b.classList.toggle('on-gold', b.dataset.spell === draft.spellInputMode));
   $('enableSpellToggle').classList.toggle('on', !!draft.enableSpell);
+  $('excludeGradToggle').classList.toggle('on', !!draft.excludeGraduatedInDay);
+  document.querySelectorAll('.batch-btn').forEach(b => b.classList.toggle('on-blue', Number(b.dataset.batch) === Number(draft.officialBatchSize)));
   document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('on-blue', Number(b.dataset.rate) === Number(draft.rate)));
 }
 
@@ -3528,9 +4121,10 @@ $('headerLogoBtn').addEventListener('click', () => {
 $('headerChildChip').addEventListener('click', () => {
   const nextKey = cfg.childKey === 'first' ? 'second' : 'first';
   const nextName = nextKey === 'second' ? (cfg.secondName.trim() || '둘째') : (cfg.firstName.trim() || '첫째');
-  if ((currentView === 'quiz' || currentView === 'spell') && !confirm(`"${nextName}"(으)로 전환하고 메인으로 돌아갈까요?`)) return;
+  if ((currentView === 'p1' || currentView === 'handoff' || currentView === 'quiz' || currentView === 'spell') && !confirm(`"${nextName}"(으)로 전환하고 메인으로 돌아갈까요?`)) return;
   playTone(580, 0.07);
   cfg.childKey = nextKey;
+  rebuildIndexes();
   if (cfg.mode === 'day' && !cfg.reviewOnly) cfg.dayCode = findRecommendedDayCode();
   saveCfg();
   renderMainScreen();
@@ -3589,6 +4183,15 @@ $('quizWordStage').addEventListener('click', () => {
   const item = sessionWords[qIdx];
   if (item) speakEn(item.word);
 });
+$('p1WordCard').addEventListener('click', () => {
+  const item = sessionWords[p1Idx];
+  if (item) speakEn(item.word);
+});
+$('p1KnowBtn').addEventListener('click', () => ratePhase1('know'));
+$('p1ConfBtn').addEventListener('click', () => ratePhase1('conf'));
+$('p1UnkBtn').addEventListener('click', () => ratePhase1('unk'));
+$('p1BackBtn').addEventListener('click', () => { playTone(440, 0.06); renderMainScreen(); });
+$('startPhase2Btn').addEventListener('click', startOfficialPhase2);
 $('quizBackBtn').addEventListener('click', () => { playTone(440, 0.06); renderMainScreen(); });
 $('spellBackBtn').addEventListener('click', () => { playTone(440, 0.06); renderMainScreen(); });
 $('spellSpeakBtn').addEventListener('click', () => {
@@ -3628,10 +4231,37 @@ $('secondNameInput').addEventListener('input', e => { draft.secondName = e.targe
 document.querySelectorAll('.mode-btn').forEach(b => {
   b.addEventListener('click', () => { draft.mode = b.dataset.mode; paintSettingsUI(); });
 });
+document.querySelectorAll('.batch-btn').forEach(b => {
+  b.addEventListener('click', () => { draft.officialBatchSize = Number(b.dataset.batch); paintSettingsUI(); });
+});
 document.querySelectorAll('.spell-mode-btn').forEach(b => {
   b.addEventListener('click', () => { draft.spellInputMode = b.dataset.spell; paintSettingsUI(); });
 });
 $('enableSpellToggle').addEventListener('click', () => { draft.enableSpell = !draft.enableSpell; paintSettingsUI(); });
+$('excludeGradToggle').addEventListener('click', () => { draft.excludeGraduatedInDay = !draft.excludeGraduatedInDay; paintSettingsUI(); });
+
+$('weekPinBtn').addEventListener('click', () => {
+  playTone(580, 0.07);
+  if (!cfg.pinnedWeekDays) cfg.pinnedWeekDays = { first: null, second: null };
+  const isPinned = Array.isArray(cfg.pinnedWeekDays[cfg.childKey]) && cfg.pinnedWeekDays[cfg.childKey].length > 0;
+  if (isPinned) {
+    if (!confirm('고정을 풀고 최신 졸업 기록을 반영해 다음 5일치를 새로 불러올까요?')) return;
+    cfg.pinnedWeekDays[cfg.childKey] = null;
+    rebuildIndexes();
+    cfg.dayCode = dayGroups.length ? dayGroups[0].dayCode : 'DAY 001';
+    saveCfg();
+    renderMainScreen();
+    showGlobalToast('✓ 졸업 단어를 빼고 새 5일치를 불러왔어요!', 'ok');
+  } else {
+    const first5 = dayGroups.slice(0, 5).map(g => g.words.map(w => w.word.toLowerCase()));
+    if (!first5.length) return;
+    cfg.pinnedWeekDays[cfg.childKey] = first5;
+    rebuildIndexes();
+    saveCfg();
+    renderMainScreen();
+    showGlobalToast('📌 이번 주 5일치(인쇄본)를 고정했어요! 오답이 생겨도 안 밀려요.', 'ok');
+  }
+});
 document.querySelectorAll('.speed-btn').forEach(b => {
   b.addEventListener('click', () => {
     draft.rate = Number(b.dataset.rate);
@@ -3777,8 +4407,11 @@ $('saveSettingsBtn').addEventListener('click', async () => {
   cfg.firstName = ($('firstNameInput').value || '').trim() || '첫째 민준';
   cfg.secondName = ($('secondNameInput').value || '').trim() || '둘째 서아';
   cfg.mode = draft.mode;
+  cfg.officialBatchSize = Number(draft.officialBatchSize) || 0;
   cfg.spellInputMode = draft.spellInputMode;
+  const prevExcl = cfg.excludeGraduatedInDay;
   cfg.enableSpell = draft.enableSpell;
+  cfg.excludeGraduatedInDay = !!draft.excludeGraduatedInDay;
   cfg.rate = draft.rate;
   cfg.csvUrl = $('csvUrlInput').value.trim();
   cfg.webhookUrl = $('webhookUrlInput').value.trim();
@@ -3787,7 +4420,7 @@ $('saveSettingsBtn').addEventListener('click', async () => {
 
   if (cfg.csvUrl !== prevCsv) {
     try { await loadWordsFromSheet(cfg.csvUrl); } catch (e) {}
-  } else if (cfg.mode !== prevMode) {
+  } else if (cfg.mode !== prevMode || cfg.excludeGraduatedInDay !== prevExcl) {
     rebuildIndexes();
   }
   saveCfg();
@@ -3821,3 +4454,4 @@ init();
 </script>
 </body>
 </html>
+
