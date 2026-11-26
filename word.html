@@ -1,0 +1,3823 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="color-scheme" content="light only" />
+<meta name="supported-color-schemes" content="light" />
+<meta name="theme-color" content="#dff0ff" />
+<title>매일 영단어 · 학습지 세이펜 & 암기 체크</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+KR:wght@500;700;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===== Force Light Colors Even Under OS/Browser Dark Mode ===== */
+:root {
+  color-scheme: light only;
+  forced-color-adjust: none;
+  --surface: #fbf9f3;
+  --surface-low: #f5f3ee;
+  --surface-card: #ffffff;
+  --surface-container: #f0eee8;
+  --surface-high: #eae8e2;
+  --surface-highest: #e4e2dd;
+  --surface-dim: #dbdad4;
+
+  --ink: #1b1c19;
+  --ink-soft: #434c56;
+  --outline: #6f7882;
+  --outline-var: #bec7d3;
+
+  --primary: #006399;
+  --primary-box: #32a8f7;
+  --primary-ink: #003a5d;
+  --primary-fixed: #cde5ff;
+
+  --secondary: #006d3d;
+  --secondary-box: #68faa6;
+  --secondary-ink: #004e2a;
+  --secondary-edge: #008248;
+  --secondary-fixed: #d8fbe6;
+
+  --tertiary: #7b5800;
+  --tertiary-box: #cf9700;
+  --tertiary-fixed: #ffdea5;
+  --tertiary-dim: #fdbb22;
+  --tertiary-ink: #4a3300;
+
+  --error: #ba1a1a;
+  --error-box: #ffdad6;
+  --error-ink: #93000a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  forced-color-adjust: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  font-family: 'Quicksand', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+::-webkit-scrollbar { display: none; }
+
+/* ===== Background Scene (Pastel Sky + Rolling Hills) ===== */
+.bg-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(180deg, #dff0ff 0%, #f5f3ee 58%, #e4faec 100%) !important;
+}
+.bg-cloud {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.86) !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.9);
+}
+.bg-cloud.c1 { top: 3.5%; left: 5%; width: 106px; height: 38px; }
+.bg-cloud.c2 { top: 9%; right: 6%; width: 128px; height: 44px; opacity: 0.78; }
+.bg-hill-1 {
+  position: absolute;
+  bottom: -95px; left: -15%;
+  width: 130vw; height: 170px;
+  border-radius: 100%;
+  background: rgba(104, 250, 166, 0.42) !important;
+  transform: rotate(-1deg);
+}
+.bg-hill-2 {
+  position: absolute;
+  bottom: -120px; right: -15%;
+  width: 130vw; height: 185px;
+  border-radius: 100%;
+  background: rgba(0, 109, 61, 0.13) !important;
+  transform: rotate(2deg);
+}
+
+/* ===== App Shell ===== */
+.app-shell {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: max(8px, env(safe-area-inset-top)) clamp(10px, 2.8vw, 20px) max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+/* ===== Unified Top Bar ===== */
+.topbar {
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  flex: 1;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.logo-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: none;
+  background: #ffffff !important;
+  box-shadow: 0 4px 0 0 #dbdad4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  transition: transform 0.1s;
+}
+.logo-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 0 #dbdad4; }
+
+.top-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 100%;
+  height: 44px;
+  padding: 4px 8px 4px 5px;
+  border-radius: 9999px;
+  background: #ffffff !important;
+  box-shadow: 0 4px 0 0 #dbdad4, 0 6px 14px rgba(27, 28, 25, 0.06);
+  overflow: hidden;
+}
+.child-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--primary);
+  font-family: inherit;
+  font-size: clamp(11.5px, 2.9vw, 13.5px);
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 112px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.09s;
+}
+.child-chip:active { transform: translateY(2px); }
+.child-chip.second {
+  background: #ff94b8 !important;
+  color: #5c1030 !important;
+  box-shadow: 0 3px 0 0 #c93b71;
+}
+.child-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.stage-picker-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  height: 34px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent !important;
+  color: var(--ink) !important;
+  font-family: inherit;
+  font-size: clamp(12px, 3vw, 14.5px);
+  font-weight: 800;
+  cursor: pointer;
+  overflow: hidden;
+}
+.stage-picker-btn:active { background: var(--surface-highest) !important; }
+.stage-picker-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.circle-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  flex-shrink: 0;
+  background: #ffffff !important;
+  color: var(--ink-soft) !important;
+  box-shadow: 0 4px 0 0 #dbdad4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.circle-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 0 #dbdad4; }
+.circle-btn.syncing svg { animation: spin 0.85s linear infinite; color: var(--primary); }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+.settings-lock-dot {
+  position: absolute;
+  top: -2px; right: -2px;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: var(--tertiary-dim) !important;
+  color: #271900 !important;
+  box-shadow: 0 2px 0 0 var(--tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Global Floating Toast */
+.global-toast {
+  position: fixed;
+  top: max(62px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  z-index: 90;
+  background: #1b1c19;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 16px;
+  border-radius: 9999px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 92vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.global-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.global-toast.ok { background: var(--secondary); }
+.global-toast.err { background: var(--error); }
+
+/* ===== Main Stage Frame ===== */
+.stage-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: clamp(22px, 3.8vw, 32px);
+  padding: clamp(10px, 1.8dvh, 18px) clamp(10px, 2.6vw, 18px);
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow: 0 8px 0 0 #e4e2dd, 0 18px 30px rgba(27, 28, 25, 0.06);
+  border: 3px solid #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.view-panel {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+.view-panel.active {
+  display: flex;
+  animation: fadePop 0.2s ease-out;
+}
+@keyframes fadePop {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== VIEW 1: DAY SEIPEN VIEW (학습지 DAY 메인) ===== */
+.day-ctrl-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.day-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.day-arrow-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: none;
+  background: var(--surface-container) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 3px 0 0 var(--surface-dim);
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.day-arrow-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 0 var(--surface-dim); }
+.day-arrow-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+.day-title-pill {
+  min-width: 0;
+  flex: 1;
+  background: var(--primary-fixed) !important;
+  color: var(--primary-ink) !important;
+  border: none;
+  border-radius: 14px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  font-family: inherit;
+}
+.day-code-badge {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  background: #ffffff;
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+.day-topic-txt {
+  font-size: 12.5px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.speed-pill-btn {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: none;
+  background: var(--tertiary-fixed) !important;
+  color: var(--tertiary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--tertiary-box);
+  font-family: 'Fredoka', 'Noto Sans KR', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.speed-pill-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 0 var(--tertiary-box); }
+
+/* Sub-tabs: Seipen vs Check */
+.subtab-bar {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--surface-container) !important;
+  margin-bottom: 10px;
+}
+.subtab-btn {
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: transparent !important;
+  color: var(--ink-soft) !important;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.14s;
+}
+.subtab-btn.active {
+  background: #ffffff !important;
+  color: var(--primary) !important;
+  box-shadow: 0 3px 0 0 var(--surface-dim);
+}
+
+/* Scrollable Seipen Body */
+.seipen-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+/* Collapsible Warm-up Strip */
+.warmup-box {
+  border-radius: 16px;
+  background: #fff9ec !important;
+  border: 1.5px solid #f5dfa8;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.warmup-head {
+  width: 100%;
+  border: none;
+  background: transparent !important;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--tertiary) !important;
+  cursor: pointer;
+}
+.warmup-chips {
+  display: none;
+  padding: 0 10px 10px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.warmup-box.open .warmup-chips { display: flex; }
+.warmup-chip {
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 11px;
+  background: #ffffff !important;
+  box-shadow: 0 2px 0 0 #e6cb88;
+  color: var(--ink) !important;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.warmup-chip strong { font-family: 'Fredoka', sans-serif; color: var(--primary); font-size: 14px; }
+.warmup-chip:active { transform: translateY(1px); }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 2px 0;
+}
+.section-title {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--ink-soft) !important;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.seq-play-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 5px 11px;
+  background: var(--primary-fixed) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 2px 0 0 var(--primary-box);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.seq-play-btn.playing {
+  background: var(--tertiary-dim) !important;
+  color: var(--tertiary-ink) !important;
+  box-shadow: 0 2px 0 0 var(--tertiary-box);
+}
+
+/* Word Cards (Seipen) */
+.word-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.seipen-word-card {
+  width: 100%;
+  border-radius: 20px;
+  padding: 10px 12px;
+  background: #ffffff !important;
+  border: 2px solid #edf2f7;
+  box-shadow: 0 4px 0 0 #e5e9ef;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.1s, border-color 0.15s, background-color 0.15s;
+}
+.seipen-word-card:active { transform: translateY(2px); }
+.seipen-word-card.speaking {
+  border-color: var(--primary-box);
+  background: #f0f8ff !important;
+}
+.sticker-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: #f6f8fb !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 4px;
+}
+.sticker-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.sticker-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d7edff 0%, #c8f7df 100%);
+  color: var(--primary-ink);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.word-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.word-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.word-en {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: clamp(24px, 6.2vw, 30px);
+  font-weight: 700;
+  color: var(--ink) !important;
+  line-height: 1.08;
+}
+.word-status-tag {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 9999px;
+}
+.st-grad { background: var(--secondary-fixed); color: var(--secondary); }
+.st-conf { background: var(--tertiary-fixed); color: var(--tertiary); }
+.st-unk  { background: var(--error-box); color: var(--error-ink); }
+.word-ko {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-soft) !important;
+}
+.word-ph {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--outline) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.spk-round {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  flex-shrink: 0;
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 4px 0 0 var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Sentence Cards (Seipen) */
+.sent-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.seipen-sent-card {
+  width: 100%;
+  border-radius: 18px;
+  padding: 12px 13px;
+  background: #f9fbfe !important;
+  border: 2px solid #e4eef8;
+  box-shadow: 0 4px 0 0 #dce7f3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform 0.1s, border-color 0.15s, background-color 0.15s;
+}
+.seipen-sent-card:active { transform: translateY(2px); }
+.seipen-sent-card.speaking {
+  border-color: var(--secondary-edge);
+  background: #edfdf4 !important;
+}
+.sent-num-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sent-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sent-en {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: clamp(18px, 4.6vw, 21px);
+  font-weight: 600;
+  color: var(--ink) !important;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+.sent-hl {
+  color: var(--primary) !important;
+  background: #d9eeff !important;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.sent-ko {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-soft) !important;
+  line-height: 1.3;
+}
+.spk-mini {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--secondary-box) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--secondary-edge);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+/* Sticky Bottom CTA in DAY Seipen */
+.seipen-footer {
+  flex-shrink: 0;
+  padding-top: 8px;
+  border-top: 1.5px solid var(--surface-container);
+}
+.btn-check-cta {
+  width: 100%;
+  height: 54px;
+  border: none;
+  border-radius: 20px;
+  background: var(--secondary-box) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 6px 0 0 var(--secondary-edge), 0 10px 18px rgba(0, 114, 64, 0.16);
+  font-family: 'Fredoka', 'Noto Sans KR', sans-serif;
+  font-size: clamp(16px, 4.2vw, 19px);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.09s;
+}
+.btn-check-cta:active { transform: translateY(4px); box-shadow: 0 2px 0 0 var(--secondary-edge); }
+
+/* ===== VIEW 1B: MODE HOME (알파블럭스 / 초등800 / 오답복습 시작 화면) ===== */
+.home-board {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border-radius: 24px;
+  padding: 22px 18px;
+  background: var(--surface-low) !important;
+  box-shadow: 0 7px 0 0 var(--tertiary-box);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 14px;
+}
+.home-cubes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.fb-cube {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+.home-title {
+  font-size: clamp(22px, 5.5vw, 32px);
+  font-weight: 900;
+  color: var(--ink) !important;
+}
+.home-desc {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink-soft) !important;
+  max-width: 340px;
+  line-height: 1.45;
+}
+.btn-start-big {
+  width: 100%;
+  max-width: 340px;
+  height: 62px;
+  border: none;
+  border-radius: 22px;
+  background: var(--secondary-box) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 7px 0 0 var(--secondary-edge);
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.btn-start-big:active { transform: translateY(4px); box-shadow: 0 3px 0 0 var(--secondary-edge); }
+
+/* ===== Shared Quiz/Spell Progress Header ===== */
+.prog-head {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.prog-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.prog-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.phase-badge.p1 {
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--primary);
+}
+.phase-badge.p2 {
+  background: var(--secondary-box) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--secondary-edge);
+}
+.prog-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.count-pill {
+  padding: 5px 11px;
+  border-radius: 9999px;
+  background: var(--surface-high) !important;
+  color: var(--ink-soft) !important;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+.count-pill .cur { color: var(--primary) !important; }
+.back-mini-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-container) !important;
+  color: var(--ink-soft) !important;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.prog-track {
+  width: 100%;
+  height: 16px;
+  border-radius: 9999px;
+  padding: 3px;
+  background: var(--surface-highest) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.prog-fill {
+  height: 100%;
+  min-width: 20px;
+  border-radius: 9999px;
+  transition: width 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.prog-fill.p1 { background: var(--primary-box) !important; }
+.prog-fill.p2 { background: linear-gradient(90deg, #3de085 0%, #68faa6 100%) !important; }
+
+/* ===== VIEW 2: STEP 1 - 4-CHOICE MEANING QUIZ ===== */
+.p2-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2dvh, 18px);
+  position: relative;
+}
+.p2-word-stage {
+  flex-shrink: 0;
+  width: 100%;
+  border-radius: 24px;
+  padding: clamp(14px, 2.4dvh, 24px) 16px;
+  background: var(--surface-low) !important;
+  box-shadow: 0 7px 0 0 var(--primary-box), 0 10px 18px rgba(0, 99, 153, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  cursor: pointer;
+}
+.p2-word-text {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: clamp(38px, 10vw, 62px);
+  font-weight: 700;
+  color: var(--ink) !important;
+  line-height: 1.05;
+}
+.p2-spk-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  flex-shrink: 0;
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 5px 0 0 var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.p2-spk-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 0 var(--primary); }
+
+.quiz-toast {
+  position: absolute;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  pointer-events: none;
+  padding: 7px 15px;
+  border-radius: 9999px;
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  display: none;
+}
+.quiz-toast.show { display: inline-block; animation: popToast 0.24s ease-out forwards; }
+.quiz-toast.ok { background: var(--secondary) !important; color: #ffffff !important; box-shadow: 0 6px 14px rgba(0, 109, 61, 0.3); }
+.quiz-toast.retry { background: #ffffff !important; color: var(--tertiary) !important; border: 2px solid var(--tertiary-dim); box-shadow: 0 6px 14px rgba(123, 88, 0, 0.16); }
+@keyframes popToast { from { opacity: 0; transform: translate(-50%, 6px) scale(0.92); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+
+.p2-choices-grid {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 2vw, 14px);
+  padding-bottom: 4px;
+}
+.quiz-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: none;
+  border-radius: 22px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.1s;
+}
+.quiz-card:active { transform: translateY(4px); }
+.quiz-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.quiz-meaning-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px 4px;
+}
+.quiz-meaning {
+  font-weight: 900;
+  line-height: 1.22;
+  word-break: keep-all;
+}
+
+@keyframes gentleShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@keyframes bounceCorrect {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.05) translateY(-3px); }
+  100% { transform: scale(1); }
+}
+.shake-wrong { animation: gentleShake 0.42s ease-in-out; }
+.bounce-correct { animation: bounceCorrect 0.5s ease-out; }
+.card-wrong-disabled {
+  opacity: 0.4 !important;
+  filter: saturate(0.45) grayscale(0.3) !important;
+  transform: scale(0.96) translateY(2px) !important;
+  pointer-events: none !important;
+}
+
+/* ===== VIEW 3: STEP 2 - SPELLING (LETTER BLOCKS & QWERTY) ===== */
+.spell-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  position: relative;
+}
+.spell-prompt-card {
+  flex-shrink: 0;
+  border-radius: 22px;
+  padding: clamp(10px, 1.8dvh, 16px) 14px;
+  background: var(--surface-low) !important;
+  border: 2px solid #e6edf5;
+  box-shadow: 0 5px 0 0 #dce5ef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.spell-top-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.spell-sticker {
+  width: clamp(56px, 12dvh, 78px);
+  height: clamp(56px, 12dvh, 78px);
+  border-radius: 18px;
+  background: #ffffff !important;
+  padding: 5px;
+  box-shadow: 0 3px 0 0 #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.spell-sticker img { width: 100%; height: 100%; object-fit: contain; }
+.spell-meaning-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+.spell-meaning-box.centered { align-items: center; text-align: center; }
+.spell-meaning {
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 900;
+  color: var(--ink) !important;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+.spell-tools-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.spell-tool-btn {
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.spell-tool-btn.spk {
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--primary);
+}
+.spell-tool-btn.hint {
+  background: var(--tertiary-fixed) !important;
+  color: var(--tertiary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--tertiary-box);
+}
+.spell-tool-btn:active { transform: translateY(2px); }
+
+/* Blank Letter Slots */
+.spell-slots {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 0 2px;
+}
+.spell-slot {
+  width: clamp(32px, 8.8vw, 46px);
+  height: clamp(42px, 10.5vw, 54px);
+  border-radius: 13px;
+  background: #ffffff !important;
+  border: 2.5px dashed #b7c8da;
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(22px, 6vw, 30px);
+  font-weight: 700;
+  color: var(--ink) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.16s;
+}
+.spell-slot.compact {
+  width: clamp(24px, 7vw, 36px);
+  height: clamp(36px, 8.8vw, 46px);
+  font-size: clamp(18px, 4.8vw, 24px);
+}
+.spell-slot.active {
+  border-style: solid;
+  border-color: var(--primary-box);
+  background: #edf7ff !important;
+  box-shadow: 0 0 0 3px rgba(50, 168, 247, 0.22);
+  transform: translateY(-2px);
+}
+.spell-slot.filled {
+  border-style: solid;
+  border-color: var(--secondary-edge);
+  background: var(--secondary-fixed) !important;
+  color: var(--secondary-ink) !important;
+  box-shadow: 0 3px 0 0 var(--secondary-edge);
+}
+.spell-slot.fixed-char {
+  width: 18px;
+  border: none;
+  background: transparent !important;
+  color: var(--ink-soft);
+}
+
+/* Input Mode A: Letter Blocks */
+.blocks-tray {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 4px;
+}
+.letter-block {
+  width: clamp(50px, 13.5vw, 64px);
+  height: clamp(52px, 13.5vw, 64px);
+  border: none;
+  border-radius: 16px;
+  background: #ffffff !important;
+  color: var(--primary-ink) !important;
+  border: 2px solid #c9dff5;
+  box-shadow: 0 5px 0 0 #8ab8e6;
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(25px, 6.5vw, 32px);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, opacity 0.2s;
+}
+.letter-block:active { transform: translateY(3px); box-shadow: 0 2px 0 0 #8ab8e6; }
+.letter-block.used {
+  opacity: 0.22;
+  transform: scale(0.88);
+  pointer-events: none;
+  box-shadow: none;
+}
+.letter-block.wrong-flash {
+  background: #fff2e0 !important;
+  border-color: var(--tertiary-dim);
+  animation: gentleShake 0.36s ease-in-out;
+}
+
+/* Input Mode B: Mobile QWERTY Keyboard */
+.qwerty-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 7px;
+  padding: 4px 0 2px;
+}
+.qwerty-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+}
+.q-key {
+  flex: 1;
+  max-width: 44px;
+  height: clamp(44px, 7.6dvh, 56px);
+  border: none;
+  border-radius: 11px;
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  border: 1.5px solid #d5dfe9;
+  box-shadow: 0 4px 0 0 #b8c6d4;
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(17px, 4.6vw, 22px);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s;
+}
+.q-key:active { transform: translateY(3px); box-shadow: 0 1px 0 0 #b8c6d4; }
+.q-key.wrong-flash {
+  background: #ffefd6 !important;
+  border-color: var(--tertiary-dim);
+  animation: gentleShake 0.34s ease-in-out;
+}
+.q-key.ok-flash {
+  background: var(--secondary-box) !important;
+  border-color: var(--secondary-edge);
+}
+
+.spell-meta-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--outline);
+  padding: 0 4px;
+}
+
+/* ===== VIEW 4: DONE SUMMARY ===== */
+.done-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.done-card {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-radius: 24px;
+  padding: 16px 14px;
+  background: #ffffff !important;
+  box-shadow: 0 6px 0 0 #d8a21e;
+  border: 2px solid #f5e6bf;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 10px;
+}
+.medal-badge {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--tertiary-dim) 0%, var(--tertiary-box) 100%) !important;
+  box-shadow: 0 5px 0 0 var(--tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.medal-inner {
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  background: var(--tertiary-fixed) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tertiary) !important;
+}
+.done-title { font-size: clamp(19px, 4.8vw, 25px); font-weight: 900; color: var(--ink) !important; }
+.done-sub { font-size: 13.5px; font-weight: 700; color: var(--ink-soft) !important; }
+.done-stats-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.stat-tile {
+  border-radius: 16px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.stat-tile.t-grad { background: var(--secondary-box) !important; color: var(--secondary-ink) !important; box-shadow: 0 4px 0 0 var(--secondary-edge); }
+.stat-tile.t-conf { background: var(--tertiary-fixed) !important; color: var(--tertiary-ink) !important; box-shadow: 0 4px 0 0 var(--tertiary-box); }
+.stat-tile.t-unk  { background: var(--error-box) !important; color: var(--error-ink) !important; box-shadow: 0 4px 0 0 var(--error); }
+.stat-lbl { font-size: 12px; font-weight: 800; }
+.stat-val { font-family: 'Fredoka', sans-serif; font-size: 28px; font-weight: 700; line-height: 1; }
+
+.done-word-chips {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.done-chip {
+  padding: 5px 11px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.done-chip.grad { background: var(--secondary-fixed); color: var(--secondary); }
+.done-chip.conf { background: var(--tertiary-fixed); color: var(--tertiary); }
+.done-chip.unk  { background: var(--error-box); color: var(--error-ink); }
+
+.sync-bar {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: rgba(104, 250, 166, 0.25) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+.sync-text-wrap { min-width: 0; flex: 1; }
+.sync-main { font-size: 12.5px; font-weight: 800; color: var(--ink) !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sync-sub { font-size: 11px; color: var(--ink-soft) !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sync-pill {
+  padding: 4px 9px;
+  border-radius: 9999px;
+  background: #ffffff !important;
+  color: var(--secondary) !important;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.done-actions {
+  flex-shrink: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.done-btn {
+  height: 54px;
+  border: none;
+  border-radius: 18px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.done-btn:active { transform: translateY(3px); }
+.done-btn.home { background: #ffffff !important; color: var(--ink-soft) !important; box-shadow: 0 5px 0 0 var(--surface-dim); }
+.done-btn.next { background: var(--primary-box) !important; color: var(--primary-ink) !important; box-shadow: 0 5px 0 0 var(--primary); }
+
+/* ===== Modals ===== */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(27, 28, 25, 0.48);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.modal-bg.open { display: flex; }
+.modal-card {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90dvh;
+  border-radius: 26px;
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  box-shadow: 0 12px 0 0 #e4e2dd, 0 24px 40px rgba(27, 28, 25, 0.24);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-card.small { max-width: 360px; }
+.modal-head {
+  flex-shrink: 0;
+  padding: 14px 18px;
+  border-bottom: 1.5px solid var(--surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.modal-title { font-size: 18px; font-weight: 900; color: var(--ink) !important; }
+.modal-close {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface-container) !important;
+  color: var(--ink-soft) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Stage / DAY Picker List */
+.week-filter-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  flex-shrink: 0;
+}
+.week-chip {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--surface-highest);
+  background: var(--surface-low) !important;
+  color: var(--ink-soft) !important;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.week-chip.on {
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  border-color: var(--primary);
+}
+.stage-list { display: flex; flex-direction: column; gap: 7px; }
+.stage-item-btn {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 15px;
+  border: 2px solid var(--surface-highest);
+  background: var(--surface-low) !important;
+  color: var(--ink) !important;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 3px 0 0 var(--surface-dim);
+}
+.stage-item-btn.on {
+  background: var(--primary-fixed) !important;
+  border-color: var(--primary-box);
+}
+.stage-item-btn.review-item {
+  background: var(--tertiary-fixed) !important;
+  border-color: var(--tertiary-box);
+}
+.stage-item-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stage-item-name { font-size: 14.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-item-words { font-size: 12px; font-weight: 700; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-item-sub { font-size: 12px; color: var(--ink-soft) !important; white-space: nowrap; flex-shrink: 0; font-weight: 800; }
+
+/* Settings Form */
+.sec-grp { display: flex; flex-direction: column; gap: 7px; }
+.sec-lbl { font-size: 14.5px; font-weight: 900; color: var(--ink) !important; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.sec-sub { font-size: 11.5px; color: var(--ink-soft) !important; font-weight: 600; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+.seg-box { padding: 6px; border-radius: 16px; background: var(--surface-container) !important; }
+
+.child-card {
+  padding: 9px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: #ffffff !important;
+  color: var(--ink-soft) !important;
+  box-shadow: 0 3px 0 0 var(--outline-var);
+}
+.child-card.on {
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 3px 0 0 #004b74;
+}
+.child-card input {
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: var(--ink) !important;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+}
+.opt-btn {
+  padding: 10px 6px;
+  border: none;
+  border-radius: 13px;
+  background: #ffffff !important;
+  color: var(--ink-soft) !important;
+  box-shadow: 0 3px 0 0 var(--outline-var);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+.opt-btn.on-mint { background: var(--secondary-box) !important; color: var(--secondary-ink) !important; box-shadow: 0 3px 0 0 var(--secondary-edge); }
+.opt-btn.on-blue { background: var(--primary-box) !important; color: var(--primary-ink) !important; box-shadow: 0 3px 0 0 #004b74; }
+.opt-btn.on-gold { background: var(--tertiary-fixed) !important; color: var(--tertiary-ink) !important; box-shadow: 0 3px 0 0 var(--tertiary-box); }
+
+.inp-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 13px;
+  border: 1.5px solid var(--surface-highest);
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+}
+.inp-field:focus { border-color: var(--primary-box); }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: var(--surface-low) !important;
+}
+.switch-btn {
+  width: 50px; height: 28px;
+  border-radius: 9999px;
+  border: none;
+  padding: 3px;
+  background: var(--surface-highest) !important;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+.switch-btn.on { background: var(--secondary-edge) !important; }
+.switch-knob {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translateX(0);
+  transition: transform 0.2s;
+}
+.switch-btn.on .switch-knob { transform: translateX(22px); }
+
+.mini-btn-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.mini-btn {
+  padding: 8px 11px;
+  border-radius: 9999px;
+  border: none;
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  box-shadow: 0 3px 0 0 var(--outline-var);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.mini-btn.sync-now { background: var(--secondary-box) !important; color: var(--secondary-ink) !important; box-shadow: 0 3px 0 0 var(--secondary-edge); }
+.mini-btn.pull-now { background: var(--primary-fixed) !important; color: var(--primary-ink) !important; box-shadow: 0 3px 0 0 var(--primary-box); }
+.mini-btn.danger { background: var(--error-box) !important; color: var(--error-ink) !important; box-shadow: 0 3px 0 0 var(--error); }
+.mini-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.save-cta {
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 18px;
+  background: var(--tertiary-dim) !important;
+  color: var(--tertiary-ink) !important;
+  box-shadow: 0 5px 0 0 var(--tertiary-box);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.save-cta:active { transform: translateY(3px); box-shadow: 0 2px 0 0 var(--tertiary-box); }
+
+.gate-box {
+  width: 100%;
+  padding: 14px;
+  border-radius: 15px;
+  background: var(--primary-fixed) !important;
+  color: #001d32 !important;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+}
+.gate-opt-btn {
+  height: 50px;
+  border: none;
+  border-radius: 14px;
+  background: var(--surface-low) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 0 0 var(--surface-dim);
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div class="bg-scene" aria-hidden="true">
+  <div class="bg-cloud c1"></div>
+  <div class="bg-cloud c2"></div>
+  <div class="bg-hill-1"></div>
+  <div class="bg-hill-2"></div>
+</div>
+
+<div id="globalToast" class="global-toast"></div>
+
+<div class="app-shell">
+  <!-- Unified Single Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button type="button" id="headerLogoBtn" class="logo-btn" aria-label="메인으로">📖</button>
+      <div class="top-nav-pill">
+        <button type="button" id="headerChildChip" class="child-chip" aria-label="첫째 둘째 전환">
+          <span id="headerChildName">첫째 민준</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+        <button type="button" id="openStagePickerBtn" class="stage-picker-btn" aria-label="DAY 또는 단계 선택">
+          <span id="headerStageText" class="stage-picker-label">DAY 001</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3f4851" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button type="button" id="topSyncBtn" class="circle-btn" aria-label="구글 시트 실시간 동기화" title="시트 최신 진도 불러오기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button type="button" id="openSettingsBtn" class="circle-btn" aria-label="부모 설정">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="settings-lock-dot" aria-hidden="true">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <main class="stage-frame">
+    <!-- ==================== VIEW 1A: 학습지 DAY 세이펜 ==================== -->
+    <section id="dayView" class="view-panel active">
+      <div class="day-ctrl-bar">
+        <div class="day-nav-group">
+          <button type="button" id="prevDayBtn" class="day-arrow-btn" aria-label="이전 DAY">◀</button>
+          <button type="button" id="dayTitlePill" class="day-title-pill" aria-label="DAY 목록 열기">
+            <span id="dayCodeBadge" class="day-code-badge">DAY 001</span>
+            <span id="dayTopicTxt" class="day-topic-txt">01 · 가족과 사람</span>
+          </button>
+          <button type="button" id="nextDayBtn" class="day-arrow-btn" aria-label="다음 DAY">▶</button>
+        </div>
+        <button type="button" id="quickSpeedBtn" class="speed-pill-btn" aria-label="발음 속도 변경">🔊 0.8x</button>
+      </div>
+
+      <div class="subtab-bar">
+        <button type="button" id="tabSeipenBtn" class="subtab-btn active">🔊 ① 세이펜 듣기</button>
+        <button type="button" id="tabCheckBtn" class="subtab-btn">✅ ② 암기 체크</button>
+      </div>
+
+      <div class="seipen-scroll" id="seipenScroll">
+        <!-- Collapsible Warm-up (DAY N-1) -->
+        <div id="warmupBox" class="warmup-box" style="display:none">
+          <button type="button" id="warmupToggleBtn" class="warmup-head">
+            <span id="warmupLabel">⏪ 어제 단어 복습 (DAY 001)</span>
+            <span id="warmupChevron">▾</span>
+          </button>
+          <div id="warmupChips" class="warmup-chips"></div>
+        </div>
+
+        <!-- Today's Words -->
+        <div class="section-head">
+          <span id="wordSectionTitle" class="section-title">📚 오늘의 단어 (학습지 1쪽)</span>
+        </div>
+        <div id="seipenWordList" class="word-card-list"></div>
+
+        <!-- Today's Sentences -->
+        <div class="section-head" style="margin-top:4px">
+          <span id="sentSectionTitle" class="section-title">📝 오늘의 문장 (학습지 2쪽)</span>
+          <button type="button" id="seqPlaySentBtn" class="seq-play-btn">🔁 이어 듣기</button>
+        </div>
+        <div id="seipenSentList" class="sent-card-list"></div>
+      </div>
+
+      <div class="seipen-footer">
+        <button type="button" id="startDayCheckBtn" class="btn-check-cta">
+          <span>✅ 학습지 다 풀었어요! 암기 체크 시작</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 1B: 기존 모드 / 오답 복습 홈 ==================== -->
+    <section id="homeView" class="view-panel">
+      <div class="home-board">
+        <div class="home-cubes" aria-hidden="true">
+          <span class="fb-cube" style="background:linear-gradient(180deg,#ff8787,#ff4f5e);box-shadow:0 5px 0 #c42938">A</span>
+          <span class="fb-cube" style="background:linear-gradient(180deg,#ffe066,#ffb319);box-shadow:0 5px 0 #cc8300">B</span>
+          <span class="fb-cube" style="background:linear-gradient(180deg,#6ce8a5,#24c46d);box-shadow:0 5px 0 #158f4c">C</span>
+          <span class="fb-cube" style="background:linear-gradient(180deg,#6bc9ff,#2da3f5);box-shadow:0 5px 0 #1774b8">!</span>
+        </div>
+        <div>
+          <h1 id="homeMainTitle" class="home-title">오답·취약 단어 복습</h1>
+          <p id="homeMainDesc" class="home-desc">헷갈리거나 몰랐던 단어들을 다시 확인해요.</p>
+        </div>
+        <button type="button" id="startModeBtn" class="btn-start-big">
+          <span id="startModeBtnText">암기 체크 시작하기</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: STEP 1 — 뜻 맞추기 (4지선다) ==================== -->
+    <section id="quizView" class="view-panel">
+      <div class="prog-head">
+        <div class="prog-row">
+          <div class="prog-left">
+            <div class="phase-badge p1">1단계 · 뜻 맞추기</div>
+          </div>
+          <div class="prog-right">
+            <div class="count-pill"><span id="qCurNum" class="cur">1</span> / <span id="qTotNum">3</span></div>
+            <button type="button" id="quizBackBtn" class="back-mini-btn" aria-label="세이펜으로 돌아가기">✕</button>
+          </div>
+        </div>
+        <div class="prog-track"><div id="qProgFill" class="prog-fill p1" style="width:33%"></div></div>
+      </div>
+
+      <div class="p2-body">
+        <div id="quizWordStage" class="p2-word-stage" role="button" tabindex="0">
+          <div id="quizMainWord" class="p2-word-text">boy</div>
+          <button type="button" id="quizSpeakerBtn" class="p2-spk-btn" aria-label="발음 듣기">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9.5 9.5 0 0 1 0 14"/></svg>
+          </button>
+        </div>
+
+        <div id="quizToast" class="quiz-toast"><span id="quizToastText"></span></div>
+        <div id="quizChoicesGrid" class="p2-choices-grid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: STEP 2 — 철자 완성 (블록 / 쿼티) ==================== -->
+    <section id="spellView" class="view-panel">
+      <div class="prog-head">
+        <div class="prog-row">
+          <div class="prog-left">
+            <div id="spellPhaseBadge" class="phase-badge p2">2단계 · 글자 블록</div>
+          </div>
+          <div class="prog-right">
+            <div class="count-pill"><span id="sCurNum" class="cur">1</span> / <span id="sTotNum">3</span></div>
+            <button type="button" id="spellBackBtn" class="back-mini-btn" aria-label="세이펜으로 돌아가기">✕</button>
+          </div>
+        </div>
+        <div class="prog-track"><div id="sProgFill" class="prog-fill p2" style="width:33%"></div></div>
+      </div>
+
+      <div class="spell-body">
+        <div class="spell-prompt-card">
+          <div class="spell-top-row">
+            <div id="spellStickerWrap" class="spell-sticker" style="display:none">
+              <img id="spellStickerImg" alt="단어 그림" />
+            </div>
+            <div id="spellMeaningBox" class="spell-meaning-box">
+              <div id="spellMeaningText" class="spell-meaning">소년</div>
+              <div class="spell-tools-row">
+                <button type="button" id="spellSpeakBtn" class="spell-tool-btn spk">🔊 발음 듣기</button>
+                <button type="button" id="spellHintBtn" class="spell-tool-btn hint">💡 힌트</button>
+              </div>
+            </div>
+          </div>
+          <div id="spellSlots" class="spell-slots"></div>
+        </div>
+
+        <div id="spellToast" class="quiz-toast" style="top:138px"><span id="spellToastText"></span></div>
+
+        <!-- Mode A: Letter Blocks -->
+        <div id="blocksTray" class="blocks-tray"></div>
+
+        <!-- Mode B: QWERTY Keyboard -->
+        <div id="qwertyWrap" class="qwerty-wrap" style="display:none"></div>
+
+        <div class="spell-meta-bar">
+          <span id="spellModeIndicator">🧱 글자 블록 조립 모드</span>
+          <span id="spellWrongIndicator">오터치 0회</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: DONE SUMMARY ==================== -->
+    <section id="doneView" class="view-panel">
+      <div class="done-wrap">
+        <div class="done-card">
+          <div class="medal-badge">
+            <div class="medal-inner">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.7 5.8 21 7 14.1 2 9.3 8.9 8.3 12 2"/></svg>
+            </div>
+          </div>
+          <div>
+            <h2 id="doneTitle" class="done-title">DAY 001 완료! 참 잘했어요! 🎉</h2>
+            <p id="doneSubtitle" class="done-sub">오늘의 단어 3개를 모두 확인했어요.</p>
+          </div>
+
+          <div class="done-stats-grid">
+            <div class="stat-tile t-grad"><span class="stat-lbl">완전 암기</span><span id="statGrad" class="stat-val">0</span></div>
+            <div class="stat-tile t-conf"><span class="stat-lbl">헷갈려요</span><span id="statConf" class="stat-val">0</span></div>
+            <div class="stat-tile t-unk"><span class="stat-lbl">몰라요</span><span id="statUnk" class="stat-val">0</span></div>
+          </div>
+
+          <div id="doneWordChips" class="done-word-chips"></div>
+
+          <div class="sync-bar">
+            <div class="sync-text-wrap">
+              <div id="syncHeadline" class="sync-main">기록 저장 완료</div>
+              <div id="syncSubtext" class="sync-sub">구글 시트 연동은 설정에서 주소를 입력하세요</div>
+            </div>
+            <span id="syncPill" class="sync-pill">완료</span>
+          </div>
+        </div>
+
+        <div class="done-actions">
+          <button type="button" id="doneHomeBtn" class="done-btn home">🔊 세이펜으로</button>
+          <button type="button" id="doneNextBtn" class="done-btn next">다음 DAY로 ▶</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ==================== MODAL 1: DAY / 단계 선택 팝업 ==================== -->
+<div id="stageModal" class="modal-bg">
+  <div class="modal-card" role="dialog" aria-label="DAY 및 단계 선택">
+    <div class="modal-head">
+      <h2 id="stageModalTitle" class="modal-title">학습지 DAY 선택</h2>
+      <button type="button" id="closeStageModalBtn" class="modal-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="weekFilterRow" class="week-filter-row" style="display:none"></div>
+      <div id="stagePickerList" class="stage-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 2: 학부모 안심 잠금 ==================== -->
+<div id="gateModal" class="modal-bg">
+  <div class="modal-card small" role="dialog" aria-label="학부모 안심 잠금">
+    <div class="modal-head">
+      <h2 class="modal-title">학부모 안심 잠금</h2>
+      <button type="button" id="closeGateBtn" class="modal-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="sec-sub">설정을 열려면 아래 덧셈 정답을 눌러주세요.</p>
+      <div id="gateQuestion" class="gate-box">4 + 3 = ?</div>
+      <div id="gateOptions" class="grid-2"></div>
+      <p id="gateError" style="text-align:center;font-size:12.5px;font-weight:800;color:#ba1a1a;min-height:16px"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL 3: 학부모 설정 ==================== -->
+<div id="settingsModal" class="modal-bg">
+  <div class="modal-card" role="dialog" aria-label="학습 및 시트 연동 설정">
+    <div class="modal-head">
+      <h2 class="modal-title">학습 및 시트 연동 설정</h2>
+      <button type="button" id="closeSettingsBtn" class="modal-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- 1. Child -->
+      <div class="sec-grp">
+        <div class="sec-lbl"><span>1. 학습 아동 선택</span><span class="sec-sub">이름 터치 수정</span></div>
+        <div class="grid-2 seg-box">
+          <div id="childCardFirst" data-child="first" class="child-card on">
+            <span class="sec-sub" style="text-align:center">첫째 (Q~T열)</span>
+            <input id="firstNameInput" type="text" maxlength="12" value="첫째 민준" />
+          </div>
+          <div id="childCardSecond" data-child="second" class="child-card">
+            <span class="sec-sub" style="text-align:center">둘째 (U~X열)</span>
+            <input id="secondNameInput" type="text" maxlength="12" value="둘째 서아" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Mode -->
+      <div class="sec-grp">
+        <div class="sec-lbl"><span>2. 학습 모드</span></div>
+        <div class="grid-3 seg-box">
+          <button type="button" data-mode="day" class="opt-btn mode-btn"><span>📖 학습지 DAY</span><span style="font-size:10.5px;opacity:.75">매일 메인</span></button>
+          <button type="button" data-mode="alphablocks" class="opt-btn mode-btn"><span>🧱 알파블럭스</span><span style="font-size:10.5px;opacity:.75">음가별</span></button>
+          <button type="button" data-mode="elem800" class="opt-btn mode-btn"><span>📚 초등800</span><span style="font-size:10.5px;opacity:.75">주제별</span></button>
+        </div>
+      </div>
+
+      <!-- 3. Spelling Mode Switch -->
+      <div class="sec-grp">
+        <div class="sec-lbl"><span>3. 2단계 철자 입력 방식</span><span class="sec-sub">아이 성장에 맞춰 전환</span></div>
+        <div class="grid-2 seg-box">
+          <button type="button" data-spell="blocks" class="opt-btn spell-mode-btn"><span>🧱 글자 블록 조립</span><span style="font-size:10.5px;opacity:.75">초반 추천 · 오타 적음</span></button>
+          <button type="button" data-spell="qwerty" class="opt-btn spell-mode-btn"><span>⌨️ 쿼티 키보드</span><span style="font-size:10.5px;opacity:.75">익숙해지면 전환</span></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div style="font-size:13.5px;font-weight:800">2단계 철자 체크 포함</div>
+            <div class="sec-sub">끄면 1단계(4지선다)만 진행해요 (둘째용)</div>
+          </div>
+          <button type="button" id="enableSpellToggle" class="switch-btn on" aria-label="철자 체크 포함 여부">
+            <span class="switch-knob"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. TTS Speed -->
+      <div class="sec-grp">
+        <div class="sec-lbl"><span>4. 원어민 발음 속도</span><span class="sec-sub" style="color:#006399">0.8x 권장</span></div>
+        <div class="grid-4">
+          <button type="button" data-rate="1" class="opt-btn speed-btn"><span>1.0x</span><span style="font-size:10px;opacity:.75">보통</span></button>
+          <button type="button" data-rate="0.8" class="opt-btn speed-btn"><span>0.8x</span><span style="font-size:10px;opacity:.75">천천히</span></button>
+          <button type="button" data-rate="0.65" class="opt-btn speed-btn"><span>0.65x</span><span style="font-size:10px;opacity:.75">느리게</span></button>
+          <button type="button" data-rate="0.5" class="opt-btn speed-btn"><span>0.5x</span><span style="font-size:10px;opacity:.75">최대느림</span></button>
+        </div>
+      </div>
+
+      <!-- 5. Google Sheets Two-Way Sync -->
+      <div class="sec-grp" style="background:#f0eee8;padding:12px;border-radius:16px">
+        <div class="sec-lbl"><span>5. 구글 시트 양방향 연동 (아빠·엄마 폰 동기화)</span></div>
+        <input id="csvUrlInput" type="url" class="inp-field" placeholder="DAY확장 단어장 CSV 게시 URL (웹에 게시 .csv)" />
+        <input id="webhookUrlInput" type="url" class="inp-field" placeholder="Apps Script 웹앱 URL (/exec · 읽기+쓰기 공용)" />
+        <div class="mini-btn-row">
+          <button type="button" id="pullLiveBtn" class="mini-btn pull-now">🔄 시트 진도 불러오기</button>
+          <button type="button" id="syncAllRecordsBtn" class="mini-btn sync-now">📤 기기 기록 일괄 전송</button>
+          <button type="button" id="reloadCsvBtn" class="mini-btn">단어장 CSV 새로고침</button>
+          <button type="button" id="copyGasBtn" class="mini-btn" style="color:#006399">📋 통합 Apps Script 복사</button>
+        </div>
+        <p id="settingsInfoMsg" style="font-size:12px;font-weight:800;color:#006d3d;min-height:16px"></p>
+      </div>
+
+      <!-- 6. Sticker Image Path & Optional Local Folder -->
+      <div class="sec-grp" style="background:#f5f8fc;padding:12px;border-radius:16px">
+        <div class="sec-lbl"><span>6. 449개 스티커 이미지 (256px WebP)</span></div>
+        <input id="stickerBaseInput" type="text" class="inp-field" placeholder="stickers/" />
+        <div class="mini-btn-row">
+          <button type="button" id="pickLocalStickersBtn" class="mini-btn">📁 내 폰 그림 폴더 불러오기 (로컬용)</button>
+          <button type="button" id="clearLocalStickersBtn" class="mini-btn danger">로컬 캐시 비우기</button>
+          <button type="button" id="resetStageBtn" class="mini-btn danger">현재 DAY/단계 초기화</button>
+        </div>
+        <input id="localStickerFileInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
+        <p id="stickerInfoMsg" class="sec-sub">기본값: GitHub 저장소의 stickers/ 폴더(예: stickers/cat.webp)</p>
+      </div>
+
+      <button type="button" id="saveSettingsBtn" class="save-cta">설정 저장하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== Embedded Starter Dataset (DAY 001 ~ DAY 010 · 30 Words) ==========
+const STARTER_WORDS = [{"id": 1, "word": "boy", "meaning": "소년", "phonics": "이중모음 oy (/ɔɪ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 1, "sentEn": "The {{boy}} is my friend.", "sentKo": "그 소년은 내 친구예요.", "sentSw": "the, is, my", "img": "boy"}, {"id": 2, "word": "kid", "meaning": "아이", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 2, "sentEn": "That {{kid}} can run fast.", "sentKo": "저 아이는 빨리 달릴 수 있어요.", "sentSw": "that, can", "img": "kid"}, {"id": 3, "word": "man", "meaning": "남자", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 3, "sentEn": "I see a tall {{man}}.", "sentKo": "나는 키 큰 남자를 봐요.", "sentSw": "I, see, a", "img": "man"}, {"id": 4, "word": "baby", "meaning": "아기", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 4, "sentEn": "Look at the cute {{baby}}.", "sentKo": "귀여운 아기를 보세요.", "sentSw": "look, at, the", "img": "baby"}, {"id": 5, "word": "girl", "meaning": "소녀", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 5, "sentEn": "The {{girl}} has a doll.", "sentKo": "그 소녀는 인형을 가지고 있어요.", "sentSw": "the, has, a", "img": "girl"}, {"id": 6, "word": "lady", "meaning": "숙녀", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 6, "sentEn": "This {{lady}} is very nice.", "sentKo": "이 숙녀분은 매우 친절해요.", "sentSw": "this, is, very", "img": "lady"}, {"id": 7, "word": "wife", "meaning": "아내", "phonics": "매직 e (i_e)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 7, "sentEn": "She is a kind {{wife}}.", "sentKo": "그녀는 친절한 아내예요.", "sentSw": "she, is, a", "img": "wife"}, {"id": 8, "word": "family", "meaning": "가족", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 8, "sentEn": "I love my happy {{family}}.", "sentKo": "나는 행복한 우리 가족을 사랑해요.", "sentSw": "I, love, my", "img": "family"}, {"id": 9, "word": "sister", "meaning": "자매", "phonics": "R통제 er (/ər/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 9, "sentEn": "My {{sister}} likes to sing.", "sentKo": "내 여동생은 노래하는 걸 좋아해요.", "sentSw": "my, to", "img": "sister"}, {"id": 10, "word": "arm", "meaning": "팔", "phonics": "R통제 ar (/ɑːr/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 10, "sentEn": "Raise your right {{arm}} up.", "sentKo": "오른팔을 위로 들어 올려요.", "sentSw": "your, up", "img": "arm"}, {"id": 11, "word": "ear", "meaning": "귀", "phonics": "모음 결합 ear (/ɪər/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 11, "sentEn": "Touch your left {{ear}} now.", "sentKo": "지금 왼쪽 귀를 만져 보세요.", "sentSw": "your, now", "img": "ear"}, {"id": 12, "word": "leg", "meaning": "다리", "phonics": "단모음 e (/e/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 12, "sentEn": "Hop on one {{leg}} now.", "sentKo": "지금 한쪽 다리로 깡충 뛰어 봐요.", "sentSw": "on, one, now", "img": "leg"}, {"id": 13, "word": "I", "meaning": "내가, 나는", "phonics": "완전 통암기 (/aɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 13, "sentEn": "{{I}} am a happy kid.", "sentKo": "나는 행복한 아이예요.", "sentSw": "I, am, a", "img": ""}, {"id": 14, "word": "a(an)", "meaning": "하나의", "phonics": "기초 관사 (/ə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 14, "sentEn": "I see {{a}} cute cat.", "sentKo": "나는 귀여운 고양이 한 마리를 봐요.", "sentSw": "I, see, a", "img": ""}, {"id": 15, "word": "the", "meaning": "그~, 저~", "phonics": "기초 정관사 (/ðə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 15, "sentEn": "Look at {{the}} big sun.", "sentKo": "큰 태양을 보세요.", "sentSw": "look, at, the", "img": ""}, {"id": 16, "word": "face", "meaning": "얼굴", "phonics": "매직 e (a_e)", "catCode": 0, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 16, "sentEn": "Wash your clean {{face}} well.", "sentKo": "얼굴을 깨끗이 잘 씻으세요.", "sentSw": "your, well", "img": "face"}, {"id": 17, "word": "foot", "meaning": "발", "phonics": "이중모음 oo 단음 (/ʊ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 17, "sentEn": "Put on your left {{foot}}.", "sentKo": "왼쪽 발에 신어 보세요.", "sentSw": "put, on, your", "img": "foot"}, {"id": 18, "word": "hand", "meaning": "손", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 18, "sentEn": "Hold my warm {{hand}} now.", "sentKo": "지금 내 따뜻한 손을 잡아요.", "sentSw": "my, now", "img": "hand"}, {"id": 19, "word": "cat", "meaning": "고양이", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 19, "sentEn": "I see a cute {{cat}}.", "sentKo": "나는 귀여운 고양이를 봐요.", "sentSw": "I, see, a", "img": "cat"}, {"id": 20, "word": "dog", "meaning": "개", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 20, "sentEn": "I see a happy {{dog}}.", "sentKo": "나는 행복한 강아지를 봐요.", "sentSw": "I, see, a", "img": "dog"}, {"id": 21, "word": "pig", "meaning": "돼지", "phonics": "단모음 i (/ɪ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 21, "sentEn": "I see a pink {{pig}}.", "sentKo": "나는 분홍색 돼지를 봐요.", "sentSw": "I, see, a", "img": "pig"}, {"id": 22, "word": "bee", "meaning": "벌", "phonics": "이중모음 ee (/iː/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 22, "sentEn": "Look at the busy {{bee}}.", "sentKo": "바쁜 벌을 보세요.", "sentSw": "look, at, the", "img": "bee"}, {"id": 23, "word": "cow", "meaning": "암소", "phonics": "이중모음 ow (/aʊ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 23, "sentEn": "The {{cow}} gives us milk.", "sentKo": "암소는 우리에게 우유를 줘요.", "sentSw": "the, us", "img": "cow"}, {"id": 24, "word": "fox", "meaning": "여우", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 24, "sentEn": "The red {{fox}} can run.", "sentKo": "빨간 여우는 달릴 수 있어요.", "sentSw": "the, can", "img": "fox"}, {"id": 25, "word": "bird", "meaning": "새", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 25, "sentEn": "The blue {{bird}} can fly.", "sentKo": "파란 새는 날 수 있어요.", "sentSw": "the, can", "img": "bird"}, {"id": 26, "word": "duck", "meaning": "오리", "phonics": "이중자음 ck (/k/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 26, "sentEn": "The yellow {{duck}} can swim.", "sentKo": "노란 오리는 수영할 수 있어요.", "sentSw": "the, can", "img": "duck"}, {"id": 27, "word": "fish", "meaning": "물고기", "phonics": "이중자음 sh (/ʃ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 27, "sentEn": "I see a little {{fish}}.", "sentKo": "나는 작은 물고기를 봐요.", "sentSw": "I, see, a", "img": "fish"}, {"id": 28, "word": "it", "meaning": "그것", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 28, "sentEn": "{{it}} is a red ball.", "sentKo": "그것은 빨간 공이에요.", "sentSw": "it, is, a", "img": ""}, {"id": 29, "word": "this", "meaning": "이것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 29, "sentEn": "{{this}} is my blue book.", "sentKo": "이것은 내 파란 책이에요.", "sentSw": "this, is, my", "img": ""}, {"id": 30, "word": "that", "meaning": "저것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 30, "sentEn": "{{that}} is a tall tree.", "sentKo": "저것은 큰 나무예요.", "sentSw": "that, is, a", "img": ""}];
+const GAS_SCRIPT_TEXT = "// 단어장 통합 시트 (단어장_초등800_알파블럭스_DAY확장) 양방향 동기화 Apps Script (v6)\n// doGet: 아빠/엄마 폰 실시간 진도 불러오기 (캐시 지연 0초)\n// doPost: 암기 체크 결과 Q~X열 자동 저장 & 일괄 동기화\n\nfunction findWordSheet_(ss) {\n  var sheets = ss.getSheets();\n  for (var s = 0; s < sheets.length; s++) {\n    var h1 = String(sheets[s].getRange(1, 1).getValue() || \"\").trim();\n    var h2 = String(sheets[s].getRange(1, 2).getValue() || \"\").trim();\n    if (h1 === \"번호\" && h2 === \"단어\") return sheets[s];\n  }\n  return sheets[0];\n}\n\nfunction findProgressCols_(sheet, autoCreate) {\n  var maxCol = Math.max(sheet.getLastColumn(), 24);\n  var headerRow = sheet.getRange(1, 1, 1, maxCol).getValues()[0];\n  var firstCol = -1, secondCol = -1;\n  for (var c = 0; c < headerRow.length; c++) {\n    var title = String(headerRow[c] || \"\").trim();\n    if (title === \"첫째_상태\") firstCol = c + 1;\n    if (title === \"둘째_상태\") secondCol = c + 1;\n  }\n  if ((firstCol === -1 || secondCol === -1) && autoCreate) {\n    firstCol = 17; // Q열\n    secondCol = 21; // U열\n    sheet.getRange(1, 17, 1, 8).setValues([[\n      \"첫째_상태\", \"첫째_헷갈림누적\", \"첫째_모름누적\", \"첫째_최근일\",\n      \"둘째_상태\", \"둘째_헷갈림누적\", \"둘째_모름누적\", \"둘째_최근일\"\n    ]]);\n  }\n  return { firstCol: firstCol, secondCol: secondCol };\n}\n\nfunction doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = findWordSheet_(ss);\n    var cols = findProgressCols_(sheet, false);\n    var lastRow = sheet.getLastRow();\n    var out = { first: {}, second: {} };\n\n    if (lastRow >= 2 && cols.firstCol > 0 && cols.secondCol > 0) {\n      var words = sheet.getRange(2, 2, lastRow - 1, 1).getValues();\n      var firstVals = sheet.getRange(2, cols.firstCol, lastRow - 1, 4).getValues();\n      var secondVals = sheet.getRange(2, cols.secondCol, lastRow - 1, 4).getValues();\n\n      for (var r = 0; r < words.length; r++) {\n        var w = String(words[r][0] || \"\").trim().toLowerCase();\n        if (!w) continue;\n\n        var fs = String(firstVals[r][0] || \"\").trim();\n        if (fs) {\n          var fd = firstVals[r][3];\n          var fdStr = (fd instanceof Date) ? Utilities.formatDate(fd, \"Asia/Seoul\", \"yyyy-MM-dd\") : String(fd || \"\").trim();\n          out.first[w] = {\n            status: fs,\n            confused: Number(firstVals[r][1]) || 0,\n            unknown: Number(firstVals[r][2]) || 0,\n            date: fdStr\n          };\n        }\n\n        var ss2 = String(secondVals[r][0] || \"\").trim();\n        if (ss2) {\n          var sd = secondVals[r][3];\n          var sdStr = (sd instanceof Date) ? Utilities.formatDate(sd, \"Asia/Seoul\", \"yyyy-MM-dd\") : String(sd || \"\").trim();\n          out.second[w] = {\n            status: ss2,\n            confused: Number(secondVals[r][1]) || 0,\n            unknown: Number(secondVals[r][2]) || 0,\n            date: sdStr\n          };\n        }\n      }\n    }\n\n    return ContentService.createTextOutput(JSON.stringify({\n      status: \"success\",\n      sheet: sheet.getName(),\n      syncedAt: Utilities.formatDate(new Date(), \"Asia/Seoul\", \"yyyy-MM-dd HH:mm:ss\"),\n      firstCount: Object.keys(out.first).length,\n      secondCount: Object.keys(out.second).length,\n      records: out\n    })).setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: \"error\", message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n}\n\nfunction doPost(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = findWordSheet_(ss);\n    var cols = findProgressCols_(sheet, true);\n\n    var data = JSON.parse(e.postData.contents);\n    var childKey = data.childKey || \"first\";\n    var results = data.results || [];\n    var startCol = (childKey === \"second\") ? cols.secondCol : cols.firstCol;\n\n    var lastRow = sheet.getLastRow();\n    if (lastRow < 2) {\n      return ContentService.createTextOutput(JSON.stringify({ status: \"empty\" }))\n        .setMimeType(ContentService.MimeType.JSON);\n    }\n\n    var wordVals = sheet.getRange(2, 2, lastRow - 1, 1).getValues();\n    var wordRowIdx = {};\n    for (var r = 0; r < wordVals.length; r++) {\n      var w = String(wordVals[r][0] || \"\").trim().toLowerCase();\n      if (w) wordRowIdx[w] = r;\n    }\n\n    var progRange = sheet.getRange(2, startCol, lastRow - 1, 4);\n    var progVals = progRange.getValues();\n    var updated = 0;\n    var todayStr = Utilities.formatDate(new Date(), \"Asia/Seoul\", \"yyyy-MM-dd\");\n\n    for (var i = 0; i < results.length; i++) {\n      var item = results[i];\n      var key = String(item.word || \"\").trim().toLowerCase();\n      if (!(key in wordRowIdx)) continue;\n      var idx = wordRowIdx[key];\n\n      var prevConfused = Number(progVals[idx][1]) || 0;\n      var prevUnknown = Number(progVals[idx][2]) || 0;\n\n      var newStatus = item.finalStatus || \"\";\n      var newConfused = (item.setConfused !== undefined) ? Number(item.setConfused) : (prevConfused + (Number(item.addConfused) || 0));\n      var newUnknown = (item.setUnknown !== undefined) ? Number(item.setUnknown) : (prevUnknown + (Number(item.addUnknown) || 0));\n      var dateStr = item.date || todayStr;\n\n      progVals[idx][0] = newStatus;\n      progVals[idx][1] = newConfused;\n      progVals[idx][2] = newUnknown;\n      progVals[idx][3] = dateStr;\n      updated++;\n    }\n\n    if (updated > 0) {\n      progRange.setValues(progVals);\n    }\n\n    return ContentService.createTextOutput(JSON.stringify({\n      status: \"success\",\n      updated: updated,\n      sheet: sheet.getName()\n    })).setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: \"error\", message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n}\n";
+
+const STORE_CFG = 'word_day_app_cfg_v6';
+const STORE_REC = 'word_day_app_rec_v6';
+const SPEED_CYCLE = [1.0, 0.8, 0.65, 0.5];
+const QWERTY_ROWS = [
+  ['q','w','e','r','t','y','u','i','o','p'],
+  ['a','s','d','f','g','h','j','k','l'],
+  ['z','x','c','v','b','n','m']
+];
+const QUIZ_CARD_THEMES = [
+  { bg: '#32A8F7', bevel: '#1C7FC4', textCol: '#ffffff' },
+  { bg: '#29C97A', bevel: '#1B9B5A', textCol: '#ffffff' },
+  { bg: '#FFBD24', bevel: '#D99507', textCol: '#1b1c19' },
+  { bg: '#9466F7', bevel: '#6E3ED6', textCol: '#ffffff' }
+];
+
+let cfg = {
+  childKey: 'first',
+  firstName: '첫째 민준',
+  secondName: '둘째 서아',
+  mode: 'day',          // 'day' | 'alphablocks' | 'elem800'
+  dayCode: 'DAY 001',
+  stageName: '',
+  reviewOnly: false,
+  spellInputMode: 'blocks', // 'blocks' | 'qwerty'
+  enableSpell: true,
+  rate: 0.8,
+  csvUrl: '',
+  webhookUrl: '',
+  stickerBase: 'stickers/'
+};
+
+let records = { first: {}, second: {} };
+let allWords = [];
+let dayGroups = [];    // [{ dayCode, dayNum, weekNum, topic, words }]
+let stages = [];       // for alphablocks / elem800
+let localStickerBlobs = {}; // wordLower -> objectURL (IndexedDB)
+
+// Session state
+let currentView = 'day';
+let sessionWords = [];
+let qIdx = 0;
+let qWrongCount = 0;
+let qAnswered = false;
+let qGradeMap = {};    // wordLower -> 'grad' | 'conf' | 'unk'
+
+let sIdx = 0;
+let sTargetClean = '';
+let sSlots = [];       // [{ ch, fixed, filled }]
+let sCursor = 0;
+let sWrongCount = 0;
+let sUsedHint = false;
+let sBlocks = [];      // [{ id, ch, used }]
+let sLocked = false;
+let sessionResults = [];
+
+// Sequential Sentence Player
+let seqPlaying = false;
+let seqTimer = null;
+let toastTimer = null;
+let globalToastTimer = null;
+
+const $ = id => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function getActiveChildName() {
+  return cfg.childKey === 'second' ? (cfg.secondName.trim() || '둘째') : (cfg.firstName.trim() || '첫째');
+}
+function showGlobalToast(text, kind = '') {
+  const el = $('globalToast');
+  clearTimeout(globalToastTimer);
+  el.textContent = text;
+  el.className = 'global-toast show ' + kind;
+  globalToastTimer = setTimeout(() => { el.className = 'global-toast'; }, 2400);
+}
+
+// ========== Audio SFX ==========
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playTone(freq = 520, dur = 0.09, type = 'triangle', vol = 0.13) {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + dur + 0.02);
+  } catch (e) {}
+}
+function playCelebrationChord() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + i * 0.07);
+      gain.gain.setValueAtTime(0.001, now + i * 0.07);
+      gain.gain.linearRampToValueAtTime(0.15, now + i * 0.07 + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.42);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(now + i * 0.07); osc.stop(now + i * 0.07 + 0.45);
+    });
+  } catch (e) {}
+}
+function playGentleBoing() {
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+    gain.gain.setValueAtTime(0.16, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.34);
+  } catch (e) {}
+}
+
+// ========== Native English TTS (0.5x ~ 1.0x) ==========
+let enVoice = null;
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  const list = speechSynthesis.getVoices();
+  enVoice = list.find(v => /en-US/i.test(v.lang) && /Google|Samantha|Aria|Jenny|Natural/i.test(v.name))
+         || list.find(v => /en-US/i.test(v.lang))
+         || list.find(v => /^en/i.test(v.lang))
+         || null;
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+function cleanForTts(text) {
+  return String(text || '')
+    .replace(/\{\{/g, '').replace(/\}\}/g, '')
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function speakEn(text, customRate, onEnd) {
+  if (!text || !('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
+  try {
+    const clean = cleanForTts(text);
+    if (!clean) { if (onEnd) onEnd(); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang = 'en-US';
+    if (enVoice) u.voice = enVoice;
+    const r = customRate !== undefined ? Number(customRate) : Number(cfg.rate);
+    u.rate = Math.max(0.5, Math.min(1.0, r || 0.8));
+    u.pitch = 1.04;
+    if (onEnd) {
+      u.onend = onEnd;
+      u.onerror = onEnd;
+    }
+    speechSynthesis.speak(u);
+  } catch (e) { if (onEnd) onEnd(); }
+}
+
+// ========== IndexedDB Optional Local Sticker Cache ==========
+const IDB_NAME = 'word_stickers_local_v1';
+const IDB_STORE = 'stickers';
+function openStickerDB() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) return reject(new Error('IndexedDB 미지원'));
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function loadLocalStickersFromDB() {
+  try {
+    const db = await openStickerDB();
+    await new Promise(resolve => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).openCursor();
+      req.onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) {
+          localStickerBlobs[String(cur.key).toLowerCase()] = URL.createObjectURL(cur.value);
+          cur.continue();
+        } else resolve();
+      };
+      req.onerror = () => resolve();
+    });
+  } catch (e) {}
+}
+async function saveLocalStickersToDB(fileList) {
+  const db = await openStickerDB();
+  let count = 0;
+  for (const f of fileList) {
+    if (!/\.(webp|png|jpg|jpeg)$/i.test(f.name)) continue;
+    const stem = f.name.replace(/\.[^.]+$/, '').trim().toLowerCase();
+    await new Promise(resolve => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(f, stem);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+    if (localStickerBlobs[stem]) URL.revokeObjectURL(localStickerBlobs[stem]);
+    localStickerBlobs[stem] = URL.createObjectURL(f);
+    count++;
+  }
+  return count;
+}
+async function clearLocalStickersDB() {
+  try {
+    const db = await openStickerDB();
+    await new Promise(resolve => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  } catch (e) {}
+  Object.values(localStickerBlobs).forEach(u => { try { URL.revokeObjectURL(u); } catch (e) {} });
+  localStickerBlobs = {};
+}
+
+function resolveStickerCandidates(wordObj) {
+  const stem = String(wordObj.img || '').trim().replace(/\.(png|webp)$/i, '').toLowerCase();
+  if (!stem) return [];
+  const list = [];
+  if (localStickerBlobs[stem]) list.push(localStickerBlobs[stem]);
+  let base = (cfg.stickerBase || 'stickers/').trim();
+  if (base && !base.endsWith('/')) base += '/';
+  list.push(`${base}${encodeURIComponent(stem)}.webp`);
+  list.push(`${base}${encodeURIComponent(stem)}.png`);
+  return list;
+}
+
+// ========== Phonics Stage Normalizer (for Alphablocks Mode) ==========
+function normalizeStage(rawStr) {
+  const s = String(rawStr || '').trim();
+  const p = s.split(',')[0].trim();
+  if (p.includes('단모음 a')) return { ord: 101, name: '1단계 · 단모음 a (/æ/)' };
+  if (p.includes('단모음 e')) return { ord: 102, name: '1단계 · 단모음 e (/e/)' };
+  if (p.includes('단모음 i')) return { ord: 103, name: '1단계 · 단모음 i (/ɪ/)' };
+  if (p.includes('단모음 o')) return { ord: 104, name: '1단계 · 단모음 o (/ɒ/)' };
+  if (p.includes('단모음 u')) return { ord: 105, name: '1단계 · 단모음 u (/ʌ/)' };
+  if (p.includes('sh')) return { ord: 201, name: '2단계 · 이중자음 sh (/ʃ/)' };
+  if (p.includes('ch')) return { ord: 202, name: '2단계 · 이중자음 ch (/tʃ/)' };
+  if (p.includes('th')) return { ord: 203, name: '2단계 · 이중자음 th (/θ, ð/)' };
+  if (p.includes('ck')) return { ord: 204, name: '2단계 · 이중자음 ck (/k/)' };
+  if (p.includes('ng')) return { ord: 205, name: '2단계 · 이중자음 ng (/ŋ/)' };
+  if (p.includes('nk')) return { ord: 206, name: '2단계 · 받침 nk (/ŋk/)' };
+  if (p.includes('매직 e') || p.includes('매직e')) return { ord: 301, name: '3단계 · 매직 e' };
+  if (p.includes('ai') || p.includes('ay')) return { ord: 401, name: '4단계 · 이중모음 ai·ay' };
+  if (p.includes('ee') || p.includes('ea')) return { ord: 402, name: '4단계 · 이중모음 ee·ea' };
+  if (p.includes('oa') || p.includes('oo')) return { ord: 403, name: '4단계 · 이중모음 oa·oo' };
+  if (p.includes('ow') || p.includes('ou') || p.includes('oi') || p.includes('oy')) return { ord: 404, name: '4단계 · 이중모음 ow·ou·oi·oy' };
+  if (p.includes('igh') || p.includes('장모음 y')) return { ord: 405, name: '4단계 · 장모음 igh·y' };
+  if (p.includes('R통제') || p.includes('R영향') || p.includes('air') || p.includes('ear')) return { ord: 501, name: '5단계 · R통제 모음' };
+  if (p.includes('묵음')) return { ord: 502, name: '5단계 · 묵음 규칙' };
+  return { ord: 506, name: '5단계 · 기타 음가' };
+}
+
+// ========== CSV Parser & Loader ==========
+function parseCsv(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function parseDayNum(dayCode) {
+  const m = String(dayCode || '').match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 9999;
+}
+
+function formatStarterWords() {
+  return STARTER_WORDS.map(w => {
+    const st = normalizeStage(w.phonics);
+    const tOrd = w.topic.includes('사이트워드 ①') ? 10 : w.topic.includes('사이트워드') ? 20 : (parseInt(w.topic, 10) ? 100 + parseInt(w.topic, 10) : 500);
+    return {
+      ...w,
+      stageOrd: st.ord,
+      stageName: st.name,
+      themeOrd: tOrd,
+      themeName: w.topic,
+      dayNum: parseDayNum(w.day)
+    };
+  });
+}
+
+async function loadWordsFromSheet(url) {
+  if (!url) {
+    allWords = formatStarterWords();
+    rebuildIndexes();
+    return { source: 'embedded', count: allWords.length, days: dayGroups.length };
+  }
+  const cacheBust = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+  const res = await fetch(cacheBust);
+  if (!res.ok) throw new Error('시트를 불러오지 못했어요 (HTTP ' + res.status + ')');
+  const rows = parseCsv(await res.text());
+  if (rows.length < 2) throw new Error('시트 데이터가 비어 있어요.');
+
+  const header = rows[0].map(h => String(h || '').replace(/^\uFEFF/, '').trim());
+  const col = (name, fallback) => {
+    const idx = header.findIndex(h => h === name);
+    return idx >= 0 ? idx : fallback;
+  };
+  const colHas = (kw, fallback) => {
+    const idx = header.findIndex(h => h.includes(kw));
+    return idx >= 0 ? idx : fallback;
+  };
+
+  const iWord = col('단어', 1);
+  const iMean = col('한글 뜻', 2);
+  const iPhonics = col('파닉스 핵심 음가', 9);
+  const iCat = col('단어 분류 구분', 11);
+  const iTheme = colHas('초등800 주제', 15);
+  const iFirst = col('첫째_상태', 16);
+  const iSecond = col('둘째_상태', 20);
+  const iInclude = col('학습포함', 24);
+  const iSeq = col('커리큘럼_순번', 25);
+  const iDay = col('DAY', 26);
+  const iDayTopic = col('학습지_주제', 27);
+  const iSentEn = col('학습지_문장_영어', 28);
+  const iSentKo = col('학습지_문장_뜻', 29);
+  const iSentSw = col('문장_사이트워드', 30);
+  const iImg = col('이미지파일', 31);
+
+  const parsed = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 3) continue;
+    const word = String(r[iWord] || '').trim();
+    const meaning = String(r[iMean] || '').trim();
+    if (!word || !meaning) continue;
+
+    // 학습포함 == '제외'는 학습지 DAY에서 배제 (단, 행 오류 방지)
+    const incl = (r[iInclude] !== undefined) ? String(r[iInclude] || '').trim() : 'O';
+    if (incl === '제외') continue;
+
+    const phonics = String(r[iPhonics] || '').trim();
+    const category = String(r[iCat] || '').trim();
+    const catCode = /영상일치/.test(category) ? 1 : (/알파블럭스/.test(category) ? 2 : 0);
+    const st = normalizeStage(phonics);
+
+    const rawTopic = String(r[iDayTopic] || r[iTheme] || '기타').trim();
+    const tOrd = rawTopic.includes('사이트워드 ①') ? 10 : rawTopic.includes('사이트워드') ? 20 : (parseInt(rawTopic, 10) ? 100 + parseInt(rawTopic, 10) : 500);
+    const dayCode = String(r[iDay] || '').trim();
+    const seqNum = Number(r[iSeq]) || i;
+    const sentEn = String(r[iSentEn] || '').trim() || `I see {{${word}}}.`;
+    const sentKo = String(r[iSentKo] || '').trim() || `${meaning}`;
+    const sentSw = String(r[iSentSw] || '').trim();
+    const img = String(r[iImg] || '').trim();
+
+    parsed.push({
+      id: Number(r[0]) || i,
+      word, meaning, phonics, catCode,
+      stageOrd: st.ord, stageName: st.name,
+      themeOrd: tOrd, themeName: rawTopic, topic: rawTopic,
+      day: dayCode, dayNum: parseDayNum(dayCode), seq: seqNum,
+      sentEn, sentKo, sentSw, img
+    });
+
+    // Also pull CSV Q~X progress as baseline (live doGet overrides later if available)
+    const wKey = word.toLowerCase();
+    if (r[iFirst] && String(r[iFirst]).trim()) {
+      records.first[wKey] = {
+        status: String(r[iFirst]).trim(),
+        confused: Number(r[iFirst + 1]) || 0,
+        unknown: Number(r[iFirst + 2]) || 0,
+        date: String(r[iFirst + 3] || '').trim()
+      };
+    }
+    if (r[iSecond] && String(r[iSecond]).trim()) {
+      records.second[wKey] = {
+        status: String(r[iSecond]).trim(),
+        confused: Number(r[iSecond + 1]) || 0,
+        unknown: Number(r[iSecond + 2]) || 0,
+        date: String(r[iSecond + 3] || '').trim()
+      };
+    }
+  }
+
+  if (!parsed.length) throw new Error('단어 열(B열 단어, C열 한글 뜻)을 찾지 못했어요.');
+  allWords = parsed;
+  saveRecords();
+  rebuildIndexes();
+  return { source: 'sheet', count: allWords.length, days: dayGroups.length };
+}
+
+function rebuildIndexes() {
+  // 1) Build DAY groups
+  const dMap = new Map();
+  allWords.filter(w => w.day).sort((a, b) => a.dayNum - b.dayNum || a.seq - b.seq).forEach(w => {
+    if (!dMap.has(w.day)) {
+      dMap.set(w.day, {
+        dayCode: w.day,
+        dayNum: w.dayNum,
+        weekNum: Math.floor((w.dayNum - 1) / 5) + 1,
+        topic: w.topic,
+        words: []
+      });
+    }
+    dMap.get(w.day).words.push(w);
+  });
+  dayGroups = [...dMap.values()].sort((a, b) => a.dayNum - b.dayNum);
+  if (dayGroups.length && !dayGroups.some(g => g.dayCode === cfg.dayCode)) {
+    cfg.dayCode = dayGroups[0].dayCode;
+  }
+
+  // 2) Build stages for alphablocks / elem800
+  const m = cfg.mode === 'day' ? 'elem800' : cfg.mode;
+  const modeWords = getModeWords(m);
+  const sMap = new Map();
+  modeWords.forEach(w => {
+    const g = m === 'elem800' ? { ord: w.themeOrd, name: w.themeName } : { ord: w.stageOrd, name: w.stageName };
+    if (!sMap.has(g.name)) sMap.set(g.name, { ord: g.ord, name: g.name, count: 0 });
+    sMap.get(g.name).count += 1;
+  });
+  stages = [...sMap.values()].sort((a, b) => a.ord - b.ord);
+  if (!cfg.stageName || !stages.some(s => s.name === cfg.stageName)) {
+    cfg.stageName = stages.length ? stages[0].name : '';
+  }
+}
+
+function getModeWords(modeOverride) {
+  const m = modeOverride || cfg.mode;
+  if (m === 'alphablocks') {
+    const list = allWords.filter(w => w.catCode === 1 || w.catCode === 2);
+    return list.length ? list : allWords;
+  }
+  if (m === 'elem800') {
+    const list = allWords.filter(w => w.catCode === 0 || w.catCode === 1);
+    return list.length ? list : allWords;
+  }
+  return allWords;
+}
+
+function getChildRec(word, childOverride) {
+  const box = records[childOverride || cfg.childKey] || {};
+  return box[String(word || '').toLowerCase()] || { status: '', confused: 0, unknown: 0, date: '' };
+}
+
+function getCurrentDayObj() {
+  return dayGroups.find(g => g.dayCode === cfg.dayCode) || dayGroups[0] || null;
+}
+
+function isDayCompleted(dayObj) {
+  if (!dayObj || !dayObj.words.length) return false;
+  return dayObj.words.every(w => !!getChildRec(w.word).status);
+}
+
+function findRecommendedDayCode() {
+  if (!dayGroups.length) return 'DAY 001';
+  const firstIncomplete = dayGroups.find(g => !isDayCompleted(g));
+  return firstIncomplete ? firstIncomplete.dayCode : dayGroups[dayGroups.length - 1].dayCode;
+}
+
+// ========== Live Two-Way Sync via Apps Script doGet ==========
+async function syncFromSheetLive(showToast = false) {
+  const url = (cfg.webhookUrl || '').trim();
+  if (!url || !url.endsWith('/exec')) {
+    if (showToast) showGlobalToast('설정(⚙️)에서 Apps Script /exec 주소를 먼저 입력해 주세요.', 'err');
+    return false;
+  }
+  const btn = $('topSyncBtn');
+  btn.classList.add('syncing');
+  try {
+    const sep = url.includes('?') ? '&' : '?';
+    const res = await fetch(`${url}${sep}action=sync&_t=${Date.now()}`, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data && data.status === 'success' && data.records) {
+      // Merge sheet records as source of truth
+      ['first', 'second'].forEach(ck => {
+        const incoming = data.records[ck] || {};
+        if (!records[ck]) records[ck] = {};
+        Object.keys(incoming).forEach(wKey => {
+          records[ck][wKey] = incoming[wKey];
+        });
+      });
+      saveRecords();
+      if (cfg.mode === 'day' && !cfg.reviewOnly) {
+        cfg.dayCode = findRecommendedDayCode();
+        saveCfg();
+      }
+      renderMainScreen();
+      if (showToast) {
+        const cnt = cfg.childKey === 'second' ? (data.secondCount || 0) : (data.firstCount || 0);
+        showGlobalToast(`✓ 시트 실시간 동기화 완료! (${getActiveChildName()} ${cnt}단어 반영)`, 'ok');
+      }
+      return true;
+    }
+    throw new Error('응답 형식 확인 필요 (doGet 재배포 확인)');
+  } catch (e) {
+    if (showToast) showGlobalToast('시트 불러오기 실패: 통합 Apps Script를 새 배포했는지 확인해 주세요.', 'err');
+    return false;
+  } finally {
+    btn.classList.remove('syncing');
+  }
+}
+
+// ========== Storage ==========
+function loadStorage() {
+  const hasV6Cfg = !!localStorage.getItem(STORE_CFG);
+  const hasV6Rec = !!localStorage.getItem(STORE_REC);
+  try { cfg = { ...cfg, ...JSON.parse(localStorage.getItem(STORE_CFG) || '{}') }; } catch (e) {}
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_REC) || '{}');
+    records = { first: saved.first || {}, second: saved.second || {} };
+  } catch (e) { records = { first: {}, second: {} }; }
+
+  // 기존 v5(ab_stitch_*_v3) 기록이 있으면 첫 실행 시 자동 승계
+  if (!hasV6Cfg) {
+    try {
+      const oldCfg = JSON.parse(localStorage.getItem('ab_stitch_cfg_v3') || 'null');
+      if (oldCfg) {
+        if (oldCfg.firstName) cfg.firstName = oldCfg.firstName;
+        if (oldCfg.secondName) cfg.secondName = oldCfg.secondName;
+        if (oldCfg.childKey) cfg.childKey = oldCfg.childKey;
+        if (oldCfg.rate) cfg.rate = oldCfg.rate;
+      }
+    } catch (e) {}
+  }
+  if (!hasV6Rec) {
+    try {
+      const oldRec = JSON.parse(localStorage.getItem('ab_stitch_rec_v3') || 'null');
+      if (oldRec && (oldRec.first || oldRec.second)) {
+        records = { first: oldRec.first || {}, second: oldRec.second || {} };
+      }
+    } catch (e) {}
+  }
+}
+function saveCfg() { try { localStorage.setItem(STORE_CFG, JSON.stringify(cfg)); } catch (e) {} }
+function saveRecords() { try { localStorage.setItem(STORE_REC, JSON.stringify(records)); } catch (e) {} }
+
+// ========== View Switcher ==========
+function stopSeqPlay() {
+  seqPlaying = false;
+  clearTimeout(seqTimer);
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+  const btn = $('seqPlaySentBtn');
+  if (btn) { btn.classList.remove('playing'); btn.textContent = '🔁 이어 듣기'; }
+  document.querySelectorAll('.seipen-sent-card.speaking').forEach(el => el.classList.remove('speaking'));
+}
+
+function showView(name) {
+  if (name !== 'day') stopSeqPlay();
+  currentView = name;
+  ['dayView', 'homeView', 'quizView', 'spellView', 'doneView'].forEach(id => {
+    $(id).classList.toggle('active', id === name + 'View');
+  });
+}
+
+function renderHeader() {
+  $('headerChildName').textContent = getActiveChildName();
+  $('headerChildChip').classList.toggle('second', cfg.childKey === 'second');
+  if (cfg.reviewOnly) {
+    $('headerStageText').textContent = '🔁 오답 집중 복습';
+  } else if (cfg.mode === 'day') {
+    const dObj = getCurrentDayObj();
+    $('headerStageText').textContent = dObj ? `${dObj.dayCode} (${dObj.weekNum}주차)` : 'DAY 001';
+  } else {
+    $('headerStageText').textContent = cfg.stageName || '단계 선택';
+  }
+}
+
+function renderMainScreen() {
+  renderHeader();
+  if (cfg.mode === 'day' && !cfg.reviewOnly) {
+    renderDaySeipen();
+    showView('day');
+  } else {
+    renderModeHome();
+    showView('home');
+  }
+}
+
+// ========== Render Tab 1: DAY SEIPEN ==========
+function renderHighlightedSentence(sentEn) {
+  const safe = esc(sentEn);
+  return safe.replace(/\{\{(.*?)\}\}/g, '<span class="sent-hl">$1</span>');
+}
+
+function attachStickerImg(imgEl, fallbackEl, candidates) {
+  let idx = 0;
+  function tryNext() {
+    if (idx >= candidates.length) {
+      imgEl.style.display = 'none';
+      if (fallbackEl) fallbackEl.style.display = 'flex';
+      return;
+    }
+    imgEl.src = candidates[idx++];
+  }
+  imgEl.onerror = tryNext;
+  imgEl.onload = () => {
+    imgEl.style.display = 'block';
+    if (fallbackEl) fallbackEl.style.display = 'none';
+  };
+  if (candidates.length) tryNext();
+  else {
+    imgEl.style.display = 'none';
+    if (fallbackEl) fallbackEl.style.display = 'flex';
+  }
+}
+
+function renderDaySeipen() {
+  stopSeqPlay();
+  const dObj = getCurrentDayObj();
+  if (!dObj) return;
+
+  const dIdx = dayGroups.findIndex(g => g.dayCode === dObj.dayCode);
+  $('prevDayBtn').disabled = dIdx <= 0;
+  $('nextDayBtn').disabled = dIdx >= dayGroups.length - 1;
+  $('dayCodeBadge').textContent = dObj.dayCode;
+  $('dayTopicTxt').textContent = `${dObj.weekNum}주차 · ${dObj.topic}`;
+  $('quickSpeedBtn').textContent = `🔊 ${cfg.rate}x`;
+  $('tabSeipenBtn').classList.add('active');
+  $('tabCheckBtn').classList.remove('active');
+
+  // 1) Collapsible Warm-up (DAY N-1)
+  const wBox = $('warmupBox');
+  if (dIdx > 0) {
+    const prevObj = dayGroups[dIdx - 1];
+    wBox.style.display = 'block';
+    wBox.classList.remove('open');
+    $('warmupChevron').textContent = '▾';
+    $('warmupLabel').textContent = `⏪ 어제 단어 복습 (${prevObj.dayCode} · ${prevObj.words.length}단어)`;
+    const chips = $('warmupChips');
+    chips.innerHTML = '';
+    prevObj.words.forEach(w => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'warmup-chip';
+      btn.innerHTML = `<strong>${esc(w.word)}</strong><span>${esc(w.meaning)}</span><span>🔊</span>`;
+      btn.addEventListener('click', () => {
+        playTone(540, 0.06);
+        speakEn(w.word);
+      });
+      chips.appendChild(btn);
+    });
+  } else {
+    wBox.style.display = 'none';
+  }
+
+  // 2) Today's Words
+  $('wordSectionTitle').textContent = `📚 오늘의 단어 (${dObj.words.length}단어 · 학습지 1쪽)`;
+  const wList = $('seipenWordList');
+  wList.innerHTML = '';
+  dObj.words.forEach(w => {
+    const rec = getChildRec(w.word);
+    const stHtml = rec.status === '졸업' ? '<span class="word-status-tag st-grad">🟩 졸업</span>'
+                 : rec.status === '헷갈려요' ? '<span class="word-status-tag st-conf">🔺 헷갈려요</span>'
+                 : rec.status === '몰라요' ? '<span class="word-status-tag st-unk">❌ 몰라요</span>' : '';
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'seipen-word-card';
+    const initial = esc((w.word || '?').slice(0, 2).toUpperCase());
+    card.innerHTML = `
+      <div class="sticker-frame">
+        <img alt="${esc(w.word)}" style="display:none" />
+        <div class="sticker-fallback">${initial}</div>
+      </div>
+      <div class="word-info">
+        <div class="word-top-row">
+          <span class="word-en">${esc(w.word)}</span>
+          ${stHtml}
+        </div>
+        <div class="word-ko">${esc(w.meaning)}</div>
+        <div class="word-ph">${esc(w.phonics || w.stageName || '')}</div>
+      </div>
+      <span class="spk-round" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+      </span>`;
+
+    const imgEl = card.querySelector('img');
+    const fbEl = card.querySelector('.sticker-fallback');
+    attachStickerImg(imgEl, fbEl, resolveStickerCandidates(w));
+
+    card.addEventListener('click', () => {
+      stopSeqPlay();
+      document.querySelectorAll('.seipen-word-card.speaking').forEach(el => el.classList.remove('speaking'));
+      card.classList.add('speaking');
+      speakEn(w.word, cfg.rate, () => card.classList.remove('speaking'));
+    });
+    wList.appendChild(card);
+  });
+
+  // 3) Today's Sentences (Always show Korean meaning underneath!)
+  $('sentSectionTitle').textContent = `📝 오늘의 문장 (${dObj.words.length}문장 · 학습지 2쪽)`;
+  const sList = $('seipenSentList');
+  sList.innerHTML = '';
+  dObj.words.forEach((w, idx) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'seipen-sent-card';
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <span class="sent-num-dot">${idx + 1}</span>
+      <div class="sent-body">
+        <div class="sent-en">${renderHighlightedSentence(w.sentEn)}</div>
+        <div class="sent-ko">${esc(w.sentKo)}</div>
+      </div>
+      <span class="spk-mini" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>
+      </span>`;
+    card.addEventListener('click', () => {
+      stopSeqPlay();
+      document.querySelectorAll('.seipen-sent-card.speaking').forEach(el => el.classList.remove('speaking'));
+      card.classList.add('speaking');
+      speakEn(w.sentEn, cfg.rate, () => card.classList.remove('speaking'));
+    });
+    sList.appendChild(card);
+  });
+
+  $('startDayCheckBtn').innerHTML = `<span>✅ 학습지 다 풀었어요! 오늘 ${dObj.words.length}단어 암기 체크 →</span>`;
+}
+
+function toggleSequentialSentences() {
+  if (seqPlaying) {
+    stopSeqPlay();
+    return;
+  }
+  const dObj = getCurrentDayObj();
+  if (!dObj || !dObj.words.length) return;
+  seqPlaying = true;
+  const btn = $('seqPlaySentBtn');
+  btn.classList.add('playing');
+  btn.textContent = '⏹ 멈추기';
+
+  const cards = [...$('seipenSentList').querySelectorAll('.seipen-sent-card')];
+  let idx = 0;
+
+  function playNext() {
+    if (!seqPlaying || idx >= dObj.words.length) {
+      stopSeqPlay();
+      return;
+    }
+    cards.forEach(c => c.classList.remove('speaking'));
+    if (cards[idx]) {
+      cards[idx].classList.add('speaking');
+      cards[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    const curWord = dObj.words[idx];
+    speakEn(curWord.sentEn, cfg.rate, () => {
+      if (!seqPlaying) return;
+      idx += 1;
+      if (idx < dObj.words.length) {
+        seqTimer = setTimeout(playNext, 2200); // 따라 말할 텀 2.2초
+      } else {
+        seqTimer = setTimeout(stopSeqPlay, 600);
+      }
+    });
+  }
+  playNext();
+}
+
+// ========== Render Mode Home (Review Only / Alphablocks / Elem800) ==========
+function getModeTargetWords() {
+  if (cfg.reviewOnly) {
+    return allWords.filter(w => ['헷갈려요', '몰라요'].includes(getChildRec(w.word).status));
+  }
+  const list = getModeWords();
+  return list.filter(w => {
+    const gName = cfg.mode === 'elem800' ? w.themeName : w.stageName;
+    return gName === cfg.stageName && getChildRec(w.word).status !== '졸업';
+  });
+}
+
+function renderModeHome() {
+  const targets = getModeTargetWords();
+  if (cfg.reviewOnly) {
+    $('homeMainTitle').textContent = '🔁 오답·취약 단어 집중 복습';
+    $('homeMainDesc').textContent = targets.length
+      ? `${getActiveChildName()}의 헷갈리거나 몰랐던 단어 ${targets.length}개를 다시 체크해요.`
+      : '축하해요! 복습할 오답 단어가 하나도 없어요.';
+    $('startModeBtnText').textContent = targets.length ? `오답 ${targets.length}단어 체크 시작` : '학습지 DAY로 돌아가기';
+  } else {
+    $('homeMainTitle').textContent = cfg.mode === 'alphablocks' ? '🧱 알파블럭스 음가별 체크' : '📚 초등 영단어 800 주제별 체크';
+    $('homeMainDesc').textContent = targets.length
+      ? `"${cfg.stageName}" 미졸업 단어 ${targets.length}개를 확인해요.`
+      : `"${cfg.stageName}" 단어를 모두 졸업했어요!`;
+    $('startModeBtnText').textContent = targets.length ? `${targets.length}단어 암기 체크 시작` : '다음 단계로 가기';
+  }
+}
+
+// ========== CHECK SESSION: STEP 1 (4-Choice) -> STEP 2 (Blocks / QWERTY) ==========
+function startCheckSession(customWords) {
+  stopSeqPlay();
+  let targets = customWords;
+  if (!targets) {
+    if (cfg.mode === 'day' && !cfg.reviewOnly) {
+      const dObj = getCurrentDayObj();
+      targets = dObj ? dObj.words.slice() : [];
+    } else {
+      targets = getModeTargetWords();
+    }
+  }
+  if (!targets.length) {
+    if (cfg.reviewOnly) {
+      cfg.reviewOnly = false;
+      saveCfg();
+      renderMainScreen();
+    } else {
+      moveToNextUnit();
+    }
+    return;
+  }
+
+  playTone(580, 0.08);
+  sessionWords = targets.slice();
+  qIdx = 0;
+  qGradeMap = {};
+  sessionResults = [];
+  showView('quiz');
+  renderQuizCard();
+}
+
+function buildDistractors(targetWord) {
+  const pool = allWords.filter(w =>
+    w.word.toLowerCase() !== targetWord.word.toLowerCase() &&
+    w.meaning.trim() !== targetWord.meaning.trim()
+  );
+  const picked = [];
+  const used = new Set([targetWord.meaning.trim()]);
+  const shuffled = pool.slice().sort(() => Math.random() - 0.5);
+  for (const cand of shuffled) {
+    const m = cand.meaning.trim();
+    if (!used.has(m)) {
+      used.add(m);
+      picked.push(cand);
+      if (picked.length === 3) break;
+    }
+  }
+  return picked;
+}
+
+function showOverlayToast(elId, txtId, text, isOk) {
+  const toast = $(elId);
+  clearTimeout(toastTimer);
+  $(txtId).textContent = text;
+  toast.className = 'quiz-toast show ' + (isOk ? 'ok' : 'retry');
+  toastTimer = setTimeout(() => { toast.className = 'quiz-toast'; }, isOk ? 750 : 1200);
+}
+
+function renderQuizCard() {
+  const item = sessionWords[qIdx];
+  qWrongCount = 0;
+  qAnswered = false;
+
+  const cur = qIdx + 1, tot = sessionWords.length;
+  $('qCurNum').textContent = cur;
+  $('qTotNum').textContent = tot;
+  $('qProgFill').style.width = Math.max(10, Math.round((cur / tot) * 100)) + '%';
+  $('quizMainWord').textContent = item.word;
+  $('quizToast').className = 'quiz-toast';
+
+  const options = [item, ...buildDistractors(item)].sort(() => Math.random() - 0.5);
+  const grid = $('quizChoicesGrid');
+  grid.innerHTML = '';
+
+  options.forEach((opt, i) => {
+    const th = QUIZ_CARD_THEMES[i % 4];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quiz-card';
+    btn.style.backgroundColor = th.bg;
+    btn.style.boxShadow = `0 6px 0 0 ${th.bevel}`;
+    btn.dataset.bevel = th.bevel;
+    btn.dataset.correct = opt.word === item.word ? 'true' : 'false';
+
+    const len = opt.meaning.length;
+    const fz = len >= 10 ? 'clamp(15px, 3.8vw, 20px)' : len >= 6 ? 'clamp(18px, 4.6vw, 24px)' : 'clamp(21px, 5.5vw, 30px)';
+    btn.innerHTML = `
+      <span class="quiz-num">${i + 1}</span>
+      <span class="quiz-meaning-wrap">
+        <span class="quiz-meaning" style="font-size:${fz};color:${th.textCol}">${esc(opt.meaning)}</span>
+      </span>`;
+    btn.addEventListener('click', () => handleQuizChoice(item, btn));
+    grid.appendChild(btn);
+  });
+
+  setTimeout(() => speakEn(item.word), 160);
+}
+
+function handleQuizChoice(item, cardEl) {
+  if (qAnswered || cardEl.dataset.disabled === 'true') return;
+  const isCorrect = cardEl.dataset.correct === 'true';
+
+  if (isCorrect) {
+    qAnswered = true;
+    playCelebrationChord();
+    showOverlayToast('quizToast', 'quizToastText', qWrongCount === 0 ? '정답이에요! 🎉' : '찾았어요! 잘했어요! 🌟', true);
+    cardEl.classList.add('bounce-correct');
+
+    // 확정 판정: 1회 정답=grad, 2회 정답=conf, 3회 이상=unk
+    const grade = qWrongCount === 0 ? 'grad' : (qWrongCount === 1 ? 'conf' : 'unk');
+    qGradeMap[item.word.toLowerCase()] = grade;
+
+    setTimeout(() => {
+      qIdx += 1;
+      if (qIdx < sessionWords.length) {
+        renderQuizCard();
+      } else {
+        if (cfg.enableSpell) {
+          sIdx = 0;
+          showView('spell');
+          renderSpellCard();
+        } else {
+          // 4지선다만 진행한 경우 바로 결과 집계
+          sessionWords.forEach(w => {
+            const g = qGradeMap[w.word.toLowerCase()] || 'conf';
+            finalizeWordGrade(w.word, g, 'grad');
+          });
+          finishSession();
+        }
+      }
+    }, 720);
+  } else {
+    qWrongCount += 1;
+    playGentleBoing();
+    showOverlayToast('quizToast', 'quizToastText', '다시 한번 생각해볼까요? 💭', false);
+    cardEl.classList.remove('shake-wrong');
+    void cardEl.offsetWidth;
+    cardEl.classList.add('shake-wrong');
+    cardEl.dataset.disabled = 'true';
+    setTimeout(() => {
+      cardEl.classList.remove('shake-wrong');
+      cardEl.classList.add('card-wrong-disabled');
+    }, 380);
+  }
+}
+
+// ========== STEP 2: SPELLING (Letter Blocks OR QWERTY) ==========
+function getSpellTarget(rawWord) {
+  // Clean parenthetical forms like "a(an)" -> "a"
+  return String(rawWord || '').replace(/\([^)]*\)/g, '').trim().toLowerCase();
+}
+
+function buildLetterBlocks(targetStr) {
+  const letters = [];
+  for (const ch of targetStr) {
+    if (/[a-z]/.test(ch)) letters.push(ch);
+  }
+  // Add 2 gentle distractors (or 1 if word is very long)
+  const distractorCount = letters.length >= 9 ? 1 : 2;
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  const extras = [];
+  let guard = 0;
+  while (extras.length < distractorCount && guard < 50) {
+    guard++;
+    const ch = alphabet[Math.floor(Math.random() * alphabet.length)];
+    if (!letters.includes(ch) && !extras.includes(ch)) extras.push(ch);
+  }
+  const all = [...letters, ...extras].map((ch, idx) => ({ id: idx, ch, used: false }));
+  // Shuffle ensuring not already in exact sorted order for short words
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all;
+}
+
+function advanceSpellCursor() {
+  while (sCursor < sSlots.length && (sSlots[sCursor].fixed || sSlots[sCursor].filled)) {
+    sCursor++;
+  }
+}
+
+function renderSpellCard() {
+  const item = sessionWords[sIdx];
+  sTargetClean = getSpellTarget(item.word);
+  sWrongCount = 0;
+  sUsedHint = false;
+  sLocked = false;
+  sSlots = [...sTargetClean].map(ch => {
+    const isLetter = /[a-z]/.test(ch);
+    return { ch, fixed: !isLetter, filled: !isLetter };
+  });
+  sCursor = 0;
+  advanceSpellCursor();
+
+  const cur = sIdx + 1, tot = sessionWords.length;
+  const isQwerty = cfg.spellInputMode === 'qwerty';
+  $('spellPhaseBadge').textContent = isQwerty ? '2단계 · 쿼티 철자 입력' : '2단계 · 글자 블록 조립';
+  $('spellModeIndicator').textContent = isQwerty ? '⌨️ 쿼티 키보드 모드 (설정에서 변경 가능)' : '🧱 글자 블록 조립 모드 (설정에서 변경 가능)';
+  $('sCurNum').textContent = cur;
+  $('sTotNum').textContent = tot;
+  $('sProgFill').style.width = Math.max(10, Math.round((cur / tot) * 100)) + '%';
+  $('spellMeaningText').textContent = item.meaning;
+  $('spellWrongIndicator').textContent = '오터치 0회';
+  $('spellToast').className = 'quiz-toast';
+
+  // Sticker cue
+  const cands = resolveStickerCandidates(item);
+  const sw = $('spellStickerWrap');
+  const mBox = $('spellMeaningBox');
+  if (cands.length) {
+    sw.style.display = 'flex';
+    mBox.classList.remove('centered');
+    const img = $('spellStickerImg');
+    let ci = 0;
+    img.onerror = () => {
+      if (ci < cands.length) img.src = cands[ci++];
+      else { sw.style.display = 'none'; mBox.classList.add('centered'); }
+    };
+    img.onload = () => { sw.style.display = 'flex'; mBox.classList.remove('centered'); };
+    img.src = cands[ci++];
+  } else {
+    sw.style.display = 'none';
+    mBox.classList.add('centered');
+  }
+
+  renderSpellSlots();
+
+  if (isQwerty) {
+    $('blocksTray').style.display = 'none';
+    $('qwertyWrap').style.display = 'flex';
+    renderQwertyKeyboard();
+  } else {
+    $('qwertyWrap').style.display = 'none';
+    $('blocksTray').style.display = 'flex';
+    sBlocks = buildLetterBlocks(sTargetClean);
+    renderBlocksTray();
+  }
+
+  setTimeout(() => speakEn(item.word), 180);
+}
+
+function renderSpellSlots() {
+  const wrap = $('spellSlots');
+  const compact = sSlots.length >= 8;
+  wrap.innerHTML = '';
+  sSlots.forEach((slot, idx) => {
+    const div = document.createElement('div');
+    if (slot.fixed) {
+      div.className = 'spell-slot fixed-char';
+      div.textContent = slot.ch;
+    } else {
+      const cls = ['spell-slot'];
+      if (compact) cls.push('compact');
+      if (slot.filled) cls.push('filled');
+      else if (idx === sCursor) cls.push('active');
+      div.className = cls.join(' ');
+      div.textContent = slot.filled ? slot.ch : '';
+    }
+    wrap.appendChild(div);
+  });
+}
+
+function renderBlocksTray() {
+  const tray = $('blocksTray');
+  tray.innerHTML = '';
+  sBlocks.forEach(blk => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'letter-block' + (blk.used ? ' used' : '');
+    btn.textContent = blk.ch;
+    btn.dataset.bid = blk.id;
+    btn.addEventListener('click', () => handleSpellLetterInput(blk.ch, btn, blk));
+    tray.appendChild(btn);
+  });
+}
+
+function renderQwertyKeyboard() {
+  const wrap = $('qwertyWrap');
+  wrap.innerHTML = '';
+  QWERTY_ROWS.forEach((rowChars, rIdx) => {
+    const row = document.createElement('div');
+    row.className = 'qwerty-row';
+    if (rIdx === 1) row.style.padding = '0 10px';
+    if (rIdx === 2) row.style.padding = '0 24px';
+    rowChars.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'q-key';
+      btn.textContent = ch;
+      btn.dataset.key = ch;
+      btn.addEventListener('click', () => handleSpellLetterInput(ch, btn, null));
+      row.appendChild(btn);
+    });
+    wrap.appendChild(row);
+  });
+}
+
+function handleSpellLetterInput(ch, btnEl, blockObj) {
+  if (sLocked || sCursor >= sSlots.length) return;
+  const expected = sSlots[sCursor].ch;
+
+  if (ch.toLowerCase() === expected) {
+    playTone(620 + sCursor * 40, 0.08);
+    sSlots[sCursor].filled = true;
+    if (blockObj) blockObj.used = true;
+    if (btnEl && !blockObj) {
+      btnEl.classList.add('ok-flash');
+      setTimeout(() => btnEl.classList.remove('ok-flash'), 180);
+    }
+    advanceSpellCursor();
+    renderSpellSlots();
+    if (cfg.spellInputMode === 'blocks') renderBlocksTray();
+
+    if (sCursor >= sSlots.length) {
+      onSpellWordCompleted();
+    }
+  } else {
+    sWrongCount += 1;
+    $('spellWrongIndicator').textContent = `오터치 ${sWrongCount}회`;
+    playGentleBoing();
+    if (btnEl) {
+      btnEl.classList.remove('wrong-flash');
+      void btnEl.offsetWidth;
+      btnEl.classList.add('wrong-flash');
+      setTimeout(() => btnEl.classList.remove('wrong-flash'), 380);
+    }
+  }
+}
+
+function useSpellHint() {
+  if (sLocked || sCursor >= sSlots.length) return;
+  sUsedHint = true;
+  const expected = sSlots[sCursor].ch;
+  sSlots[sCursor].filled = true;
+  if (cfg.spellInputMode === 'blocks') {
+    const match = sBlocks.find(b => !b.used && b.ch === expected);
+    if (match) match.used = true;
+    renderBlocksTray();
+  }
+  playTone(540, 0.09);
+  showOverlayToast('spellToast', 'spellToastText', `힌트: "${expected}" 글자를 채웠어요! 💡`, false);
+  advanceSpellCursor();
+  renderSpellSlots();
+  if (sCursor >= sSlots.length) {
+    onSpellWordCompleted();
+  }
+}
+
+function onSpellWordCompleted() {
+  sLocked = true;
+  const item = sessionWords[sIdx];
+  playCelebrationChord();
+  speakEn(item.word);
+  showOverlayToast('spellToast', 'spellToastText', `완성! ${item.word} 🎉`, true);
+
+  // 확정 판정표: 오타 0~2회 & 힌트 미사용=grad / 오타 3회 또는 힌트=conf / 오타 4회+=unk
+  let spellGrade = 'grad';
+  if (sWrongCount >= 4) spellGrade = 'unk';
+  else if (sWrongCount === 3 || sUsedHint) spellGrade = 'conf';
+
+  const quizGrade = qGradeMap[item.word.toLowerCase()] || 'grad';
+  finalizeWordGrade(item.word, quizGrade, spellGrade);
+
+  setTimeout(() => {
+    sIdx += 1;
+    if (sIdx < sessionWords.length) {
+      renderSpellCard();
+    } else {
+      finishSession();
+    }
+  }, 900);
+}
+
+function finalizeWordGrade(word, quizGrade, spellGrade) {
+  let finalStatus = '졸업';
+  let addConfused = 0, addUnknown = 0;
+
+  if (quizGrade === 'unk' || spellGrade === 'unk') {
+    finalStatus = '몰라요';
+    addUnknown = 1;
+  } else if (quizGrade === 'conf' || spellGrade === 'conf') {
+    finalStatus = '헷갈려요';
+    addConfused = 1;
+  }
+
+  const wKey = word.toLowerCase();
+  if (!records[cfg.childKey]) records[cfg.childKey] = {};
+  const prev = records[cfg.childKey][wKey] || { status: '', confused: 0, unknown: 0, date: '' };
+  const date = todayStr();
+  records[cfg.childKey][wKey] = {
+    status: finalStatus,
+    confused: (Number(prev.confused) || 0) + addConfused,
+    unknown: (Number(prev.unknown) || 0) + addUnknown,
+    date
+  };
+  sessionResults.push({ word, finalStatus, addConfused, addUnknown, date });
+}
+
+// ========== Finish Session & Auto-POST to Google Sheets ==========
+async function finishSession() {
+  saveRecords();
+  playCelebrationChord();
+
+  const childName = getActiveChildName();
+  const label = cfg.reviewOnly ? '오답 집중 복습' : (cfg.mode === 'day' ? cfg.dayCode : cfg.stageName);
+  const grad = sessionResults.filter(r => r.finalStatus === '졸업').length;
+  const conf = sessionResults.filter(r => r.finalStatus === '헷갈려요').length;
+  const unk  = sessionResults.filter(r => r.finalStatus === '몰라요').length;
+
+  $('doneTitle').textContent = `${childName} · ${label} 완료! 🎉`;
+  $('doneSubtitle').textContent = `총 ${sessionResults.length}단어 암기 체크를 끝냈어요.`;
+  $('statGrad').textContent = grad;
+  $('statConf').textContent = conf;
+  $('statUnk').textContent = unk;
+
+  const chips = $('doneWordChips');
+  chips.innerHTML = '';
+  sessionResults.forEach(r => {
+    const span = document.createElement('span');
+    const cls = r.finalStatus === '졸업' ? 'grad' : r.finalStatus === '헷갈려요' ? 'conf' : 'unk';
+    const ico = r.finalStatus === '졸업' ? '🟩' : r.finalStatus === '헷갈려요' ? '🔺' : '❌';
+    span.className = 'done-chip ' + cls;
+    span.textContent = `${ico} ${r.word}`;
+    chips.appendChild(span);
+  });
+
+  $('doneHomeBtn').textContent = (cfg.mode === 'day' && !cfg.reviewOnly) ? '🔊 세이펜 다시 보기' : '🏠 처음으로';
+  $('doneNextBtn').textContent = (cfg.mode === 'day' && !cfg.reviewOnly) ? '다음 DAY로 ▶' : '다음 단계로 ▶';
+
+  showView('done');
+  renderHeader();
+
+  const webhook = (cfg.webhookUrl || '').trim();
+  const colRange = cfg.childKey === 'second' ? 'U~X열' : 'Q~T열';
+  if (!webhook) {
+    $('syncHeadline').textContent = `✓ 기기에 ${childName} 기록 저장됨`;
+    $('syncSubtext').textContent = '구글 시트 동기화는 설정(⚙️)에서 /exec 주소를 입력하세요';
+    $('syncPill').textContent = '기기 저장';
+    return;
+  }
+
+  $('syncHeadline').textContent = `구글 시트 ${childName} (${colRange}) 저장 중...`;
+  $('syncSubtext').textContent = '다른 기기에서도 똑같이 이어집니다';
+  $('syncPill').textContent = '전송 중';
+
+  try {
+    await fetch(webhook, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        childKey: cfg.childKey,
+        childName,
+        stageName: label,
+        results: sessionResults
+      })
+    });
+    $('syncHeadline').textContent = `✓ 구글 시트 ${childName} (${colRange}) 자동 저장 완료!`;
+    $('syncSubtext').textContent = `졸업 ${grad} · 헷갈려요 ${conf} · 몰라요 ${unk} 반영됨`;
+    $('syncPill').textContent = '동기화됨';
+  } catch (e) {
+    $('syncHeadline').textContent = '시트 전송 실패 (기기에는 저장됨)';
+    $('syncSubtext').textContent = '인터넷 연결 후 설정에서 일괄 전송하세요';
+    $('syncPill').textContent = '전송 실패';
+  }
+}
+
+function moveToNextUnit() {
+  if (cfg.mode === 'day' && !cfg.reviewOnly) {
+    const idx = dayGroups.findIndex(g => g.dayCode === cfg.dayCode);
+    if (idx >= 0 && idx + 1 < dayGroups.length) {
+      cfg.dayCode = dayGroups[idx + 1].dayCode;
+      saveCfg();
+    }
+  } else {
+    cfg.reviewOnly = false;
+    const idx = stages.findIndex(s => s.name === cfg.stageName);
+    if (idx >= 0 && idx + 1 < stages.length) {
+      cfg.stageName = stages[idx + 1].name;
+    }
+    saveCfg();
+  }
+  renderMainScreen();
+}
+
+// ========== DAY / Stage Picker Modal ==========
+let selectedWeekFilter = 1;
+function openStagePickerModal() {
+  const listEl = $('stagePickerList');
+  const weekRow = $('weekFilterRow');
+  listEl.innerHTML = '';
+
+  const reviewCount = allWords.filter(w => ['헷갈려요', '몰라요'].includes(getChildRec(w.word).status)).length;
+  const revBtn = document.createElement('button');
+  revBtn.type = 'button';
+  revBtn.className = 'stage-item-btn review-item' + (cfg.reviewOnly ? ' on' : '');
+  revBtn.innerHTML = `
+    <div class="stage-item-main">
+      <span class="stage-item-name">🔁 오답·취약 단어 집중 복습</span>
+      <span class="stage-item-words">헷갈려요·몰라요로 누적된 단어만 모아서 체크</span>
+    </div>
+    <span class="stage-item-sub">${reviewCount}단어</span>`;
+  revBtn.addEventListener('click', () => {
+    playTone(540, 0.06);
+    cfg.reviewOnly = true;
+    saveCfg();
+    $('stageModal').classList.remove('open');
+    renderMainScreen();
+  });
+  listEl.appendChild(revBtn);
+
+  if (cfg.mode === 'day') {
+    $('stageModalTitle').textContent = '학습지 DAY 선택 (주차별)';
+    const curObj = getCurrentDayObj();
+    if (curObj) selectedWeekFilter = curObj.weekNum;
+
+    const totalWeeks = dayGroups.length ? dayGroups[dayGroups.length - 1].weekNum : 1;
+    weekRow.style.display = totalWeeks > 1 ? 'flex' : 'none';
+    renderWeekFilteredDays(totalWeeks);
+  } else {
+    $('stageModalTitle').textContent = cfg.mode === 'elem800' ? '주제별 선택 (초등 800)' : '음가별 선택 (알파블럭스)';
+    weekRow.style.display = 'none';
+    const modeWords = getModeWords();
+    stages.forEach(st => {
+      const stWords = modeWords.filter(w => (cfg.mode === 'elem800' ? w.themeName : w.stageName) === st.name);
+      const gradCnt = stWords.filter(w => getChildRec(w.word).status === '졸업').length;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'stage-item-btn' + (!cfg.reviewOnly && cfg.stageName === st.name ? ' on' : '');
+      btn.innerHTML = `
+        <div class="stage-item-main"><span class="stage-item-name">${esc(st.name)}</span></div>
+        <span class="stage-item-sub">${gradCnt} / ${st.count} 졸업</span>`;
+      btn.addEventListener('click', () => {
+        playTone(540, 0.06);
+        cfg.stageName = st.name;
+        cfg.reviewOnly = false;
+        saveCfg();
+        $('stageModal').classList.remove('open');
+        renderMainScreen();
+      });
+      listEl.appendChild(btn);
+    });
+  }
+  $('stageModal').classList.add('open');
+}
+
+function renderWeekFilteredDays(totalWeeks) {
+  const weekRow = $('weekFilterRow');
+  const listEl = $('stagePickerList');
+  weekRow.innerHTML = '';
+
+  // Keep only the top review item
+  while (listEl.children.length > 1) listEl.removeChild(listEl.lastChild);
+
+  for (let w = 1; w <= totalWeeks; w++) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'week-chip' + (w === selectedWeekFilter ? ' on' : '');
+    chip.textContent = `${w}주차`;
+    chip.addEventListener('click', () => {
+      selectedWeekFilter = w;
+      renderWeekFilteredDays(totalWeeks);
+    });
+    weekRow.appendChild(chip);
+  }
+
+  const weekDays = dayGroups.filter(g => g.weekNum === selectedWeekFilter);
+  weekDays.forEach(g => {
+    const gradCnt = g.words.filter(w => getChildRec(w.word).status === '졸업').length;
+    const doneAll = isDayCompleted(g);
+    const wordsPreview = g.words.map(w => w.word).join(' · ');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'stage-item-btn' + (!cfg.reviewOnly && cfg.dayCode === g.dayCode ? ' on' : '');
+    btn.innerHTML = `
+      <div class="stage-item-main">
+        <span class="stage-item-name">${doneAll ? '✅ ' : ''}${esc(g.dayCode)} · ${esc(g.topic)}</span>
+        <span class="stage-item-words">${esc(wordsPreview)}</span>
+      </div>
+      <span class="stage-item-sub">${gradCnt}/${g.words.length} 졸업</span>`;
+    btn.addEventListener('click', () => {
+      playTone(560, 0.06);
+      cfg.dayCode = g.dayCode;
+      cfg.reviewOnly = false;
+      saveCfg();
+      $('stageModal').classList.remove('open');
+      renderMainScreen();
+    });
+    listEl.appendChild(btn);
+  });
+}
+
+// ========== Parental Gate & Settings Modal ==========
+let gateAns = 0;
+function openParentalGate() {
+  const a = 3 + Math.floor(Math.random() * 6);
+  const b = 2 + Math.floor(Math.random() * 6);
+  gateAns = a + b;
+  $('gateQuestion').textContent = `${a} + ${b} = ?`;
+  $('gateError').textContent = '';
+
+  const opts = new Set([gateAns]);
+  while (opts.size < 4) opts.add(Math.max(2, gateAns + Math.floor(Math.random() * 7) - 3));
+  const box = $('gateOptions');
+  box.innerHTML = '';
+  [...opts].sort(() => Math.random() - 0.5).forEach(n => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'gate-opt-btn';
+    btn.textContent = n;
+    btn.addEventListener('click', () => {
+      if (n === gateAns) {
+        playTone(640, 0.08);
+        $('gateModal').classList.remove('open');
+        openSettingsModal();
+      } else {
+        playGentleBoing();
+        $('gateError').textContent = '어른과 함께 다시 풀어 주세요.';
+      }
+    });
+    box.appendChild(btn);
+  });
+  $('gateModal').classList.add('open');
+}
+
+let draft = {};
+function openSettingsModal() {
+  draft = { ...cfg };
+  $('firstNameInput').value = draft.firstName;
+  $('secondNameInput').value = draft.secondName;
+  $('csvUrlInput').value = draft.csvUrl;
+  $('webhookUrlInput').value = draft.webhookUrl;
+  $('stickerBaseInput').value = draft.stickerBase || 'stickers/';
+  $('settingsInfoMsg').textContent = '';
+  const localCnt = Object.keys(localStickerBlobs).length;
+  $('stickerInfoMsg').textContent = localCnt > 0
+    ? `✓ 내 폰 로컬 캐시에 ${localCnt}개 스티커가 저장되어 있어요 (GitHub 기본 경로: ${draft.stickerBase})`
+    : `기본값: GitHub 저장소의 stickers/ 폴더 (예: stickers/cat.webp)`;
+  paintSettingsUI();
+  $('settingsModal').classList.add('open');
+}
+
+function paintSettingsUI() {
+  $('childCardFirst').classList.toggle('on', draft.childKey === 'first');
+  $('childCardSecond').classList.toggle('on', draft.childKey === 'second');
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('on-mint', b.dataset.mode === draft.mode));
+  document.querySelectorAll('.spell-mode-btn').forEach(b => b.classList.toggle('on-gold', b.dataset.spell === draft.spellInputMode));
+  $('enableSpellToggle').classList.toggle('on', !!draft.enableSpell);
+  document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('on-blue', Number(b.dataset.rate) === Number(draft.rate)));
+}
+
+// ========== Event Bindings ==========
+$('headerLogoBtn').addEventListener('click', () => {
+  playTone(500, 0.06);
+  cfg.reviewOnly = false;
+  saveCfg();
+  renderMainScreen();
+});
+
+$('headerChildChip').addEventListener('click', () => {
+  const nextKey = cfg.childKey === 'first' ? 'second' : 'first';
+  const nextName = nextKey === 'second' ? (cfg.secondName.trim() || '둘째') : (cfg.firstName.trim() || '첫째');
+  if ((currentView === 'quiz' || currentView === 'spell') && !confirm(`"${nextName}"(으)로 전환하고 메인으로 돌아갈까요?`)) return;
+  playTone(580, 0.07);
+  cfg.childKey = nextKey;
+  if (cfg.mode === 'day' && !cfg.reviewOnly) cfg.dayCode = findRecommendedDayCode();
+  saveCfg();
+  renderMainScreen();
+});
+
+$('openStagePickerBtn').addEventListener('click', () => { playTone(520, 0.06); openStagePickerModal(); });
+$('dayTitlePill').addEventListener('click', () => { playTone(520, 0.06); openStagePickerModal(); });
+$('closeStageModalBtn').addEventListener('click', () => $('stageModal').classList.remove('open'));
+$('stageModal').addEventListener('click', e => { if (e.target === $('stageModal')) $('stageModal').classList.remove('open'); });
+
+$('topSyncBtn').addEventListener('click', () => { playTone(560, 0.06); syncFromSheetLive(true); });
+$('openSettingsBtn').addEventListener('click', () => { playTone(500, 0.06); openParentalGate(); });
+$('closeGateBtn').addEventListener('click', () => $('gateModal').classList.remove('open'));
+$('gateModal').addEventListener('click', e => { if (e.target === $('gateModal')) $('gateModal').classList.remove('open'); });
+$('closeSettingsBtn').addEventListener('click', () => $('settingsModal').classList.remove('open'));
+$('settingsModal').addEventListener('click', e => { if (e.target === $('settingsModal')) $('settingsModal').classList.remove('open'); });
+
+// DAY Seipen Controls
+$('prevDayBtn').addEventListener('click', () => {
+  const idx = dayGroups.findIndex(g => g.dayCode === cfg.dayCode);
+  if (idx > 0) {
+    playTone(500, 0.06);
+    cfg.dayCode = dayGroups[idx - 1].dayCode;
+    saveCfg();
+    renderMainScreen();
+  }
+});
+$('nextDayBtn').addEventListener('click', () => {
+  const idx = dayGroups.findIndex(g => g.dayCode === cfg.dayCode);
+  if (idx >= 0 && idx + 1 < dayGroups.length) {
+    playTone(560, 0.06);
+    cfg.dayCode = dayGroups[idx + 1].dayCode;
+    saveCfg();
+    renderMainScreen();
+  }
+});
+$('quickSpeedBtn').addEventListener('click', () => {
+  const idx = SPEED_CYCLE.findIndex(r => Math.abs(r - Number(cfg.rate)) < 0.01);
+  cfg.rate = SPEED_CYCLE[(idx + 1) % SPEED_CYCLE.length];
+  saveCfg();
+  $('quickSpeedBtn').textContent = `🔊 ${cfg.rate}x`;
+  showGlobalToast(`발음 속도를 ${cfg.rate}x 로 맞췄어요`);
+});
+$('warmupToggleBtn').addEventListener('click', () => {
+  const box = $('warmupBox');
+  const open = box.classList.toggle('open');
+  $('warmupChevron').textContent = open ? '▴' : '▾';
+});
+$('seqPlaySentBtn').addEventListener('click', toggleSequentialSentences);
+$('tabCheckBtn').addEventListener('click', () => startCheckSession());
+$('startDayCheckBtn').addEventListener('click', () => startCheckSession());
+$('startModeBtn').addEventListener('click', () => startCheckSession());
+
+// Quiz & Spell Controls
+$('quizWordStage').addEventListener('click', () => {
+  const item = sessionWords[qIdx];
+  if (item) speakEn(item.word);
+});
+$('quizBackBtn').addEventListener('click', () => { playTone(440, 0.06); renderMainScreen(); });
+$('spellBackBtn').addEventListener('click', () => { playTone(440, 0.06); renderMainScreen(); });
+$('spellSpeakBtn').addEventListener('click', () => {
+  const item = sessionWords[sIdx];
+  if (item) speakEn(item.word);
+});
+$('spellHintBtn').addEventListener('click', useSpellHint);
+
+// Physical keyboard support for QWERTY mode (PC / Samsung DeX)
+window.addEventListener('keydown', e => {
+  if (currentView !== 'spell' || sLocked) return;
+  if (/^[a-zA-Z]$/.test(e.key)) {
+    const ch = e.key.toLowerCase();
+    if (cfg.spellInputMode === 'qwerty') {
+      const btn = $('qwertyWrap').querySelector(`[data-key="${ch}"]`);
+      handleSpellLetterInput(ch, btn, null);
+    } else {
+      const blk = sBlocks.find(b => !b.used && b.ch === ch);
+      if (blk) {
+        const btn = $('blocksTray').querySelector(`[data-bid="${blk.id}"]`);
+        handleSpellLetterInput(ch, btn, blk);
+      }
+    }
+  }
+});
+
+// Done Buttons
+$('doneHomeBtn').addEventListener('click', () => { playTone(500, 0.06); renderMainScreen(); });
+$('doneNextBtn').addEventListener('click', () => { playTone(580, 0.07); moveToNextUnit(); });
+
+// Settings Controls
+['childCardFirst', 'childCardSecond'].forEach(id => {
+  $(id).addEventListener('click', () => { draft.childKey = $(id).dataset.child; paintSettingsUI(); });
+});
+$('firstNameInput').addEventListener('input', e => { draft.firstName = e.target.value; });
+$('secondNameInput').addEventListener('input', e => { draft.secondName = e.target.value; });
+document.querySelectorAll('.mode-btn').forEach(b => {
+  b.addEventListener('click', () => { draft.mode = b.dataset.mode; paintSettingsUI(); });
+});
+document.querySelectorAll('.spell-mode-btn').forEach(b => {
+  b.addEventListener('click', () => { draft.spellInputMode = b.dataset.spell; paintSettingsUI(); });
+});
+$('enableSpellToggle').addEventListener('click', () => { draft.enableSpell = !draft.enableSpell; paintSettingsUI(); });
+document.querySelectorAll('.speed-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    draft.rate = Number(b.dataset.rate);
+    paintSettingsUI();
+    speakEn('apple', draft.rate);
+  });
+});
+
+$('reloadCsvBtn').addEventListener('click', async () => {
+  const url = $('csvUrlInput').value.trim();
+  const msg = $('settingsInfoMsg');
+  msg.style.color = '#006399';
+  msg.textContent = 'DAY확장 단어장 시트를 불러오는 중...';
+  try {
+    const info = await loadWordsFromSheet(url);
+    msg.style.color = '#006d3d';
+    msg.textContent = info.source === 'sheet'
+      ? `✓ 시트에서 ${info.count}단어 (${info.days}일치)를 불러왔어요!`
+      : `✓ 내장 샘플 ${info.count}단어 (DAY 001~010)를 사용 중이에요.`;
+  } catch (e) {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = e.message;
+  }
+});
+
+$('pullLiveBtn').addEventListener('click', async () => {
+  cfg.webhookUrl = $('webhookUrlInput').value.trim();
+  saveCfg();
+  const msg = $('settingsInfoMsg');
+  msg.style.color = '#006399';
+  msg.textContent = '구글 시트 실시간 진도를 불러오는 중...';
+  const ok = await syncFromSheetLive(false);
+  if (ok) {
+    msg.style.color = '#006d3d';
+    msg.textContent = '✓ 시트 최신 진도를 실시간으로 불러와 반영했어요!';
+  } else {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = '불러오기 실패: /exec 주소 및 통합 Apps Script(doGet) 새 배포를 확인해 주세요.';
+  }
+});
+
+$('syncAllRecordsBtn').addEventListener('click', async () => {
+  const webhook = $('webhookUrlInput').value.trim();
+  const msg = $('settingsInfoMsg');
+  if (!webhook || !webhook.endsWith('/exec')) {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = '먼저 위 칸에 /exec 로 끝나는 Apps Script 웹앱 URL을 입력해 주세요.';
+    return;
+  }
+  const targetKey = draft.childKey || cfg.childKey;
+  const childName = targetKey === 'second' ? (($('secondNameInput').value || '').trim() || '둘째') : (($('firstNameInput').value || '').trim() || '첫째');
+  const entries = Object.entries(records[targetKey] || {}).filter(([, v]) => v && v.status);
+  if (!entries.length) {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = `${childName}의 기기 저장 기록이 아직 없습니다.`;
+    return;
+  }
+  const casingMap = {};
+  allWords.forEach(w => { casingMap[w.word.toLowerCase()] = w.word; });
+  const payloadResults = entries.map(([wLower, rec]) => ({
+    word: casingMap[wLower] || wLower,
+    finalStatus: rec.status,
+    addConfused: Number(rec.confused) || 0,
+    addUnknown: Number(rec.unknown) || 0,
+    setConfused: Number(rec.confused) || 0,
+    setUnknown: Number(rec.unknown) || 0,
+    date: rec.date || todayStr()
+  }));
+
+  const btn = $('syncAllRecordsBtn');
+  btn.disabled = true;
+  msg.style.color = '#006399';
+  msg.textContent = `${childName} 기록 ${payloadResults.length}단어 전송 중...`;
+  try {
+    cfg.webhookUrl = webhook;
+    saveCfg();
+    await fetch(webhook, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ childKey: targetKey, childName, stageName: '일괄 동기화', results: payloadResults })
+    });
+    playTone(640, 0.08);
+    msg.style.color = '#006d3d';
+    msg.textContent = `✓ ${childName} 기록 ${payloadResults.length}단어 시트 전송 완료!`;
+  } catch (e) {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = '전송 실패: 인터넷 연결이나 웹앱 URL을 확인해 주세요.';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+$('copyGasBtn').addEventListener('click', async () => {
+  const msg = $('settingsInfoMsg');
+  try {
+    await navigator.clipboard.writeText(GAS_SCRIPT_TEXT);
+    msg.style.color = '#006d3d';
+    msg.textContent = '✓ 통합 Apps Script (doGet+doPost) 코드가 복사되었어요!';
+  } catch (e) {
+    msg.style.color = '#ba1a1a';
+    msg.textContent = '복사 권한이 없어 안내된 코드를 직접 복사해 주세요.';
+  }
+});
+
+$('pickLocalStickersBtn').addEventListener('click', () => $('localStickerFileInput').click());
+$('localStickerFileInput').addEventListener('change', async e => {
+  const files = e.target.files;
+  if (!files || !files.length) return;
+  $('stickerInfoMsg').textContent = '로컬 스티커 이미지를 저장하는 중...';
+  try {
+    const cnt = await saveLocalStickersToDB(files);
+    $('stickerInfoMsg').textContent = `✓ ${cnt}개 스티커를 이 기기 브라우저에 저장했어요!`;
+    renderMainScreen();
+  } catch (err) {
+    $('stickerInfoMsg').textContent = '저장 오류: ' + err.message;
+  }
+  e.target.value = '';
+});
+$('clearLocalStickersBtn').addEventListener('click', async () => {
+  await clearLocalStickersDB();
+  $('stickerInfoMsg').textContent = '로컬 캐시를 비웠습니다. GitHub stickers/ 경로를 사용합니다.';
+  renderMainScreen();
+});
+
+$('resetStageBtn').addEventListener('click', () => {
+  const name = draft.childKey === 'second' ? (draft.secondName || '둘째') : (draft.firstName || '첫째');
+  const label = cfg.mode === 'day' ? cfg.dayCode : cfg.stageName;
+  if (!confirm(`${name}의 "${label}" 기록을 초기화할까요?`)) return;
+  const targets = cfg.mode === 'day' ? (getCurrentDayObj()?.words || []) : getModeWords().filter(w => (cfg.mode === 'elem800' ? w.themeName : w.stageName) === cfg.stageName);
+  targets.forEach(w => { if (records[draft.childKey]) delete records[draft.childKey][w.word.toLowerCase()]; });
+  saveRecords();
+  $('settingsInfoMsg').style.color = '#006d3d';
+  $('settingsInfoMsg').textContent = `✓ ${name}의 "${label}" 기록을 초기화했어요.`;
+});
+
+$('saveSettingsBtn').addEventListener('click', async () => {
+  const prevCsv = cfg.csvUrl;
+  const prevWebhook = cfg.webhookUrl;
+  const prevMode = cfg.mode;
+
+  cfg.childKey = draft.childKey;
+  cfg.firstName = ($('firstNameInput').value || '').trim() || '첫째 민준';
+  cfg.secondName = ($('secondNameInput').value || '').trim() || '둘째 서아';
+  cfg.mode = draft.mode;
+  cfg.spellInputMode = draft.spellInputMode;
+  cfg.enableSpell = draft.enableSpell;
+  cfg.rate = draft.rate;
+  cfg.csvUrl = $('csvUrlInput').value.trim();
+  cfg.webhookUrl = $('webhookUrlInput').value.trim();
+  cfg.stickerBase = $('stickerBaseInput').value.trim() || 'stickers/';
+  cfg.reviewOnly = false;
+
+  if (cfg.csvUrl !== prevCsv) {
+    try { await loadWordsFromSheet(cfg.csvUrl); } catch (e) {}
+  } else if (cfg.mode !== prevMode) {
+    rebuildIndexes();
+  }
+  saveCfg();
+  playTone(620, 0.08);
+  $('settingsModal').classList.remove('open');
+  renderMainScreen();
+
+  if (cfg.webhookUrl && cfg.webhookUrl !== prevWebhook) {
+    syncFromSheetLive(true);
+  }
+});
+
+// ========== Init ==========
+async function init() {
+  loadStorage();
+  await loadLocalStickersFromDB();
+  try {
+    await loadWordsFromSheet(cfg.csvUrl);
+  } catch (e) {
+    allWords = formatStarterWords();
+    rebuildIndexes();
+  }
+  renderMainScreen();
+
+  // Auto-sync live progress from Google Sheets on launch (Dad <-> Mom instant sync)
+  if (cfg.webhookUrl && cfg.webhookUrl.endsWith('/exec')) {
+    syncFromSheetLive(false);
+  }
+}
+init();
+</script>
+</body>
+</html>
