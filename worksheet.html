@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="light only" />
+<title>매일 영단어 · 주간 학습지 웹 인쇄기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+KR:wght@500;700;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+/* ==================== PRINT PAGE SETUP (Exact A4 2-Page-Per-Day) ==================== */
+@page {
+  size: A4 portrait;
+  margin: 11mm 13mm 11mm 13mm;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+html, body {
+  background: #e8eef5;
+  color: #1E293B;
+  font-family: "Noto Sans KR", "NanumGothic", "Malgun Gothic", -apple-system, sans-serif;
+  min-height: 100%;
+}
+
+/* ==================== SCREEN-ONLY CONTROL TOOLBAR ==================== */
+.no-print {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 2px solid #d7e3f0;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+  padding: 12px 14px;
+}
+
+.ctrl-wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ctrl-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.brand-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.brand-ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #228BE6, #12B886);
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 0 #1864AB;
+}
+.brand-title {
+  font-size: 16.5px;
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1.15;
+}
+.brand-sub {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.top-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: none;
+  border-radius: 12px;
+  padding: 8px 13px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: transform 0.08s;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-print {
+  background: #228BE6;
+  color: #ffffff;
+  box-shadow: 0 4px 0 #1864AB;
+  font-size: 14px;
+  padding: 9px 16px;
+}
+.btn-pin {
+  background: #68FAA6;
+  color: #004E2A;
+  box-shadow: 0 4px 0 #008248;
+}
+.btn-sync {
+  background: #E7F5FF;
+  color: #1864AB;
+  box-shadow: 0 3px 0 #A5D8FF;
+}
+.btn-soft {
+  background: #F1F5F9;
+  color: #334155;
+  box-shadow: 0 3px 0 #CBD5E1;
+}
+.btn-gold {
+  background: #FFF3BF;
+  color: #7B5800;
+  box-shadow: 0 3px 0 #E6A200;
+}
+
+.ctrl-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border-radius: 14px;
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+}
+
+.seg-group {
+  display: inline-flex;
+  align-items: center;
+  background: #E2E8F0;
+  padding: 3px;
+  border-radius: 11px;
+  gap: 3px;
+}
+.seg-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 11px;
+  background: transparent;
+  color: #475569;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seg-btn.on {
+  background: #ffffff;
+  color: #0F172A;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+.seg-btn.on.child-first { color: #1864AB; }
+.seg-btn.on.child-second { color: #C2255C; }
+
+.week-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 11px;
+  padding: 3px 6px;
+}
+.week-step-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #F1F5F9;
+  color: #1E293B;
+  font-weight: 900;
+  cursor: pointer;
+}
+.week-step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.week-select {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  color: #0F172A;
+  padding: 2px 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.chk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 11px;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chk-pill input { accent-color: #228BE6; width: 15px; height: 15px; cursor: pointer; }
+
+.status-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 800;
+  color: #334155;
+  padding: 6px 11px;
+  border-radius: 11px;
+  background: #E7F5FF;
+  border: 1px solid #BAE0FF;
+}
+.status-strip.warn { background: #FFF9DB; border-color: #FFE066; color: #7B5800; }
+.status-strip.ok   { background: #E6FCF5; border-color: #96F2D7; color: #087F5B; }
+
+.tip-line {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64748B;
+}
+
+/* Collapsible Connection Settings Drawer */
+.settings-drawer {
+  display: none;
+  padding: 12px;
+  border-radius: 14px;
+  background: #F1F5F9;
+  border: 1.5px solid #CBD5E1;
+  flex-direction: column;
+  gap: 8px;
+}
+.settings-drawer.open { display: flex; }
+.inp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .inp-row { grid-template-columns: 1fr; }
+}
+.inp-grp { display: flex; flex-direction: column; gap: 3px; }
+.inp-grp label { font-size: 11.5px; font-weight: 800; color: #334155; }
+.inp-box {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1.5px solid #CBD5E1;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0F172A;
+  outline: none;
+}
+.inp-box:focus { border-color: #228BE6; }
+
+/* ==================== SCREEN PREVIEW DESK ==================== */
+.preview-desk {
+  width: 100%;
+  padding: 18px 10px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.page-slot {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+.page-scaler {
+  transform-origin: top center;
+}
+
+.empty-state {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 28px 22px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 2px solid #CBD5E1;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+.empty-state h3 { font-size: 18px; font-weight: 900; color: #0F172A; margin-bottom: 8px; }
+.empty-state p { font-size: 13.5px; font-weight: 700; color: #475569; line-height: 1.55; }
+
+/* ==================== WORKSHEET A4 SHEET STYLES (1:1 Match with 3단계 PDF) ==================== */
+.sheet-page {
+  position: relative;
+  width: 184mm;
+  height: 274mm;
+  background: #FFFFFF;
+  color: #1E293B;
+  overflow: hidden;
+  /* On screen, mimic physical A4 sheet with margin frame */
+  padding: 0;
+  box-shadow: 0 0 0 11mm #FFFFFF, 0 10px 30px rgba(15, 23, 42, 0.16);
+  margin: 11mm 13mm;
+  border-radius: 2px;
+}
+
+.full-tbl { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+/* Header */
+.p-header {
+  background: var(--c-soft);
+  border: 1.5pt solid var(--c-border);
+  border-radius: 10pt;
+  padding: 2.8mm 4mm;
+  margin-bottom: 3.4mm;
+}
+.p-header.compact { padding: 2.2mm 4mm; margin-bottom: 3.2mm; }
+.day-badge {
+  display: inline-block;
+  white-space: nowrap;
+  background: var(--c-main);
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Noto Sans KR', sans-serif;
+  font-weight: 700;
+  font-size: 12.5pt;
+  padding: 1.5mm 3.6mm;
+  border-radius: 16pt;
+  letter-spacing: 0.3pt;
+}
+.ph-week { font-size: 8.5pt; font-weight: 800; color: var(--c-dark); white-space: nowrap; }
+.ph-topic { font-size: 10.8pt; font-weight: 900; color: #1E293B; }
+.ph-line-row { font-size: 8.8pt; font-weight: 700; color: #334155; white-space: nowrap; }
+.blank-u { display: inline-block; width: 18mm; border-bottom: 1pt solid #64748B; }
+.blank-u.sm { width: 16mm; }
+.ph-app-chk {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 8.4pt;
+  font-weight: 800;
+  color: var(--c-dark);
+  background: #FFFFFF;
+  padding: 0.9mm 2.6mm;
+  border-radius: 10pt;
+  border: 1pt solid var(--c-border);
+}
+
+/* Section Box */
+.sec-box {
+  background: #FFFFFF;
+  border: 1.2pt solid #CBD5E1;
+  border-radius: 9pt;
+  padding: 2.6mm 3.6mm;
+  margin-bottom: 2.9mm;
+}
+.sec-title-tbl { width: 100%; border-collapse: collapse; border-bottom: 1pt solid #E2E8F0; }
+.sec-title-tbl td { padding-bottom: 1.2mm; }
+.sec-title { font-size: 10pt; font-weight: 900; color: var(--c-dark); }
+.sec-col-lbl { font-size: 8pt; font-weight: 700; color: #64748B; text-align: right; white-space: nowrap; }
+
+/* Warm-up */
+.warmup-box { background: #FFFDF2; border-color: #FDE68A; padding: 2.3mm 3.6mm; }
+.wu-head { font-size: 8.8pt; font-weight: 800; color: #92400E; }
+.wu-pill { background: #FFFFFF; border: 1pt solid #FDE68A; border-radius: 6pt; padding: 1.2mm 2.4mm; white-space: nowrap; }
+.wu-en { font-family: 'Fredoka', 'Quicksand', sans-serif; font-size: 11pt; font-weight: 700; color: #1E293B; }
+.wu-arr { font-size: 8.5pt; color: #94A3B8; margin: 0 1.5mm; }
+.wu-line { display: inline-block; width: 22mm; border-bottom: 1pt dashed #94A3B8; }
+
+/* ① Word Study & Write */
+.study-row-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 1pt solid #E2E8F0;
+  border-radius: 7pt;
+  margin-bottom: 2.4mm;
+  background: #FFFFFF;
+}
+.study-row-tbl:last-child { margin-bottom: 0; }
+.study-row-tbl td { padding: 2.4mm 1.6mm; }
+.study-en { font-family: 'Fredoka', 'Quicksand', sans-serif; font-weight: 700; color: #0F172A; line-height: 1.1; }
+.study-ko { font-size: 10.5pt; font-weight: 800; color: var(--c-dark); margin-top: 0.8mm; }
+.study-ph { font-size: 7.4pt; font-weight: 700; color: #64748B; margin-top: 0.6mm; }
+
+/* Sticker box (Explicit opaque card color prevents any printer alpha artifact) */
+.art-slot {
+  display: inline-block;
+  vertical-align: middle;
+  background: #FFFFFF;
+  text-align: center;
+}
+.art-slot.tint { background: #F8FBFF; }
+.art-slot img.ws-sticker {
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  background: transparent;
+}
+
+/* Alphablocks Fallback */
+.ab-wrap { text-align: center; white-space: nowrap; }
+.ab-blk {
+  display: inline-block;
+  min-width: 14pt;
+  height: 16pt;
+  line-height: 16pt;
+  padding: 0 2.5pt;
+  margin: 0 0.8pt;
+  border-radius: 4pt;
+  color: #FFFFFF;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 10pt;
+  text-align: center;
+  vertical-align: middle;
+}
+.ab-blk.mini {
+  min-width: 8pt;
+  height: 10.5pt;
+  line-height: 10.5pt;
+  font-size: 7pt;
+  padding: 0 1.4pt;
+  margin: 0 0.4pt;
+  border-radius: 2.8pt;
+}
+.ab-blk.magic { opacity: 0.55; border: 1pt dashed #475569; }
+.ab-cap { font-size: 6.8pt; font-weight: 800; color: #64748B; text-align: center; margin-top: 1.2mm; white-space: nowrap; }
+
+/* ② Listen & Match */
+.m-en {
+  display: inline-block;
+  min-width: 36mm;
+  text-align: center;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: 13.5pt;
+  font-weight: 700;
+  color: #0F172A;
+  background: var(--c-soft);
+  border: 1pt solid var(--c-border);
+  padding: 1.4mm 3.5mm;
+  border-radius: 7pt;
+}
+.m-ko {
+  display: inline-block;
+  min-width: 36mm;
+  text-align: center;
+  font-size: 11pt;
+  font-weight: 800;
+  color: #1E293B;
+  background: #F8FAFC;
+  border: 1pt solid #CBD5E1;
+  padding: 1.5mm 3.5mm;
+  border-radius: 7pt;
+}
+.dot-pin { font-size: 12pt; color: var(--c-main); line-height: 1; }
+
+/* ③ Pick the Spelling */
+.pick-card {
+  background: #F8FBFF;
+  border: 1pt solid #DBEAFE;
+  border-radius: 8pt;
+  padding: 2.6mm 2.4mm;
+}
+.num-dot {
+  display: inline-block;
+  width: 13pt;
+  height: 13pt;
+  line-height: 13pt;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--c-main);
+  color: #FFFFFF;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 8.4pt;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.pick-ko { font-size: 9.6pt; font-weight: 800; color: #1E293B; vertical-align: middle; }
+.pick-opt {
+  text-align: center;
+  background: #FFFFFF;
+  border: 1.2pt solid #CBD5E1;
+  border-radius: 13pt;
+  padding: 1.6mm 1mm;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+}
+
+/* ④ Spell it (Page 2) */
+.spell-card {
+  background: #FFFFFF;
+  border: 1.1pt solid var(--c-border);
+  border-radius: 8pt;
+  padding: 2.6mm 2.2mm;
+}
+.sp-ko { font-size: 9.6pt; font-weight: 900; color: #1E293B; }
+.sp-ph { font-size: 7.2pt; font-weight: 700; color: #64748B; margin-top: 0.6mm; }
+.sp-boxes { text-align: center; margin-top: 2.8mm; white-space: nowrap; }
+.sp-box {
+  display: inline-block;
+  width: 7.2mm;
+  height: 8.8mm;
+  line-height: 8.4mm;
+  text-align: center;
+  margin: 0 0.6mm;
+  border-radius: 4pt;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: 13.5pt;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.sp-box.sm { width: 5.8mm; height: 7.6mm; line-height: 7.2mm; font-size: 11.5pt; margin: 0 0.4mm; }
+.sp-box.xs { width: 4.1mm; height: 6.6mm; line-height: 6.2mm; font-size: 9.2pt; margin: 0 0.25mm; border-radius: 3pt; }
+.sp-box.solid { background: #F1F5F9; border: 1.1pt solid #94A3B8; color: #0F172A; }
+.sp-box.blank { background: var(--c-soft); border: 1.4pt dashed var(--c-main); color: transparent; }
+.sp-dash { font-weight: 900; color: #64748B; margin: 0 0.5mm; }
+
+/* ⑤ Sentence Time (Page 2 · 3 Sentences) */
+.bank-box {
+  border-radius: 7pt;
+  padding: 1.8mm 2.5mm;
+  line-height: 1.7;
+}
+.bank-box.wb { background: var(--c-soft); border: 1.2pt solid var(--c-border); }
+.bank-box.sw { background: #FFFBEB; border: 1.2pt solid #FCD34D; }
+.bank-lbl {
+  display: inline-block;
+  font-size: 7.8pt;
+  font-weight: 900;
+  color: #FFFFFF;
+  background: var(--c-main);
+  padding: 0.5mm 2.2mm;
+  border-radius: 8pt;
+  margin-right: 1.8mm;
+  vertical-align: middle;
+}
+.bank-box.sw .bank-lbl { background: #D97706; }
+.wb-chip {
+  display: inline-block;
+  background: #FFFFFF;
+  border: 1pt solid var(--c-border);
+  color: #0F172A;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  padding: 0.3mm 2.4mm;
+  border-radius: 6pt;
+  margin: 0.4mm 1mm 0.4mm 0;
+  vertical-align: middle;
+}
+.sw-chip {
+  display: inline-block;
+  background: #FFFFFF;
+  border: 1pt solid #F59E0B;
+  color: #92400E;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: 9pt;
+  font-weight: 700;
+  padding: 0.2mm 2mm;
+  border-radius: 6pt;
+  margin: 0.4mm 0.9mm 0.4mm 0;
+  vertical-align: middle;
+}
+
+.sent-row-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #F8FAFC;
+  border: 1pt solid #E2E8F0;
+  border-radius: 8pt;
+  margin-bottom: 2.6mm;
+}
+.sent-row-tbl:last-child { margin-bottom: 0; }
+.sent-row-tbl td { padding: 2.2mm 1.5mm; }
+.sent-num {
+  display: inline-block;
+  width: 6.2mm;
+  height: 6.2mm;
+  line-height: 6.2mm;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--c-main);
+  color: #FFFFFF;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+}
+.sent-en { font-family: 'Fredoka', 'Quicksand', sans-serif; font-size: 14pt; font-weight: 600; color: #0F172A; line-height: 1.35; }
+.sent-blank {
+  display: inline-block;
+  width: 24mm;
+  height: 5mm;
+  border-bottom: 1.6pt solid var(--c-main);
+  background: #FFFFFF;
+  margin: 0 1mm;
+  vertical-align: baseline;
+}
+.sw-word { font-weight: 700; color: var(--c-dark); border-bottom: 1.5pt solid #F59E0B; padding: 0 0.4mm; }
+.sent-ko { font-size: 9.4pt; font-weight: 700; color: #475569; margin-top: 1mm; }
+.sent-read { background: #FFFFFF; border: 1pt solid #CBD5E1; border-radius: 6pt; padding: 1.2mm 1.6mm; }
+.sr-lbl { font-size: 7pt; font-weight: 800; color: #64748B; }
+.sr-dots { font-size: 9.2pt; font-weight: 900; color: var(--c-main); letter-spacing: 0.8pt; margin-top: 0.5mm; white-space: nowrap; }
+
+/* ⑥ Play (3-Type Rotation: Maze, Word Search, Anagram) */
+.sec-play { background: #FCFDFF; border-color: var(--c-border); min-height: 74mm; }
+.play-desc { font-size: 9pt; font-weight: 700; color: #334155; margin-bottom: 2.5mm; }
+.play-chip {
+  display: inline-block;
+  background: var(--c-soft);
+  color: var(--c-dark);
+  border: 1pt solid var(--c-border);
+  padding: 0.2mm 1.8mm;
+  border-radius: 5pt;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-weight: 700;
+}
+
+/* Play 1: Maze */
+.mz-tbl { width: 100%; border-collapse: separate; border-spacing: 2mm; table-layout: fixed; }
+.mz-td { padding: 0; }
+.mz-box {
+  height: 12.8mm;
+  background: #FFFFFF;
+  border: 1.3pt solid #CBD5E1;
+  border-radius: 8pt;
+  text-align: center;
+  padding-top: 2.8mm;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: #1E293B;
+}
+.mz-box.start-cell { background: #E6FCF5; border: 1.8pt solid #12B886; padding-top: 0.8mm; }
+.mz-box.goal-cell  { background: #FFF9DB; border: 1.8pt solid #F59F00; padding-top: 0.8mm; }
+.mz-sub { font-size: 6.5pt; font-weight: 900; letter-spacing: 0.4pt; }
+.mz-sub.start { color: #087F5B; }
+.mz-sub.goal  { color: #B45309; }
+
+/* Play 2: Word Search */
+.ws-outer { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.ws-box {
+  display: inline-block;
+  background: var(--c-soft);
+  padding: 2.4mm;
+  border-radius: 9pt;
+  border: 1.4pt solid var(--c-border);
+}
+.ws-grid-tbl { border-collapse: separate; border-spacing: 1mm; }
+.ws-td {
+  background: #FFFFFF;
+  border: 1pt solid #CBD5E1;
+  border-radius: 3.5pt;
+  text-align: center;
+  vertical-align: middle;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: #0F172A;
+}
+.ws-item-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  background: #FFFFFF;
+  border: 1pt solid #E2E8F0;
+  border-radius: 7pt;
+  margin-bottom: 2.5mm;
+}
+.ws-item-tbl td { padding: 1.8mm 1.5mm; vertical-align: middle; }
+.ws-w { font-family: 'Fredoka', 'Quicksand', sans-serif; font-size: 12pt; font-weight: 700; color: #0F172A; }
+.ws-m { font-size: 8.5pt; font-weight: 700; color: #64748B; }
+
+/* Play 3: Anagram */
+.ana-row-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #FFFFFF;
+  border: 1pt solid #E2E8F0;
+  border-radius: 8pt;
+  margin-bottom: 2.4mm;
+}
+.ana-row-tbl:last-child { margin-bottom: 0; }
+.ana-row-tbl td { padding: 2.2mm 1.4mm; vertical-align: middle; }
+.ana-tile {
+  display: inline-block;
+  width: 7mm;
+  height: 7.8mm;
+  line-height: 7.4mm;
+  text-align: center;
+  background: var(--c-soft);
+  border: 1.2pt solid var(--c-main);
+  border-radius: 4.5pt;
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: 11.5pt;
+  font-weight: 700;
+  color: var(--c-dark);
+  margin: 0 0.6mm;
+  vertical-align: middle;
+}
+.ana-tile.sm { width: 5.6mm; height: 6.4mm; line-height: 6mm; font-size: 9.8pt; margin: 0 0.4mm; }
+.ana-blank {
+  display: inline-block;
+  width: 7mm;
+  height: 7.8mm;
+  background: #FFFFFF;
+  border: 1.3pt dashed #94A3B8;
+  border-radius: 4.5pt;
+  margin: 0 0.6mm;
+  vertical-align: middle;
+}
+.ana-blank.sm { width: 5.6mm; height: 6.4mm; margin: 0 0.4mm; }
+.ana-arrow { font-size: 10.5pt; color: #94A3B8; font-weight: 900; margin: 0 1.5mm; vertical-align: middle; }
+
+/* Footer pinned cleanly to bottom of page */
+.p-footer-tbl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.2pt;
+  font-weight: 700;
+  color: #64748B;
+}
+.turn-cue { color: var(--c-dark); font-weight: 900; }
+
+/* ==================== STRICT PRINT MEDIA OVERRIDES ==================== */
+@media print {
+  html, body {
+    background: #FFFFFF !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  .no-print { display: none !important; }
+  .preview-desk {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+  .page-slot {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .page-scaler {
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  .sheet-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    width: 184mm !important;
+    height: 274mm !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  .page-slot:last-child .sheet-page {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SCREEN TOOLBAR (Hidden on Print) ==================== -->
+<div class="no-print">
+  <div class="ctrl-wrap">
+    <div class="ctrl-top">
+      <div class="brand-box">
+        <div class="brand-ico">🖨️</div>
+        <div>
+          <div class="brand-title">주간 영단어 학습지 웹 인쇄기</div>
+          <div class="brand-sub">Colab 없이 GitHub Pages에서 5일치(10쪽) 바로 PDF 저장 · 컬러 인쇄</div>
+        </div>
+      </div>
+
+      <div class="top-btn-group">
+        <button type="button" id="syncLiveBtn" class="btn btn-sync">🔄 시트 진도 새로고침</button>
+        <button type="button" id="pinWeekBtn" class="btn btn-pin">📌 웹앱에 5일치 고정</button>
+        <button type="button" id="toggleSettingsBtn" class="btn btn-soft">⚙️ 시트/경로 설정</button>
+        <button type="button" id="printPdfBtn" class="btn btn-print">🖨️ PDF 저장 / 인쇄</button>
+      </div>
+    </div>
+
+    <div class="ctrl-grid">
+      <!-- Child -->
+      <div class="seg-group" aria-label="아이 선택">
+        <button type="button" id="childFirstBtn" class="seg-btn on child-first">첫째 민준</button>
+        <button type="button" id="childSecondBtn" class="seg-btn child-second">둘째 서아</button>
+      </div>
+
+      <!-- Mode -->
+      <div class="seg-group" aria-label="출력 모드">
+        <button type="button" data-pmode="ungrad" class="seg-btn pmode-btn on">🎯 미졸업 5일치</button>
+        <button type="button" data-pmode="fixed" class="seg-btn pmode-btn">📅 고정 DAY</button>
+        <button type="button" data-pmode="review" class="seg-btn pmode-btn">🔁 오답 복습</button>
+      </div>
+
+      <!-- Week Picker -->
+      <div id="weekNavWrap" class="week-nav">
+        <button type="button" id="prevWeekBtn" class="week-step-btn" aria-label="이전 주차">◀</button>
+        <select id="weekSelect" class="week-select" aria-label="주차 선택"></select>
+        <button type="button" id="nextWeekBtn" class="week-step-btn" aria-label="다음 주차">▶</button>
+      </div>
+
+      <!-- Options -->
+      <label class="chk-pill">
+        <input type="checkbox" id="blank2ndChk" />
+        <span>따라쓰기② 빈칸(혼자쓰기)</span>
+      </label>
+
+      <label id="includeConfWrap" class="chk-pill" style="display:none">
+        <input type="checkbox" id="includeConfChk" checked />
+        <span>헷갈려요 포함</span>
+      </label>
+
+      <button type="button" id="shufflePlayBtn" class="btn btn-gold" style="padding:6px 10px;font-size:12px">🎲 놀이 다시 섞기</button>
+    </div>
+
+    <!-- Collapsible Settings Drawer (Auto-synced with main web app localStorage!) -->
+    <div id="settingsDrawer" class="settings-drawer">
+      <div class="inp-row">
+        <div class="inp-grp">
+          <label for="csvUrlInp">1. 단어장 DAY확장 CSV URL (웹에 게시 .csv)</label>
+          <input id="csvUrlInp" type="url" class="inp-box" placeholder="https://docs.google.com/spreadsheets/.../pub?output=csv" />
+        </div>
+        <div class="inp-grp">
+          <label for="webhookUrlInp">2. 통합 Apps Script 웹앱 URL (/exec · 실시간 졸업 반영)</label>
+          <input id="webhookUrlInp" type="url" class="inp-box" placeholder="https://script.google.com/macros/s/.../exec" />
+        </div>
+      </div>
+      <div class="inp-grp">
+        <label for="stickerBaseInp">3. 449개 스티커 폴더 경로 (GitHub 저장소 기준 · 기본값: stickers/)</label>
+        <input id="stickerBaseInp" type="text" class="inp-box" placeholder="stickers/" />
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <span style="font-size:11.5px;font-weight:700;color:#475569">💡 같은 GitHub 주소의 메인 단어장 웹앱과 시트 주소·아이 이름·로컬 스티커 캐시가 자동 공유됩니다.</span>
+        <button type="button" id="saveConnBtn" class="btn btn-print" style="padding:7px 14px;font-size:12.5px">저장하고 다시 불러오기</button>
+      </div>
+    </div>
+
+    <div id="statusStrip" class="status-strip">
+      <span id="statusText">단어장을 불러오는 중...</span>
+      <span id="pageCountBadge" style="font-weight:900">총 10쪽 (A4 양면 5장)</span>
+    </div>
+
+    <div class="tip-line">
+      🖨️ <strong>인쇄 / PDF 저장 팁:</strong> 인쇄 창에서 <strong>[대상: PDF로 저장 또는 컬러 프린터]</strong> · <strong>[배경 그래픽: 체크 ✅]</strong> · <strong>[양면 인쇄: 긴 쪽으로 넘김]</strong> · <strong>[배율: 기본값/100%]</strong>를 선택하세요.
+    </div>
+  </div>
+</div>
+
+<!-- ==================== A4 WORKSHEET PREVIEW & PRINT CONTAINER ==================== -->
+<div id="previewDesk" class="preview-desk"></div>
+
+<script>
+// ========== Starter Dataset (DAY 001 ~ DAY 010 · Fallback when CSV URL is empty) ==========
+const STARTER_WORDS = [{"id": 1, "word": "boy", "meaning": "소년", "phonics": "이중모음 oy (/ɔɪ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 1, "sentEn": "The {{boy}} is my friend.", "sentKo": "그 소년은 내 친구예요.", "sentSw": "the, is, my", "img": "boy"}, {"id": 2, "word": "kid", "meaning": "아이", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 2, "sentEn": "That {{kid}} can run fast.", "sentKo": "저 아이는 빨리 달릴 수 있어요.", "sentSw": "that, can", "img": "kid"}, {"id": 3, "word": "man", "meaning": "남자", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 3, "sentEn": "I see a tall {{man}}.", "sentKo": "나는 키 큰 남자를 봐요.", "sentSw": "I, see, a", "img": "man"}, {"id": 4, "word": "baby", "meaning": "아기", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 4, "sentEn": "Look at the cute {{baby}}.", "sentKo": "귀여운 아기를 보세요.", "sentSw": "look, at, the", "img": "baby"}, {"id": 5, "word": "girl", "meaning": "소녀", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 5, "sentEn": "The {{girl}} has a doll.", "sentKo": "그 소녀는 인형을 가지고 있어요.", "sentSw": "the, has, a", "img": "girl"}, {"id": 6, "word": "lady", "meaning": "숙녀", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 6, "sentEn": "This {{lady}} is very nice.", "sentKo": "이 숙녀분은 매우 친절해요.", "sentSw": "this, is, very", "img": "lady"}, {"id": 7, "word": "wife", "meaning": "아내", "phonics": "매직 e (i_e)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 7, "sentEn": "She is a kind {{wife}}.", "sentKo": "그녀는 친절한 아내예요.", "sentSw": "she, is, a", "img": "wife"}, {"id": 8, "word": "family", "meaning": "가족", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 8, "sentEn": "I love my happy {{family}}.", "sentKo": "나는 행복한 우리 가족을 사랑해요.", "sentSw": "I, love, my", "img": "family"}, {"id": 9, "word": "sister", "meaning": "자매", "phonics": "R통제 er (/ər/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 9, "sentEn": "My {{sister}} likes to sing.", "sentKo": "내 여동생은 노래하는 걸 좋아해요.", "sentSw": "my, to", "img": "sister"}, {"id": 10, "word": "arm", "meaning": "팔", "phonics": "R통제 ar (/ɑːr/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 10, "sentEn": "Raise your right {{arm}} up.", "sentKo": "오른팔을 위로 들어 올려요.", "sentSw": "your, up", "img": "arm"}, {"id": 11, "word": "ear", "meaning": "귀", "phonics": "모음 결합 ear (/ɪər/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 11, "sentEn": "Touch your left {{ear}} now.", "sentKo": "지금 왼쪽 귀를 만져 보세요.", "sentSw": "your, now", "img": "ear"}, {"id": 12, "word": "leg", "meaning": "다리", "phonics": "단모음 e (/e/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 12, "sentEn": "Hop on one {{leg}} now.", "sentKo": "지금 한쪽 다리로 깡충 뛰어 봐요.", "sentSw": "on, one, now", "img": "leg"}, {"id": 13, "word": "I", "meaning": "내가, 나는", "phonics": "완전 통암기 (/aɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 13, "sentEn": "{{I}} am a happy kid.", "sentKo": "나는 행복한 아이예요.", "sentSw": "I, am, a", "img": ""}, {"id": 14, "word": "a(an)", "meaning": "하나의", "phonics": "기초 관사 (/ə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 14, "sentEn": "I see {{a}} cute cat.", "sentKo": "나는 귀여운 고양이 한 마리를 봐요.", "sentSw": "I, see, a", "img": ""}, {"id": 15, "word": "the", "meaning": "그~, 저~", "phonics": "기초 정관사 (/ðə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 15, "sentEn": "Look at {{the}} big sun.", "sentKo": "큰 태양을 보세요.", "sentSw": "look, at, the", "img": ""}, {"id": 16, "word": "face", "meaning": "얼굴", "phonics": "매직 e (a_e)", "catCode": 0, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 16, "sentEn": "Wash your clean {{face}} well.", "sentKo": "얼굴을 깨끗이 잘 씻으세요.", "sentSw": "your, well", "img": "face"}, {"id": 17, "word": "foot", "meaning": "발", "phonics": "이중모음 oo 단음 (/ʊ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 17, "sentEn": "Put on your left {{foot}}.", "sentKo": "왼쪽 발에 신어 보세요.", "sentSw": "put, on, your", "img": "foot"}, {"id": 18, "word": "hand", "meaning": "손", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 18, "sentEn": "Hold my warm {{hand}} now.", "sentKo": "지금 내 따뜻한 손을 잡아요.", "sentSw": "my, now", "img": "hand"}, {"id": 19, "word": "cat", "meaning": "고양이", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 19, "sentEn": "I see a cute {{cat}}.", "sentKo": "나는 귀여운 고양이를 봐요.", "sentSw": "I, see, a", "img": "cat"}, {"id": 20, "word": "dog", "meaning": "개", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 20, "sentEn": "I see a happy {{dog}}.", "sentKo": "나는 행복한 강아지를 봐요.", "sentSw": "I, see, a", "img": "dog"}, {"id": 21, "word": "pig", "meaning": "돼지", "phonics": "단모음 i (/ɪ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 21, "sentEn": "I see a pink {{pig}}.", "sentKo": "나는 분홍색 돼지를 봐요.", "sentSw": "I, see, a", "img": "pig"}, {"id": 22, "word": "bee", "meaning": "벌", "phonics": "이중모음 ee (/iː/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 22, "sentEn": "Look at the busy {{bee}}.", "sentKo": "바쁜 벌을 보세요.", "sentSw": "look, at, the", "img": "bee"}, {"id": 23, "word": "cow", "meaning": "암소", "phonics": "이중모음 ow (/aʊ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 23, "sentEn": "The {{cow}} gives us milk.", "sentKo": "암소는 우리에게 우유를 줘요.", "sentSw": "the, us", "img": "cow"}, {"id": 24, "word": "fox", "meaning": "여우", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 24, "sentEn": "The red {{fox}} can run.", "sentKo": "빨간 여우는 달릴 수 있어요.", "sentSw": "the, can", "img": "fox"}, {"id": 25, "word": "bird", "meaning": "새", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 25, "sentEn": "The blue {{bird}} can fly.", "sentKo": "파란 새는 날 수 있어요.", "sentSw": "the, can", "img": "bird"}, {"id": 26, "word": "duck", "meaning": "오리", "phonics": "이중자음 ck (/k/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 26, "sentEn": "The yellow {{duck}} can swim.", "sentKo": "노란 오리는 수영할 수 있어요.", "sentSw": "the, can", "img": "duck"}, {"id": 27, "word": "fish", "meaning": "물고기", "phonics": "이중자음 sh (/ʃ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 27, "sentEn": "I see a little {{fish}}.", "sentKo": "나는 작은 물고기를 봐요.", "sentSw": "I, see, a", "img": "fish"}, {"id": 28, "word": "it", "meaning": "그것", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 28, "sentEn": "{{it}} is a red ball.", "sentKo": "그것은 빨간 공이에요.", "sentSw": "it, is, a", "img": ""}, {"id": 29, "word": "this", "meaning": "이것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 29, "sentEn": "{{this}} is my blue book.", "sentKo": "이것은 내 파란 책이에요.", "sentSw": "this, is, my", "img": ""}, {"id": 30, "word": "that", "meaning": "저것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 30, "sentEn": "{{that}} is a tall tree.", "sentKo": "저것은 큰 나무예요.", "sentSw": "that, is, a", "img": ""}];
+
+const STORE_CFG = 'word_day_app_cfg_v6';
+const STORE_REC = 'word_day_app_rec_v6';
+const IDB_NAME = 'word_stickers_local_v1';
+const IDB_STORE = 'stickers';
+
+const DAY_THEMES = [
+  { name: 'sky',    main: '#228BE6', dark: '#1864AB', soft: '#E7F5FF', border: '#A5D8FF' }, // 월
+  { name: 'mint',   main: '#12B886', dark: '#087F5B', soft: '#E6FCF5', border: '#96F2D7' }, // 화
+  { name: 'coral',  main: '#F76707', dark: '#C2410C', soft: '#FFF4E6', border: '#FFD8A8' }, // 수
+  { name: 'violet', main: '#7950F2', dark: '#5F3DC4', soft: '#F3F0FF', border: '#D0BFFF' }, // 목
+  { name: 'honey',  main: '#E6A200', dark: '#A16207', soft: '#FFF9DB', border: '#FFE066' }  // 금
+];
+
+const LETTER_COLORS = {
+  a:'#E03131', e:'#2F9E44', i:'#1971C2', o:'#F08C00', u:'#9C36B5', y:'#F59F00',
+  b:'#1C7ED6', c:'#0CA678', d:'#7048E8', f:'#E8590C', g:'#2B8A3E', h:'#D6336C',
+  j:'#AE3EC9', k:'#364FC7', l:'#1098AD', m:'#C92A2A', n:'#5C940D', p:'#E64980',
+  q:'#6741D9', r:'#D9480F', s:'#099268', t:'#1864AB', v:'#862E9C', w:'#3B5BDB',
+  x:'#495057', z:'#5F3DC4'
+};
+
+const DIGRAPHS = [
+  'tion','sion','igh','air','ear','our','tch','dge',
+  'sh','ch','th','wh','ph','ck','ng','nk','qu',
+  'ee','ea','oo','oa','ai','ay','ow','ou','oi','oy',
+  'aw','au','ew','ue','ar','er','ir','or','ur'
+];
+
+// Shared state (auto-synced with main web app!)
+let cfg = {
+  childKey: 'first',
+  firstName: '첫째 민준',
+  secondName: '둘째 서아',
+  csvUrl: '',
+  webhookUrl: '',
+  stickerBase: 'stickers/',
+  pinnedWeekDays: { first: null, second: null }
+};
+let records = { first: {}, second: {} };
+let allWords = [];
+let localStickerBlobs = {};
+
+let printMode = 'ungrad'; // 'ungrad' | 'fixed' | 'review'
+let currentWeek = 1;
+let blankSecondOverride = null; // null = auto (week >= 3), true/false = user toggle
+let includeConfusedInReview = true;
+let seedBump = 0;
+let lastRenderedItems = [];
+
+const $ = id => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+// ========== Deterministic Seeded RNG (FNV-1a + Mulberry32) ==========
+function makeRng(seedStr) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    h ^= seedStr.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  let a = h || 1337;
+  return function next() {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function rngInt(rng, min, max) {
+  return min + Math.floor(rng() * (max - min + 1));
+}
+function rngChoice(rng, arr) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+function rngShuffle(rng, arr) {
+  const out = arr.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+// ========== Shared Storage + Local Sticker Cache ==========
+function loadSharedStorage() {
+  try {
+    const savedCfg = JSON.parse(localStorage.getItem(STORE_CFG) || '{}');
+    cfg = { ...cfg, ...savedCfg };
+    if (!cfg.stickerBase) cfg.stickerBase = 'stickers/';
+  } catch (e) {}
+  try {
+    const savedRec = JSON.parse(localStorage.getItem(STORE_REC) || '{}');
+    records = { first: savedRec.first || {}, second: savedRec.second || {} };
+  } catch (e) { records = { first: {}, second: {} }; }
+}
+
+function saveSharedCfg() {
+  try {
+    const existing = JSON.parse(localStorage.getItem(STORE_CFG) || '{}');
+    const merged = { ...existing, ...cfg };
+    localStorage.setItem(STORE_CFG, JSON.stringify(merged));
+  } catch (e) {}
+}
+
+function saveSharedRecords() {
+  try { localStorage.setItem(STORE_REC, JSON.stringify(records)); } catch (e) {}
+}
+
+async function loadLocalStickersFromDB() {
+  try {
+    if (!('indexedDB' in window)) return;
+    const db = await new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains(IDB_STORE)) req.result.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    await new Promise(resolve => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).openCursor();
+      req.onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) {
+          localStickerBlobs[String(cur.key).toLowerCase()] = URL.createObjectURL(cur.value);
+          cur.continue();
+        } else resolve();
+      };
+      req.onerror = () => resolve();
+    });
+  } catch (e) {}
+}
+
+// ========== CSV Parser & Loader ==========
+function parseCsv(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+      else cell += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function parseDayNum(dayCode) {
+  const m = String(dayCode || '').match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 9999;
+}
+
+function formatStarterWords() {
+  return STARTER_WORDS.map(w => ({
+    ...w,
+    dayNum: parseDayNum(w.day)
+  }));
+}
+
+async function loadWordsFromCsv(url) {
+  if (!url) {
+    allWords = formatStarterWords();
+    return { source: 'embedded', count: allWords.length };
+  }
+  const cacheBust = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+  const res = await fetch(cacheBust);
+  if (!res.ok) throw new Error('단어장 CSV를 불러오지 못했어요 (HTTP ' + res.status + ')');
+  const rows = parseCsv(await res.text());
+  if (rows.length < 2) throw new Error('시트 데이터가 비어 있어요.');
+
+  const header = rows[0].map(h => String(h || '').replace(/^\uFEFF/, '').trim());
+  const col = (name, fb) => { const idx = header.findIndex(h => h === name); return idx >= 0 ? idx : fb; };
+  const colHas = (kw, fb) => { const idx = header.findIndex(h => h.includes(kw)); return idx >= 0 ? idx : fb; };
+
+  const iWord = col('단어', 1);
+  const iMean = col('한글 뜻', 2);
+  const iPhonics = col('파닉스 핵심 음가', 9);
+  const iTheme = colHas('초등800 주제', 15);
+  const iFirst = col('첫째_상태', 16);
+  const iSecond = col('둘째_상태', 20);
+  const iInclude = col('학습포함', 24);
+  const iSeq = col('커리큘럼_순번', 25);
+  const iDay = col('DAY', 26);
+  const iDayTopic = col('학습지_주제', 27);
+  const iSentEn = col('학습지_문장_영어', 28);
+  const iSentKo = col('학습지_문장_뜻', 29);
+  const iSentSw = col('문장_사이트워드', 30);
+  const iImg = col('이미지파일', 31);
+
+  const parsed = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 3) continue;
+    const word = String(r[iWord] || '').trim();
+    const meaning = String(r[iMean] || '').trim();
+    if (!word || !meaning) continue;
+    const incl = (r[iInclude] !== undefined) ? String(r[iInclude] || '').trim() : 'O';
+    if (incl === '제외') continue;
+
+    const dayCode = String(r[iDay] || '').trim();
+    const dayNum = parseDayNum(dayCode);
+    if (!dayCode || dayNum === 9999) continue;
+
+    parsed.push({
+      id: Number(r[0]) || i,
+      word,
+      meaning,
+      phonics: String(r[iPhonics] || '').trim(),
+      topic: String(r[iDayTopic] || r[iTheme] || '매일 영단어').trim(),
+      day: dayCode,
+      dayNum,
+      seq: Number(r[iSeq]) || i,
+      sentEn: String(r[iSentEn] || '').trim() || `I see {{${word}}}.`,
+      sentKo: String(r[iSentKo] || '').trim() || meaning,
+      sentSw: String(r[iSentSw] || '').trim(),
+      img: String(r[iImg] || '').trim()
+    });
+
+    const wKey = word.toLowerCase();
+    if (r[iFirst] && String(r[iFirst]).trim()) {
+      records.first[wKey] = {
+        status: String(r[iFirst]).trim(),
+        confused: Number(r[iFirst + 1]) || 0,
+        unknown: Number(r[iFirst + 2]) || 0,
+        date: String(r[iFirst + 3] || '').trim()
+      };
+    }
+    if (r[iSecond] && String(r[iSecond]).trim()) {
+      records.second[wKey] = {
+        status: String(r[iSecond]).trim(),
+        confused: Number(r[iSecond + 1]) || 0,
+        unknown: Number(r[iSecond + 2]) || 0,
+        date: String(r[iSecond + 3] || '').trim()
+      };
+    }
+  }
+  if (!parsed.length) throw new Error('단어장 열을 찾지 못했어요.');
+  allWords = parsed.sort((a, b) => a.dayNum - b.dayNum || a.seq - b.seq);
+  saveSharedRecords();
+  return { source: 'sheet', count: allWords.length };
+}
+
+async function pullLiveRecordsFromGas() {
+  const url = (cfg.webhookUrl || '').trim();
+  if (!url || !url.endsWith('/exec')) return { ok: false, reason: 'no_url' };
+  const sep = url.includes('?') ? '&' : '?';
+  const res = await fetch(`${url}${sep}action=sync&_t=${Date.now()}`, { method: 'GET' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data && data.status === 'success' && data.records) {
+    ['first', 'second'].forEach(ck => {
+      const inc = data.records[ck] || {};
+      if (!records[ck]) records[ck] = {};
+      Object.keys(inc).forEach(k => { records[ck][k] = inc[k]; });
+    });
+    saveSharedRecords();
+    return { ok: true, firstCount: data.firstCount || 0, secondCount: data.secondCount || 0 };
+  }
+  throw new Error('Apps Script doGet 응답 형식 확인 필요');
+}
+
+function getChildStatus(word) {
+  const box = records[cfg.childKey] || {};
+  const rec = box[String(word || '').toLowerCase()];
+  return rec ? String(rec.status || '').trim() : '';
+}
+
+function getActiveChildName() {
+  return cfg.childKey === 'second' ? (cfg.secondName || '둘째 서아') : (cfg.firstName || '첫째 민준');
+}
+
+// ========== Phonics & Artwork Helpers ==========
+function splitPhonicsChunks(word) {
+  const w = String(word || '').replace(/\([^)]*\)/g, '').trim().toLowerCase().replace(/[^a-z]/g, '');
+  const chunks = [];
+  let i = 0;
+  while (i < w.length) {
+    let matched = null;
+    for (const dg of DIGRAPHS) {
+      if (w.startsWith(dg, i)) { matched = dg; break; }
+    }
+    if (matched) { chunks.push(matched); i += matched.length; }
+    else { chunks.push(w[i]); i += 1; }
+  }
+  return chunks.length ? chunks : [w];
+}
+
+function renderAlphablocksHtml(word, compact) {
+  const wClean = String(word || '').replace(/\([^)]*\)/g, '').trim().toLowerCase();
+  const chunks = splitPhonicsChunks(wClean);
+  const show = chunks.slice(0, compact ? 3 : 4);
+  const hasMagicE = wClean.length >= 3 && wClean.endsWith('e') &&
+    !/(ee|le|se|ce)$/.test(wClean) && /[aeiou]/.test(wClean.slice(0, -1));
+
+  const blocks = show.map((ch, idx) => {
+    const isMagic = hasMagicE && idx === show.length - 1 && ch === 'e';
+    const col = isMagic ? '#868E96' : (LETTER_COLORS[ch[0]] || '#228BE6');
+    const cls = (compact ? 'ab-blk mini' : 'ab-blk') + (isMagic ? ' magic' : '');
+    return `<span class="${cls}" style="background:${col};">${esc(ch)}</span>`;
+  }).join('');
+  const cap = compact ? '' : '<div class="ab-cap">파닉스 블록</div>';
+  return `<div class="ab-wrap">${blocks}</div>${cap}`;
+}
+
+function getStickerCandidates(wordObj) {
+  const rawImg = String(wordObj.img || '').trim().replace(/\.(png|webp)$/i, '').toLowerCase();
+  if (!rawImg) return [];
+  const list = [];
+  if (localStickerBlobs[rawImg]) list.push(localStickerBlobs[rawImg]);
+  let base = (cfg.stickerBase || 'stickers/').trim();
+  if (base && !base.endsWith('/')) base += '/';
+  list.push(`${base}${encodeURIComponent(rawImg)}.webp`);
+  list.push(`${base}${encodeURIComponent(rawImg)}.png`);
+  return list;
+}
+
+function renderWordArtHtml(wordObj, sizeMm, compact, tintBg) {
+  const cands = getStickerCandidates(wordObj);
+  const fbHtml = renderAlphablocksHtml(wordObj.word, compact);
+  const slotCls = tintBg ? 'art-slot tint' : 'art-slot';
+  if (!cands.length) {
+    return `<div class="${slotCls}">${fbHtml}</div>`;
+  }
+  const candsAttr = esc(JSON.stringify(cands));
+  return (
+    `<div class="${slotCls}">` +
+    `<img class="ws-sticker" src="${esc(cands[0])}" data-cands="${candsAttr}" data-cidx="1" ` +
+    `style="width:${sizeMm}mm;height:${sizeMm}mm;" alt="${esc(wordObj.word)}" />` +
+    `<div class="ws-fb" style="display:none">${fbHtml}</div>` +
+    `</div>`
+  );
+}
+
+// Wire progressive fallback (.webp -> .png -> Alphablocks blocks) after injecting HTML
+function bindArtFallbacks(rootEl) {
+  rootEl.querySelectorAll('img.ws-sticker').forEach(img => {
+    const handleErr = () => {
+      try {
+        const cands = JSON.parse(img.getAttribute('data-cands') || '[]');
+        let idx = Number(img.getAttribute('data-cidx') || 1);
+        if (idx < cands.length) {
+          img.setAttribute('data-cidx', String(idx + 1));
+          img.src = cands[idx];
+        } else {
+          img.style.display = 'none';
+          const fb = img.parentElement && img.parentElement.querySelector('.ws-fb');
+          if (fb) fb.style.display = 'block';
+        }
+      } catch (e) {
+        img.style.display = 'none';
+      }
+    };
+    img.addEventListener('error', handleErr);
+    if (img.complete && img.naturalWidth === 0) handleErr();
+  });
+}
+
+// ========== 4-Line Ruled Paper SVG ==========
+function renderFourLineSvg(text, textColor, widthMm, heightMm, showText) {
+  const disp = String(text || '').trim();
+  const vbW = 200, vbH = 72;
+  const fontSz = disp.length <= 5 ? 34 : (disp.length <= 7 ? 28 : (disp.length <= 9 ? 23 : 19));
+  const txtEl = (showText && disp)
+    ? `<text x="8" y="50" font-family="Quicksand, Fredoka, Noto Sans KR, sans-serif" font-size="${fontSz}" font-weight="700" fill="${textColor}" letter-spacing="0.8">${esc(disp)}</text>`
+    : '';
+  return (
+    `<svg viewBox="0 0 ${vbW} ${vbH}" width="${widthMm}mm" height="${heightMm}mm" style="display:block;margin:0 auto;">` +
+    `<line x1="0" y1="12" x2="${vbW}" y2="12" stroke="#CBD5E1" stroke-width="1.1"/>` +
+    `<line x1="0" y1="30" x2="${vbW}" y2="30" stroke="#94A3B8" stroke-width="1.1" stroke-dasharray="4 3"/>` +
+    `<line x1="0" y1="50" x2="${vbW}" y2="50" stroke="#F08C8C" stroke-width="1.4"/>` +
+    `<line x1="0" y1="66" x2="${vbW}" y2="66" stroke="#CBD5E1" stroke-width="1.1"/>` +
+    `${txtEl}</svg>`
+  );
+}
+
+// ========== Problem Generators ==========
+function makeSpellingConfuser(word, rng) {
+  const w = String(word || '').replace(/\([^)]*\)/g, '').trim();
+  if (w.length <= 1) return w.toLowerCase() !== 'o' ? 'o' : 'e';
+  const wl = w.toLowerCase();
+  const swaps = [
+    ['ea','ee'],['ee','ea'],['ai','ay'],['ay','ai'],['oo','ou'],['ou','ow'],
+    ['sh','ch'],['ch','sh'],['th','ph'],['ck','ke'],['b','d'],['d','b'],
+    ['p','q'],['a','e'],['e','i'],['i','e'],['o','u'],['u','o'],['c','k']
+  ];
+  const cands = [];
+  for (const [src, dst] of swaps) {
+    if (wl.includes(src)) {
+      const rep = wl.replace(src, dst);
+      if (rep !== wl) cands.push(rep);
+    }
+  }
+  if (cands.length) {
+    const out = rngChoice(rng, cands);
+    return /^[A-Z]/.test(w) ? (out[0].toUpperCase() + out.slice(1)) : out;
+  }
+  const arr = [...wl];
+  if (arr.length >= 2 && arr[0] !== arr[1]) {
+    [arr[0], arr[1]] = [arr[1], arr[0]];
+    return arr.join('');
+  }
+  return wl + 'e';
+}
+
+function buildSpellBlankBoxes(word) {
+  const clean = String(word || '').replace(/\([^)]*\)/g, '').trim();
+  const low = clean.toLowerCase();
+  const chunks = splitPhonicsChunks(low);
+  let targetIdx = 0;
+  const multiIdx = chunks.findIndex(c => c.length > 1);
+  if (multiIdx >= 0) targetIdx = multiIdx;
+  else {
+    const vIdx = chunks.findIndex(c => /[aeiou]/.test(c));
+    if (vIdx >= 0) targetIdx = vIdx;
+  }
+
+  const blankSet = new Set();
+  let cur = 0;
+  chunks.forEach((ch, ci) => {
+    if (ci === targetIdx) {
+      for (let k = cur; k < cur + ch.length; k++) blankSet.add(k);
+    }
+    cur += ch.length;
+  });
+
+  const n = clean.length;
+  const bCls = n >= 10 ? 'sp-box xs' : (n >= 7 ? 'sp-box sm' : 'sp-box');
+  let alphaI = 0;
+  return [...clean].map(ch => {
+    if (/[a-zA-Z]/.test(ch)) {
+      const isB = blankSet.has(alphaI++);
+      return isB
+        ? `<span class="${bCls} blank">&nbsp;</span>`
+        : `<span class="${bCls} solid">${esc(ch)}</span>`;
+    }
+    return `<span class="sp-dash">${esc(ch)}</span>`;
+  }).join('');
+}
+
+function formatSentenceForPdf(sentEn, swStr) {
+  const swSet = new Set(String(swStr || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+  const parts = String(sentEn || '').split(/(\{\{.*?\}\})/g);
+  return parts.map(p => {
+    if (p.startsWith('{{') && p.endsWith('}}')) {
+      return '<span class="sent-blank">&nbsp;</span>';
+    }
+    return p.split(/([A-Za-z']+)/g).map(tok => {
+      if (tok && swSet.has(tok.toLowerCase())) {
+        return `<span class="sw-word">${esc(tok)}</span>`;
+      }
+      return esc(tok);
+    }).join('');
+  }).join('');
+}
+
+// ========== 3-Type Play Modules (미로 → 미니 워드서치 → 글자 조각 퍼즐) ==========
+function renderPlayMaze(words, rng) {
+  const rows = 4, cols = 6;
+  const pathTemplates = [
+    [[0,0],[0,1],[1,1],[1,2],[0,2],[0,3],[1,3],[2,3],[2,4],[3,4],[3,5]],
+    [[0,0],[1,0],[1,1],[2,1],[2,2],[1,2],[1,3],[1,4],[2,4],[2,5],[3,5]],
+    [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[1,3],[1,4],[2,4],[3,4],[3,5]]
+  ];
+  const path = rngChoice(rng, pathTemplates);
+  const pathSet = new Set(path.map(([r, c]) => `${r},${c}`));
+  const targetClean = words.map(w => String(w.word).replace(/\([^)]*\)/g, '').trim());
+  const baseDistractors = ['sun','cup','hat','box','pen','bus','map','bed','red','fox','pig','egg','car','dog','cat','fan','top','run','sit','hop'];
+  const tLow = new Set(targetClean.map(x => x.toLowerCase()));
+  const distractors = baseDistractors.filter(d => !tLow.has(d));
+
+  const grid = Array.from({ length: rows }, () => Array(cols).fill(''));
+  path.forEach(([r, c], idx) => { grid[r][c] = targetClean[idx % targetClean.length]; });
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!pathSet.has(`${r},${c}`)) grid[r][c] = rngChoice(rng, distractors);
+    }
+  }
+
+  let trs = '';
+  for (let r = 0; r < rows; r++) {
+    let tds = '';
+    for (let c = 0; c < cols; c++) {
+      const val = grid[r][c];
+      const fz = val.length >= 8 ? '9.5pt' : '11pt';
+      if (r === 0 && c === 0) {
+        tds += `<td class="mz-td"><div class="mz-box start-cell"><div class="mz-sub start">START</div><div style="font-size:${fz};">${esc(val)}</div></div></td>`;
+      } else if (r === rows - 1 && c === cols - 1) {
+        tds += `<td class="mz-td"><div class="mz-box goal-cell"><div class="mz-sub goal">GOAL!</div><div style="font-size:${fz};">${esc(val)}</div></div></td>`;
+      } else {
+        tds += `<td class="mz-td"><div class="mz-box" style="font-size:${fz};">${esc(val)}</div></td>`;
+      }
+    }
+    trs += `<tr>${tds}</tr>`;
+  }
+  const chips = targetClean.map(x => `<span class="play-chip">${esc(x)}</span>`).join(' · ');
+  return (
+    `<div class="play-desc">오늘의 단어(${chips})만 밟고 <strong>START → GOAL</strong>까지 길을 연결해요!</div>` +
+    `<table class="mz-tbl">${trs}</table>`
+  );
+}
+
+function renderPlayWordSearch(words, rng) {
+  const cleanWords = words
+    .map(w => ({ cw: String(w.word).replace(/\([^)]*\)/g, '').toLowerCase().replace(/[^a-z]/g, ''), w }))
+    .filter(x => x.cw);
+  const maxLen = Math.max(4, ...cleanWords.map(x => x.cw.length));
+  const size = Math.max(5, Math.min(9, maxLen + 1));
+
+  const grid = Array.from({ length: size }, () => Array(size).fill(''));
+  let placedCnt = 0;
+  cleanWords.slice().sort((a, b) => b.cw.length - a.cw.length).forEach(({ cw }) => {
+    let placed = false;
+    for (let t = 0; t < 80; t++) {
+      const [dr, dc] = rng() < 0.5 ? [0, 1] : [1, 0];
+      const maxR = size - (dr ? cw.length : 1);
+      const maxC = size - (dc ? cw.length : 1);
+      if (maxR < 0 || maxC < 0) continue;
+      const r0 = rngInt(rng, 0, maxR);
+      const c0 = rngInt(rng, 0, maxC);
+      let ok = true;
+      for (let k = 0; k < cw.length; k++) {
+        const cur = grid[r0 + dr * k][c0 + dc * k];
+        if (cur !== '' && cur !== cw[k]) { ok = false; break; }
+      }
+      if (ok) {
+        for (let k = 0; k < cw.length; k++) grid[r0 + dr * k][c0 + dc * k] = cw[k];
+        placed = true;
+        placedCnt++;
+        break;
+      }
+    }
+    if (!placed) {
+      const r0 = placedCnt % size;
+      for (let k = 0; k < Math.min(cw.length, size); k++) grid[r0][k] = cw[k];
+      placedCnt++;
+    }
+  });
+
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (!grid[r][c]) grid[r][c] = letters[Math.floor(rng() * letters.length)];
+    }
+  }
+
+  const cellMm = size <= 6 ? 7.6 : (size === 7 ? 6.8 : 5.8);
+  const fontPt = size <= 6 ? 11.5 : (size === 7 ? 10.5 : 9.0);
+  const wsRows = grid.map(row =>
+    '<tr>' + row.map(ch =>
+      `<td class="ws-td" style="width:${cellMm}mm;height:${cellMm}mm;font-size:${fontPt}pt;">${esc(ch)}</td>`
+    ).join('') + '</tr>'
+  ).join('');
+
+  const checklist = words.map(wObj => {
+    const art = renderWordArtHtml(wObj, 10, true, false);
+    return (
+      '<table class="ws-item-tbl"><tr>' +
+      '<td style="width:7mm;text-align:center;font-size:12pt;font-weight:900;color:var(--c-main);">☐</td>' +
+      `<td style="width:15mm;text-align:center;">${art}</td>` +
+      `<td><div class="ws-w">${esc(wObj.word)}</div><div class="ws-m">${esc(wObj.meaning)}</div></td>` +
+      '</tr></table>'
+    );
+  }).join('');
+
+  return (
+    '<div class="play-desc">가로(→) · 세로(↓)로 숨어 있는 오늘의 단어를 찾아 동그라미하세요!</div>' +
+    '<table class="ws-outer"><tr>' +
+    `<td style="width:55%;text-align:center;vertical-align:middle;"><div class="ws-box"><table class="ws-grid-tbl">${wsRows}</table></div></td>` +
+    `<td style="width:45%;vertical-align:middle;padding-left:4mm;">${checklist}</td>` +
+    '</tr></table>'
+  );
+}
+
+function renderPlayAnagram(words, rng) {
+  const rows = words.map((w, idx) => {
+    const clean = String(w.word).replace(/\([^)]*\)/g, '').toLowerCase().replace(/[^a-z]/g, '');
+    let letters = [...clean];
+    if (letters.length > 1) {
+      for (let t = 0; t < 10; t++) {
+        letters = rngShuffle(rng, letters);
+        if (letters.join('') !== clean) break;
+      }
+    }
+    const isLong = clean.length >= 8;
+    const tCls = isLong ? 'ana-tile sm' : 'ana-tile';
+    const bCls = isLong ? 'ana-blank sm' : 'ana-blank';
+    const tiles = letters.map(ch => `<span class="${tCls}">${esc(ch)}</span>`).join('');
+    const blanks = [...clean].map(() => `<span class="${bCls}">&nbsp;</span>`).join('');
+    const art = renderWordArtHtml(w, 10.5, true, false);
+    const rightCell = isLong
+      ? `<div style="margin-bottom:1.5mm;">${tiles}</div><div><span class="ana-arrow">➔</span> ${blanks}</div>`
+      : `<div>${tiles} <span class="ana-arrow">➔</span> ${blanks}</div>`;
+
+    return (
+      '<table class="ana-row-tbl"><tr>' +
+      `<td style="width:7mm;text-align:center;"><span class="num-dot">${idx + 1}</span></td>` +
+      `<td style="width:15mm;text-align:center;">${art}</td>` +
+      `<td style="width:24mm;font-size:10pt;font-weight:900;color:#1E293B;">${esc(w.meaning)}</td>` +
+      `<td style="text-align:left;vertical-align:middle;">${rightCell}</td>` +
+      '</tr></table>'
+    );
+  }).join('');
+
+  return (
+    '<div class="play-desc">뒤섞인 글자 조각을 올바른 순서대로 배열해 영단어를 완성해 보아요!</div>' +
+    `<div>${rows}</div>`
+  );
+}
+
+// ========== Render 1 DAY = 2 A4 Pages ==========
+function renderDayTwoPagesHtml(item, blankSecond, isReview) {
+  const theme = DAY_THEMES[(item.dayNum - 1) % DAY_THEMES.length];
+  const rng = makeRng(`${item.dayCode}_${item.words.map(w => w.word).join('_')}_${seedBump}`);
+  const words = item.words;
+  const n = words.length;
+  const compactRows = n >= 4;
+
+  // Warm-up
+  let warmupHtml = '';
+  if (item.prevWords && item.prevWords.length && !isReview) {
+    const wuTds = item.prevWords.slice(0, 3).map(pw =>
+      `<td style="width:33.3%;padding:0 1.2mm;"><div class="wu-pill"><span class="wu-en">${esc(pw.word)}</span><span class="wu-arr">→</span><span class="wu-line">&nbsp;</span></div></td>`
+    ).join('');
+    warmupHtml = (
+      '<div class="sec-box warmup-box">' +
+      '<div class="wu-head">⏪ 어제 단어 복습 (뜻을 말하거나 써 보세요)</div>' +
+      `<table class="full-tbl" style="margin-top:1.4mm;"><tr>${wuTds}</tr></table>` +
+      '</div>'
+    );
+  } else {
+    const msg = isReview
+      ? '🔁 공식 테스트에서 헷갈리거나 몰랐던 단어들을 차근차근 다시 익혀 보아요!'
+      : '★ 오늘의 단어를 웹앱 세이펜으로 3번씩 크게 따라 읽고 시작해요!';
+    warmupHtml = `<div class="sec-box warmup-box"><div class="wu-head">${msg}</div></div>`;
+  }
+
+  // ① Word Study & Write
+  const lineH = compactRows ? (n === 4 ? 15.0 : 12.5) : 18.0;
+  const artMm = compactRows ? (n === 4 ? 15.0 : 12.5) : 19.5;
+  const wsRows = words.map(w => {
+    const art = renderWordArtHtml(w, artMm, compactRows, false);
+    const trace1 = renderFourLineSvg(w.word, '#9CA3AF', 49, lineH, true);
+    const trace2 = renderFourLineSvg(w.word, '#CBD5E1', 49, lineH, !blankSecond);
+    const phShort = String(w.phonics || '').split(',')[0].trim();
+    const enPt = w.word.length >= 10 ? 13.0 : (w.word.length >= 8 ? 14.5 : 16.5);
+    return (
+      '<table class="study-row-tbl"><tr>' +
+      `<td style="width:24mm;text-align:center;vertical-align:middle;">${art}</td>` +
+      '<td style="width:42mm;vertical-align:middle;padding-left:1.5mm;">' +
+      `<div class="study-en" style="font-size:${enPt}pt;">${esc(w.word)}</div>` +
+      `<div class="study-ko">${esc(w.meaning)}</div>` +
+      `<div class="study-ph">${esc(phShort)}</div>` +
+      '</td>' +
+      `<td style="width:52mm;text-align:center;vertical-align:middle;">${trace1}</td>` +
+      `<td style="width:52mm;text-align:center;vertical-align:middle;">${trace2}</td>` +
+      '</tr></table>'
+    );
+  }).join('');
+
+  // ② Listen & Match
+  let shuffledKo = words.map(w => w.meaning);
+  if (shuffledKo.length > 1) {
+    const orig = shuffledKo.join('|');
+    for (let t = 0; t < 10; t++) {
+      shuffledKo = rngShuffle(rng, shuffledKo);
+      if (shuffledKo.join('|') !== orig) break;
+    }
+  }
+  const matchTrs = words.map((w, i) =>
+    '<tr>' +
+    `<td style="width:34%;text-align:right;padding:1.6mm 0;"><span class="m-en">${esc(w.word)}</span></td>` +
+    '<td style="width:6%;text-align:center;"><span class="dot-pin">●</span></td>' +
+    '<td style="width:20%;"></td>' +
+    '<td style="width:6%;text-align:center;"><span class="dot-pin">●</span></td>' +
+    `<td style="width:34%;text-align:left;padding:1.6mm 0;"><span class="m-ko">${esc(shuffledKo[i])}</span></td>` +
+    '</tr>'
+  ).join('');
+
+  // ③ Pick the Spelling
+  const pickTds = words.map((w, idx) => {
+    const wrong = makeSpellingConfuser(w.word, rng);
+    const pair = rngShuffle(rng, [w.word, wrong]);
+    const miniArt = renderWordArtHtml(w, 10, true, true);
+    const maxOpt = Math.max(pair[0].length, pair[1].length);
+    const optPt = maxOpt >= 10 ? 9.0 : (maxOpt >= 7 ? 10.5 : 12.0);
+    return (
+      `<td style="width:${(100 / n).toFixed(2)}%;padding:0 1.4mm;vertical-align:top;">` +
+      '<div class="pick-card">' +
+      '<table class="full-tbl"><tr>' +
+      `<td style="width:14mm;text-align:center;vertical-align:middle;">${miniArt}</td>` +
+      `<td style="vertical-align:middle;padding-left:1.5mm;"><span class="num-dot">${idx + 1}</span> <span class="pick-ko">${esc(w.meaning)}</span></td>` +
+      '</tr></table>' +
+      '<table class="full-tbl" style="margin-top:2.4mm;"><tr>' +
+      `<td style="width:50%;padding-right:1mm;"><div class="pick-opt" style="font-size:${optPt}pt;">${esc(pair[0])}</div></td>` +
+      `<td style="width:50%;padding-left:1mm;"><div class="pick-opt" style="font-size:${optPt}pt;">${esc(pair[1])}</div></td>` +
+      '</tr></table>' +
+      '</div></td>'
+    );
+  }).join('');
+
+  // ④ Spell it (Page 2)
+  const spellTds = words.map((w, idx) => {
+    const miniArt = renderWordArtHtml(w, 10.5, true, false);
+    const blanks = buildSpellBlankBoxes(w.word);
+    const phShort = String(w.phonics || '').split(',')[0].trim();
+    return (
+      `<td style="width:${(100 / n).toFixed(2)}%;padding:0 1.4mm;vertical-align:top;">` +
+      '<div class="spell-card">' +
+      '<table class="full-tbl"><tr>' +
+      `<td style="width:14.5mm;text-align:center;vertical-align:middle;">${miniArt}</td>` +
+      '<td style="vertical-align:middle;padding-left:1.5mm;">' +
+      `<div class="sp-ko"><span class="num-dot">${idx + 1}</span> ${esc(w.meaning)}</div>` +
+      `<div class="sp-ph">${esc(phShort)}</div>` +
+      '</td></tr></table>' +
+      `<div class="sp-boxes">${blanks}</div>` +
+      '</div></td>'
+    );
+  }).join('');
+
+  // ⑤ Sentence Time (3 Sentences!)
+  const wordBank = rngShuffle(rng, words.map(w => String(w.word).replace(/\([^)]*\)/g, '').trim()));
+  const wbChips = wordBank.map(x => `<span class="wb-chip">${esc(x)}</span>`).join('');
+
+  const daySw = [];
+  words.forEach(w => {
+    String(w.sentSw || '').split(',').forEach(tok => {
+      const t = tok.trim();
+      if (t && !daySw.some(x => x.toLowerCase() === t.toLowerCase())) daySw.push(t);
+    });
+  });
+  const swChips = daySw.length
+    ? daySw.slice(0, 7).map(x => `<span class="sw-chip">${esc(x)}</span>`).join('')
+    : '<span class="sw-chip">I</span><span class="sw-chip">see</span><span class="sw-chip">a</span>';
+
+  const sentRows = words.map((w, idx) => {
+    const sEn = formatSentenceForPdf(w.sentEn || `I see {{${w.word}}}.`, w.sentSw);
+    return (
+      '<table class="sent-row-tbl"><tr>' +
+      `<td style="width:8mm;text-align:center;vertical-align:middle;"><span class="sent-num">${idx + 1}</span></td>` +
+      `<td style="vertical-align:middle;padding:0 2mm;"><div class="sent-en">${sEn}</div><div class="sent-ko">${esc(w.sentKo || w.meaning)}</div></td>` +
+      '<td style="width:24mm;text-align:center;vertical-align:middle;"><div class="sent-read"><div class="sr-lbl">따라 읽기</div><div class="sr-dots">○ ○ ○</div></div></td>' +
+      '</tr></table>'
+    );
+  }).join('');
+
+  // ⑥ Play (Strictly 3-type rotation: Maze -> Word Search -> Anagram)
+  const playIdx = (item.dayNum - 1) % 3;
+  let playTitle = '', playBody = '';
+  if (playIdx === 0) {
+    playTitle = '⑥ Play · 단어 길찾기 미로';
+    playBody = renderPlayMaze(words, rng);
+  } else if (playIdx === 1) {
+    playTitle = '⑥ Play · 미니 워드서치';
+    playBody = renderPlayWordSearch(words, rng);
+  } else {
+    playTitle = '⑥ Play · 글자 조각 퍼즐';
+    playBody = renderPlayAnagram(words, rng);
+  }
+
+  const themeVars = `--c-main:${theme.main};--c-dark:${theme.dark};--c-soft:${theme.soft};--c-border:${theme.border};`;
+  const weekLbl = isReview ? '🔁 오답 복습' : `${item.weekNum}주차`;
+  const trace2Hdr = blankSecond ? '혼자 쓰기 ②' : '따라 쓰기 ②';
+
+  const page1 = (
+    '<div class="page-slot"><div class="page-scaler">' +
+    `<div class="sheet-page" style="${themeVars}">` +
+    '  <div class="p-header"><table class="full-tbl"><tr>' +
+    `    <td style="width:28mm;vertical-align:middle;"><span class="day-badge">${esc(item.dayCode)}</span></td>` +
+    `    <td style="vertical-align:middle;padding-left:2mm;"><div class="ph-week">${esc(weekLbl)} · Learn (익히기)</div><div class="ph-topic">${esc(item.topic)}</div></td>` +
+    '    <td style="width:68mm;text-align:right;vertical-align:middle;">' +
+    '      <div class="ph-line-row">이름 <span class="blank-u">&nbsp;</span> &nbsp;날짜 <span class="blank-u sm">&nbsp;</span></div>' +
+    '      <div style="margin-top:1.5mm;"><span class="ph-app-chk">🔊 웹앱 듣기 체크 &nbsp;☐ ☐ ☐</span></div>' +
+    '    </td></tr></table></div>' +
+    `  ${warmupHtml}` +
+    '  <div class="sec-box">' +
+    `    <table class="sec-title-tbl"><tr><td class="sec-title">① Word Study &amp; Write · 오늘의 단어를 듣고 따라 써 보아요</td><td class="sec-col-lbl">따라 쓰기 ① &nbsp;/&nbsp; ${trace2Hdr}</td></tr></table>` +
+    `    <div style="margin-top:2mm;">${wsRows}</div>` +
+    '  </div>' +
+    '  <div class="sec-box">' +
+    '    <table class="sec-title-tbl"><tr><td class="sec-title">② Listen &amp; Match · 알맞은 영단어와 한글 뜻을 선으로 이어 보아요</td></tr></table>' +
+    `    <table class="full-tbl" style="margin-top:2mm;">${matchTrs}</table>` +
+    '  </div>' +
+    '  <div class="sec-box">' +
+    '    <table class="sec-title-tbl"><tr><td class="sec-title">③ Pick the Spelling · 뜻을 보고 알맞은 철자에 동그라미(○) 하세요</td></tr></table>' +
+    `    <table class="full-tbl" style="margin-top:2.4mm;"><tr>${pickTds}</tr></table>` +
+    '  </div>' +
+    `  <table class="p-footer-tbl"><tr><td>${esc(item.dayCode)} · 1쪽 (Learn)</td><td style="text-align:right;" class="turn-cue">뒷장으로 넘겨서 3문장과 놀이를 해봐요 →</td></tr></table>` +
+    '</div></div></div>'
+  );
+
+  const page2 = (
+    '<div class="page-slot"><div class="page-scaler">' +
+    `<div class="sheet-page" style="${themeVars}">` +
+    '  <div class="p-header compact"><table class="full-tbl"><tr>' +
+    `    <td style="width:28mm;vertical-align:middle;"><span class="day-badge">${esc(item.dayCode)}</span></td>` +
+    `    <td style="vertical-align:middle;padding-left:2mm;"><div class="ph-topic">${esc(weekLbl)} · Use (다지고 활용하기) — ${esc(item.topic)}</div></td>` +
+    '    <td style="width:46mm;text-align:right;vertical-align:middle;"><span class="ph-app-chk">🔊 웹앱 문장 듣기 &nbsp;☐ ☐ ☐</span></td>' +
+    '  </tr></table></div>' +
+    '  <div class="sec-box">' +
+    '    <table class="sec-title-tbl"><tr><td class="sec-title">④ Spell it · 그림과 뜻을 보고 빈칸에 알맞은 알파벳을 써넣으세요</td></tr></table>' +
+    `    <table class="full-tbl" style="margin-top:2.4mm;"><tr>${spellTds}</tr></table>` +
+    '  </div>' +
+    '  <div class="sec-box">' +
+    '    <table class="sec-title-tbl"><tr><td class="sec-title">⑤ Sentence Time · 보기에서 알맞은 단어를 골라 문장을 완성하고 3번 읽어 보아요</td></tr></table>' +
+    '    <table class="full-tbl" style="margin-top:2mm;margin-bottom:2.4mm;"><tr>' +
+    `      <td style="width:46%;padding-right:1.5mm;vertical-align:middle;"><div class="bank-box wb"><span class="bank-lbl">보기</span>${wbChips}</div></td>` +
+    `      <td style="width:54%;padding-left:1.5mm;vertical-align:middle;"><div class="bank-box sw"><span class="bank-lbl">Sight Words</span>${swChips}</div></td>` +
+    '    </tr></table>' +
+    `    <div>${sentRows}</div>` +
+    '  </div>' +
+    '  <div class="sec-box sec-play">' +
+    `    <table class="sec-title-tbl"><tr><td class="sec-title">${esc(playTitle)}</td></tr></table>` +
+    `    <div style="margin-top:2mm;">${playBody}</div>` +
+    '  </div>' +
+    `  <table class="p-footer-tbl"><tr><td>${esc(item.dayCode)} · 2쪽 (Use)</td><td style="text-align:right;" class="turn-cue">학습지 완료! 이제 웹앱에서 단어 연습을 해 보아요 ✅</td></tr></table>` +
+    '</div></div></div>'
+  );
+
+  return page1 + page2;
+}
+
+// ========== Build Weekly / Review Day List ==========
+function computeDayItems() {
+  const ordered = allWords.slice().sort((a, b) => a.dayNum - b.dayNum || a.seq - b.seq);
+  const gradCnt = ordered.filter(w => getChildStatus(w.word) === '졸업').length;
+
+  if (printMode === 'review') {
+    const targetSt = includeConfusedInReview ? ['몰라요', '헷갈려요'] : ['몰라요'];
+    const wrongs = ordered.filter(w => targetSt.includes(getChildStatus(w.word)));
+    const items = [];
+    for (let i = 0; i < wrongs.length; i += 3) {
+      const chunk = wrongs.slice(i, i + 3);
+      const rNum = Math.floor(i / 3) + 1;
+      items.push({
+        dayNum: rNum,
+        dayCode: `REV ${String(rNum).padStart(2, '0')}`,
+        weekNum: 1,
+        topic: `${getActiveChildName()} 오답 복습 (${chunk.length}단어)`,
+        words: chunk,
+        prevWords: null
+      });
+    }
+    return { items, totalWeeks: 1, totalTargetWords: wrongs.length, gradCnt };
+  }
+
+  if (printMode === 'ungrad') {
+    const ungrad = ordered.filter(w => getChildStatus(w.word) !== '졸업');
+    const totalWeeks = Math.max(1, Math.ceil(ungrad.length / 15));
+    if (currentWeek > totalWeeks) currentWeek = totalWeeks;
+    if (currentWeek < 1) currentWeek = 1;
+
+    const startIdx = (currentWeek - 1) * 15;
+    const weekSlice = ungrad.slice(startIdx, startIdx + 15);
+    let prevWords = startIdx >= 3 ? ungrad.slice(startIdx - 3, startIdx) : null;
+
+    const items = [];
+    for (let off = 0; off < weekSlice.length; off += 3) {
+      const chunk = weekSlice.slice(off, off + 3);
+      if (!chunk.length) continue;
+      const dNum = (currentWeek - 1) * 5 + Math.floor(off / 3) + 1;
+      const topics = [...new Set(chunk.map(w => w.topic).filter(Boolean))];
+      items.push({
+        dayNum: dNum,
+        dayCode: `DAY ${String(dNum).padStart(3, '0')}`,
+        weekNum: currentWeek,
+        topic: topics.slice(0, 2).join(' / ') || '매일 영단어',
+        words: chunk,
+        prevWords
+      });
+      prevWords = chunk;
+    }
+    return { items, totalWeeks, totalTargetWords: ungrad.length, gradCnt };
+  }
+
+  // Fixed DAY mode
+  const dMap = new Map();
+  ordered.forEach(w => {
+    if (!dMap.has(w.dayNum)) dMap.set(w.dayNum, []);
+    dMap.get(w.dayNum).push(w);
+  });
+  const maxDayNum = ordered.length ? Math.max(...ordered.map(w => w.dayNum)) : 5;
+  const totalWeeks = Math.max(1, Math.ceil(maxDayNum / 5));
+  if (currentWeek > totalWeeks) currentWeek = totalWeeks;
+  if (currentWeek < 1) currentWeek = 1;
+
+  const startDay = (currentWeek - 1) * 5 + 1;
+  const items = [];
+  for (let d = startDay; d <= startDay + 4; d++) {
+    const ws = dMap.get(d);
+    if (!ws || !ws.length) continue;
+    const prevWs = dMap.get(d - 1) || null;
+    items.push({
+      dayNum: d,
+      dayCode: `DAY ${String(d).padStart(3, '0')}`,
+      weekNum: currentWeek,
+      topic: ws[0].topic || '매일 영단어',
+      words: ws,
+      prevWords: prevWs
+    });
+  }
+  return { items, totalWeeks, totalTargetWords: ordered.length, gradCnt };
+}
+
+// ========== Responsive Screen Preview Scaling (Reset to 1:1 in @media print) ==========
+function fitPreviewScale() {
+  const desk = $('previewDesk');
+  const slots = desk.querySelectorAll('.page-slot');
+  if (!slots.length) return;
+  // Physical sheet visual outer width = 184mm + 26mm = 210mm (~794px at 96dpi)
+  const fullW = 794;
+  const fullH = 1123;
+  const availW = Math.max(300, window.innerWidth - 24);
+  const scale = availW < fullW ? (availW / fullW) : 1;
+
+  slots.forEach(slot => {
+    const scaler = slot.querySelector('.page-scaler');
+    if (scale < 1) {
+      scaler.style.transform = `scale(${scale.toFixed(4)})`;
+      slot.style.width = `${Math.round(fullW * scale)}px`;
+      slot.style.height = `${Math.round(fullH * scale)}px`;
+    } else {
+      scaler.style.transform = '';
+      slot.style.width = '';
+      slot.style.height = '';
+    }
+  });
+}
+
+// ========== Render Everything ==========
+function renderToolbarState(totalWeeks) {
+  $('childFirstBtn').textContent = cfg.firstName || '첫째 민준';
+  $('childSecondBtn').textContent = cfg.secondName || '둘째 서아';
+  $('childFirstBtn').classList.toggle('on', cfg.childKey === 'first');
+  $('childSecondBtn').classList.toggle('on', cfg.childKey === 'second');
+
+  document.querySelectorAll('.pmode-btn').forEach(b => b.classList.toggle('on', b.dataset.pmode === printMode));
+
+  const isReview = printMode === 'review';
+  $('weekNavWrap').style.display = isReview ? 'none' : 'inline-flex';
+  $('includeConfWrap').style.display = isReview ? 'inline-flex' : 'none';
+  $('pinWeekBtn').style.display = printMode === 'ungrad' ? 'inline-flex' : 'none';
+
+  const sel = $('weekSelect');
+  sel.innerHTML = '';
+  for (let w = 1; w <= totalWeeks; w++) {
+    const opt = document.createElement('option');
+    opt.value = String(w);
+    const d1 = (w - 1) * 5 + 1;
+    const d2 = w * 5;
+    opt.textContent = `${w}주차 (DAY ${String(d1).padStart(3,'0')}~${String(d2).padStart(3,'0')})`;
+    if (w === currentWeek) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  $('prevWeekBtn').disabled = currentWeek <= 1;
+  $('nextWeekBtn').disabled = currentWeek >= totalWeeks;
+
+  const autoBlank = !isReview && currentWeek >= 3;
+  $('blank2ndChk').checked = blankSecondOverride !== null ? blankSecondOverride : autoBlank;
+  $('includeConfChk').checked = includeConfusedInReview;
+}
+
+function renderWorksheets() {
+  const { items, totalWeeks, totalTargetWords, gradCnt } = computeDayItems();
+  lastRenderedItems = items;
+  renderToolbarState(totalWeeks);
+
+  const isReview = printMode === 'review';
+  const blankSecond = $('blank2ndChk').checked;
+  const desk = $('previewDesk');
+  const strip = $('statusStrip');
+  const childName = getActiveChildName();
+
+  if (!items.length) {
+    desk.innerHTML = (
+      '<div class="empty-state">' +
+      `<h3>${isReview ? '✨ 복습할 오답 단어가 없어요!' : '🎉 모든 단어를 졸업했어요!'}</h3>` +
+      `<p>${isReview
+        ? `${esc(childName)}의 현재 오답(몰라요·헷갈려요) 단어가 0개입니다.`
+        : `${esc(childName)}가 등록된 전체 단어를 모두 졸업했습니다! (고정 DAY 모드로 바꾸면 전체를 다시 볼 수 있어요)`}</p>` +
+      '</div>'
+    );
+    strip.className = 'status-strip ok';
+    $('statusText').textContent = `${childName} · 출력할 페이지 없음 (누적 졸업 ${gradCnt}단어)`;
+    $('pageCountBadge').textContent = '0쪽';
+    $('printPdfBtn').disabled = true;
+    return;
+  }
+
+  $('printPdfBtn').disabled = false;
+  desk.innerHTML = items.map(it => renderDayTwoPagesHtml(it, blankSecond, isReview)).join('');
+  bindArtFallbacks(desk);
+  fitPreviewScale();
+
+  const totalPages = items.length * 2;
+  const wordCnt = items.reduce((acc, it) => acc + it.words.length, 0);
+  const srcNote = cfg.csvUrl ? '구글 시트 연동됨' : '내장 샘플 30단어 (⚙️에서 CSV 주소 입력)';
+
+  if (printMode === 'ungrad') {
+    strip.className = 'status-strip ok';
+    $('statusText').textContent = `${childName} · 공식 졸업 ${gradCnt}단어 자동 제외 → 남은 미졸업 ${totalTargetWords}단어 중 ${currentWeek}주차 ${wordCnt}단어 (${srcNote})`;
+  } else if (printMode === 'review') {
+    strip.className = 'status-strip warn';
+    $('statusText').textContent = `${childName} · 오답 복습 전용 ${wordCnt}단어 (${srcNote})`;
+  } else {
+    strip.className = 'status-strip';
+    $('statusText').textContent = `${childName} · 고정 DAY ${currentWeek}주차 ${wordCnt}단어 (${srcNote})`;
+  }
+  $('pageCountBadge').textContent = `총 ${totalPages}쪽 (A4 양면 ${items.length}장)`;
+}
+
+// ========== Print / Save as PDF with Clean Auto-Filename ==========
+async function waitAllImagesSettled() {
+  const imgs = [...$('previewDesk').querySelectorAll('img.ws-sticker')].filter(im => im.style.display !== 'none');
+  await Promise.all(imgs.map(im => {
+    if (im.complete) return Promise.resolve();
+    return new Promise(resolve => {
+      const done = () => resolve();
+      im.addEventListener('load', done, { once: true });
+      im.addEventListener('error', done, { once: true });
+      setTimeout(done, 2500);
+    });
+  }));
+}
+
+async function handlePrintPdf() {
+  if (!lastRenderedItems.length) return;
+  const btn = $('printPdfBtn');
+  const prevTxt = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ 그림 로딩 확인 중...';
+
+  await waitAllImagesSettled();
+
+  const childShort = cfg.childKey === 'second' ? '둘째' : '첫째';
+  const dFirst = lastRenderedItems[0].dayCode.replace(/\s+/g, '');
+  const dLast = lastRenderedItems[lastRenderedItems.length - 1].dayCode.replace(/\s+/g, '');
+  const prevTitle = document.title;
+
+  if (printMode === 'review') {
+    const dt = new Date();
+    const ymd = `${dt.getFullYear()}${String(dt.getMonth()+1).padStart(2,'0')}${String(dt.getDate()).padStart(2,'0')}`;
+    document.title = `영단어_오답복습_${childShort}_${ymd}`;
+  } else {
+    const mTag = printMode === 'ungrad' ? `${childShort}_미졸업` : '고정DAY';
+    document.title = `영단어_주간학습지_${mTag}_${String(currentWeek).padStart(2,'0')}주차_${dFirst}-${dLast}`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = prevTxt;
+  window.print();
+  setTimeout(() => { document.title = prevTitle; }, 1200);
+}
+
+// ========== Pin Printed 5 Days Directly to Main Web App ==========
+function pinCurrent5DaysToWebApp() {
+  if (!lastRenderedItems.length) return;
+  const first5 = lastRenderedItems.slice(0, 5).map(it => it.words.map(w => w.word.toLowerCase()));
+  if (!cfg.pinnedWeekDays) cfg.pinnedWeekDays = { first: null, second: null };
+  cfg.pinnedWeekDays[cfg.childKey] = first5;
+  cfg.dayCode = 'DAY 001';
+  saveSharedCfg();
+  const preview = lastRenderedItems.map(it => `${it.dayCode}(${it.words.map(w => w.word).join(',')})`).join('\n');
+  alert(`📌 ${getActiveChildName()}의 메인 웹앱 [학습지 DAY]에 이번 5일치를 고정했습니다!\n\n${preview}\n\n이제 아이가 웹앱을 열면 방금 인쇄한 5장과 100% 똑같은 순서로 표시됩니다.`);
+}
+
+// ========== Event Bindings ==========
+$('childFirstBtn').addEventListener('click', () => {
+  cfg.childKey = 'first';
+  currentWeek = 1;
+  blankSecondOverride = null;
+  renderWorksheets();
+});
+$('childSecondBtn').addEventListener('click', () => {
+  cfg.childKey = 'second';
+  currentWeek = 1;
+  blankSecondOverride = null;
+  renderWorksheets();
+});
+
+document.querySelectorAll('.pmode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    printMode = btn.dataset.pmode;
+    currentWeek = 1;
+    blankSecondOverride = null;
+    renderWorksheets();
+  });
+});
+
+$('prevWeekBtn').addEventListener('click', () => {
+  if (currentWeek > 1) { currentWeek--; blankSecondOverride = null; renderWorksheets(); }
+});
+$('nextWeekBtn').addEventListener('click', () => {
+  currentWeek++; blankSecondOverride = null; renderWorksheets();
+});
+$('weekSelect').addEventListener('change', e => {
+  currentWeek = Number(e.target.value) || 1;
+  blankSecondOverride = null;
+  renderWorksheets();
+});
+$('blank2ndChk').addEventListener('change', e => {
+  blankSecondOverride = !!e.target.checked;
+  renderWorksheets();
+});
+$('includeConfChk').addEventListener('change', e => {
+  includeConfusedInReview = !!e.target.checked;
+  renderWorksheets();
+});
+$('shufflePlayBtn').addEventListener('click', () => {
+  seedBump++;
+  renderWorksheets();
+});
+
+$('toggleSettingsBtn').addEventListener('click', () => {
+  const dr = $('settingsDrawer');
+  const open = dr.classList.toggle('open');
+  if (open) {
+    $('csvUrlInp').value = cfg.csvUrl || '';
+    $('webhookUrlInp').value = cfg.webhookUrl || '';
+    $('stickerBaseInp').value = cfg.stickerBase || 'stickers/';
+  }
+});
+
+$('saveConnBtn').addEventListener('click', async () => {
+  cfg.csvUrl = $('csvUrlInp').value.trim();
+  cfg.webhookUrl = $('webhookUrlInp').value.trim();
+  cfg.stickerBase = $('stickerBaseInp').value.trim() || 'stickers/';
+  saveSharedCfg();
+  $('settingsDrawer').classList.remove('open');
+  await refreshAllData(true);
+});
+
+$('syncLiveBtn').addEventListener('click', () => refreshAllData(true));
+$('pinWeekBtn').addEventListener('click', pinCurrent5DaysToWebApp);
+$('printPdfBtn').addEventListener('click', handlePrintPdf);
+window.addEventListener('resize', fitPreviewScale);
+
+async function refreshAllData(verbose) {
+  const syncBtn = $('syncLiveBtn');
+  syncBtn.disabled = true;
+  syncBtn.textContent = '⏳ 불러오는 중...';
+  $('statusText').textContent = '구글 시트 단어장과 최신 공식 졸업 기록을 불러오는 중...';
+  try {
+    await loadWordsFromCsv(cfg.csvUrl);
+    if (cfg.webhookUrl && cfg.webhookUrl.endsWith('/exec')) {
+      try {
+        await pullLiveRecordsFromGas();
+      } catch (e) {
+        if (verbose) alert('실시간 Apps Script(doGet) 조회에 실패해 CSV 기록으로 표시합니다.\n' + e.message);
+      }
+    }
+  } catch (e) {
+    allWords = formatStarterWords();
+    if (verbose) alert('단어장 CSV 불러오기 오류:\n' + e.message + '\n\n내장 샘플 30단어로 표시합니다.');
+  } finally {
+    syncBtn.disabled = false;
+    syncBtn.textContent = '🔄 시트 진도 새로고침';
+  }
+  renderWorksheets();
+}
+
+// ========== Init ==========
+async function init() {
+  loadSharedStorage();
+  await loadLocalStickersFromDB();
+  await refreshAllData(false);
+}
+init();
+</script>
+</body>
+</html>
