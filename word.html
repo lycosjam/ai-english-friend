@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light only" />
 <meta name="supported-color-schemes" content="light" />
 <meta name="theme-color" content="#dff0ff" />
-<title>매일 영단어 · 학습지 세이펜 & 암기 체크</title>
+<title>매일 영단어 &amp; 숲속 텐트 동화책</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+KR:wght@500;700;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
@@ -1805,6 +1805,26 @@ html, body {
 .mini-btn.danger { background: var(--error-box) !important; color: var(--error-ink) !important; box-shadow: 0 3px 0 0 var(--error); }
 .mini-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
+.print-launch-cta {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 16px;
+  background: var(--primary-box) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 5px 0 0 var(--primary);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.09s;
+}
+.print-launch-cta:active { transform: translateY(3px); box-shadow: 0 2px 0 0 var(--primary); }
+
 .save-cta {
   width: 100%;
   padding: 14px 18px;
@@ -1843,9 +1863,632 @@ html, body {
   font-weight: 700;
   cursor: pointer;
 }
+
+
+/* ==================== UNIFIED HUB BAR & MODE SWITCHING ==================== */
+.hub-bar {
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hub-tabs {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.86) !important;
+  box-shadow: 0 4px 0 0 rgba(175, 196, 178, 0.55), 0 6px 14px rgba(27, 28, 25, 0.08);
+  backdrop-filter: blur(6px);
+}
+.hub-tab {
+  height: 38px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent !important;
+  color: #4b5c52 !important;
+  font-family: inherit;
+  font-size: clamp(13px, 3.4vw, 15px);
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: transform 0.1s, background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.hub-tab:active { transform: translateY(1px); }
+.hub-tab.active.tab-word {
+  background: linear-gradient(180deg, #4dbbff 0%, #2498eb 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 0 #006399, inset 0 2px 3px rgba(255,255,255,0.45);
+}
+.hub-tab.active.tab-story {
+  background: linear-gradient(180deg, #52e890 0%, #24c668 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 0 #18964c, inset 0 2px 3px rgba(255,255,255,0.45);
+}
+
+.hub-workspace {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  position: relative;
+}
+.hub-workspace.active {
+  display: flex;
+}
+
+/* Word mode sub-bar */
+.word-subbar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+}
+
+/* Routine bridge button in doneView */
+.done-story-btn {
+  flex-shrink: 0;
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffe27a 0%, #ffc233 100%) !important;
+  color: #4a2d00 !important;
+  box-shadow: 0 4px 0 0 #d49200;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.done-story-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 0 #d49200; }
+
+/* Background switching between Word mode and Story mode */
+.story-bg, .story-hills { display: none; }
+body.mode-story .bg-scene { display: none; }
+body.mode-story .story-bg,
+body.mode-story .story-hills { display: block; }
+
+/* ==================== UNIFIED 3-TAB SETTINGS MODAL ==================== */
+.settings-tabs {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 10px 14px 8px;
+  background: var(--surface-low) !important;
+  border-bottom: 1.5px solid var(--surface-container);
+}
+.settings-tab-btn {
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: #ffffff !important;
+  color: var(--ink-soft) !important;
+  box-shadow: 0 3px 0 0 var(--surface-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.settings-tab-btn.active {
+  background: var(--primary-box) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 0 var(--primary);
+}
+.settings-tab-btn.active.st-tab {
+  background: linear-gradient(180deg, #49de86 0%, #24c668 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 0 #18964c;
+}
+.settings-tab-pane {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+.settings-tab-pane.active { display: flex; }
+.tts-info-banner {
+  padding: 9px 12px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.tts-info-banner.word {
+  background: #edf7ff !important;
+  color: #004c75 !important;
+  border: 1.5px solid #c6e4ff;
+}
+.tts-info-banner.story {
+  background: #eefcf2 !important;
+  color: #14592c !important;
+  border: 1.5px solid #bcecc9;
+}
+.settings-footer {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-top: 1.5px solid var(--surface-container);
+  background: #ffffff !important;
+}
+.st-res { font-size: 12.5px; font-weight: 800; }
+.st-res.ok { color: #17803d !important; }
+.st-res.bad { color: #c62828 !important; }
+.st-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 13px;
+  border: 1.5px solid var(--surface-highest);
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+/* ==================== STORY MODE SCENIC 3D CLAY BACKGROUND ==================== */
+.story-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 8%, #fffbe0 0%, rgba(255,251,224,0) 32%),
+              linear-gradient(180deg, #9fdcff 0%, #e6faff 52%, #d9f7c6 82%) !important;
+}
+.st-sun {
+  position: absolute; top: -22px; left: 18px; width: 82px; height: 82px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8c4 0%, #ffd95a 58%, #f4b622 100%);
+  box-shadow: 0 0 38px rgba(255,221,98,.65), inset -6px -8px 14px rgba(224,142,0,.28);
+  opacity: .92;
+}
+.st-cloud {
+  position: absolute; width: 118px; height: 42px; border-radius: 50px; left: -150px;
+  background: linear-gradient(180deg, #ffffff 0%, #e9f6ff 100%);
+  box-shadow: 0 10px 16px rgba(59,122,163,.12), inset 0 -5px 8px rgba(154,205,235,.45), inset 0 4px 6px rgba(255,255,255,.95);
+  animation: stDrift 30s linear infinite;
+}
+.st-cloud::before, .st-cloud::after {
+  content: ''; position: absolute; border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #edf7ff 100%);
+  box-shadow: inset 0 4px 6px rgba(255,255,255,.95);
+}
+.st-cloud::before { width: 50px; height: 50px; left: 18px; top: -22px; }
+.st-cloud::after { width: 64px; height: 64px; left: 46px; top: -30px; }
+.st-c1 { top: 56px; }
+.st-c2 { top: 164px; width: 92px; height: 34px; animation-duration: 38s; animation-delay: -14s; opacity: .88; }
+@keyframes stDrift { from { transform: translateX(0); } to { transform: translateX(125vw); } }
+
+.story-hills {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 210px; z-index: 1;
+  pointer-events: none; overflow: hidden;
+}
+.st-hill-back {
+  position: absolute; bottom: -125px; left: -20%; width: 140%; height: 260px; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 18%, #a6eb7e 0%, #7ad359 60%, #5bb23f 100%);
+  box-shadow: inset 0 10px 18px rgba(255,255,255,.42);
+}
+.st-hill-front {
+  position: absolute; bottom: -155px; left: -12%; width: 124%; height: 255px; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 15%, #96e46f 0%, #6ac54c 65%, #4da134 100%);
+  box-shadow: 0 -8px 20px rgba(36,92,46,.12), inset 0 10px 18px rgba(255,255,255,.38);
+}
+.st-scenic-props { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ==================== STORY MODE WORKSPACE (SCOPED) ==================== */
+#storyModeRoot {
+  color: #223c2a;
+  justify-content: space-between;
+  gap: 4px;
+}
+#storyModeRoot .st-top {
+  display: flex; align-items: center; gap: 7px; padding: 2px 2px; flex-shrink: 0;
+}
+#storyModeRoot .st-book-pill {
+  flex: 1; min-width: 0; height: 44px; border-radius: 999px; padding: 0 12px; border: none; cursor: pointer;
+  background: linear-gradient(180deg, #ffffff 0%, #f1f8ef 100%) !important;
+  box-shadow: 0 4px 0 #c7dcc4, 0 7px 12px rgba(30,66,40,.13), inset 0 3px 4px #ffffff;
+  display: flex; align-items: center; gap: 7px; font-family: inherit; color: #223c2a !important; text-align: left;
+  transition: transform .1s, box-shadow .1s;
+}
+#storyModeRoot .st-book-pill:active { transform: translateY(2px); box-shadow: 0 2px 0 #c7dcc4; }
+#storyModeRoot .st-tag {
+  font-size: 11px; font-weight: 900; color: #994f00 !important; border-radius: 999px; padding: 3px 8px;
+  white-space: nowrap; flex-shrink: 0;
+  background: linear-gradient(180deg, #fff1c2 0%, #ffd77a 100%) !important;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.8), 0 2px 0 rgba(178,94,0,.22);
+}
+#storyModeRoot .st-book-title {
+  font-size: 15px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+}
+#storyModeRoot .st-engine-pill {
+  height: 44px; border-radius: 999px; border: none; padding: 0 11px; cursor: pointer; flex-shrink: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%) !important;
+  color: #144d8a !important;
+  box-shadow: 0 4px 0 #b8d3ee, inset 0 2px 3px #ffffff;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: inherit; font-size: 12px; font-weight: 900; white-space: nowrap;
+}
+#storyModeRoot .st-engine-pill.ai {
+  background: linear-gradient(180deg, #fff5d1 0%, #ffd970 100%) !important;
+  color: #6b3c00 !important;
+  box-shadow: 0 4px 0 #d69c18, inset 0 2px 3px rgba(255,255,255,.7);
+}
+#storyModeRoot .st-engine-pill:active { transform: translateY(2px); }
+
+#storyModeRoot .st-mode-pill {
+  height: 44px; border-radius: 999px; border: none; padding: 0 12px; cursor: pointer; flex-shrink: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #edf6ee 100%) !important;
+  box-shadow: 0 4px 0 #c4dac2, 0 7px 12px rgba(30,66,40,.13), inset 0 3px 4px #ffffff;
+  display: flex; align-items: center; gap: 4px; font-family: inherit; font-size: 12.5px; font-weight: 900;
+  color: #223c2a !important; white-space: nowrap;
+  transition: transform .1s, box-shadow .1s, background .2s;
+}
+#storyModeRoot .st-mode-pill.auto {
+  background: linear-gradient(180deg, #52e890 0%, #24c668 100%) !important; color: #fff !important;
+  box-shadow: 0 4px 0 #18964c, 0 7px 12px rgba(24,150,76,.26), inset 0 3px 4px rgba(255,255,255,.45);
+}
+#storyModeRoot .st-mode-pill:active { transform: translateY(2px); }
+
+#storyModeRoot .st-stage {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(4px, 1dvh, 8px);
+  padding: 2px 6px;
+  overflow: hidden;
+}
+#storyModeRoot .st-teacher-wrap {
+  position: relative;
+  width: clamp(92px, 15.5dvh, 132px);
+  height: clamp(92px, 15.5dvh, 132px);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer;
+}
+#storyModeRoot .st-bear-pedestal {
+  position: absolute; bottom: 4px; width: 66%; height: 15px; border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(35,84,48,.24) 0%, rgba(35,84,48,0) 72%);
+  pointer-events: none; transition: transform .25s, opacity .25s;
+}
+#storyModeRoot .st-teacher-wrap.talking .st-bear-pedestal { animation: stShadowPulse .55s ease-in-out infinite; }
+@keyframes stShadowPulse { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(.86); opacity: .6; } }
+
+#storyModeRoot .st-mic-ring {
+  position: absolute; inset: 4px; border-radius: 50%;
+  border: 4px solid rgba(46,204,113,0);
+  transform: scale(1);
+  transition: transform .08s ease-out, border-color .2s, background-color .2s, box-shadow .2s;
+  pointer-events: none;
+}
+#storyModeRoot .st-teacher-wrap.listening .st-mic-ring {
+  border-color: rgba(46,204,113,.65);
+  background: radial-gradient(circle, rgba(46,204,113,.14) 0%, rgba(46,204,113,.02) 70%);
+  box-shadow: 0 0 18px rgba(46,204,113,.32), inset 0 0 12px rgba(255,255,255,.5);
+  transform: scale(var(--mic-scale, 1.05));
+}
+#storyModeRoot .st-teacher-wrap.talking .st-mic-ring {
+  border-color: rgba(255,186,26,.5);
+  background: radial-gradient(circle, rgba(255,214,90,.16) 0%, rgba(255,214,90,0) 70%);
+  animation: stTalkRing .9s ease-in-out infinite;
+}
+@keyframes stTalkRing { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+#st_bear3dCanvas {
+  width: 100%; height: 100%; display: block; position: relative; z-index: 2;
+  filter: drop-shadow(0 6px 8px rgba(28,62,38,.16));
+}
+#storyModeRoot .st-bear-fallback { width: 88%; height: 88%; position: relative; z-index: 2; display: none; }
+#storyModeRoot .st-teacher-wrap.fallback-mode #st_bear3dCanvas { display: none; }
+#storyModeRoot .st-teacher-wrap.fallback-mode .st-bear-fallback { display: block; }
+#storyModeRoot .st-teacher-wrap.fallback-mode.talking .st-bear-fallback { animation: stBob .55s ease-in-out infinite; }
+@keyframes stBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+#storyModeRoot .st-turn-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 14px; border-radius: 999px;
+  font-size: 13px; font-weight: 900;
+  background: linear-gradient(180deg, #ffffff 0%, #eef7ed 100%) !important;
+  color: #223c2a !important;
+  box-shadow: 0 4px 0 #c9dec7, 0 6px 12px rgba(30,66,40,.1), inset 0 2px 3px #ffffff;
+  border: 2px solid #d5ead2; min-height: 30px; flex-shrink: 0; transition: all .2s;
+}
+#storyModeRoot .st-turn-pill.talking {
+  background: linear-gradient(180deg, #fffbef 0%, #ffefc2 100%) !important;
+  border-color: #ffbf38; color: #8a4b00 !important;
+  box-shadow: 0 4px 0 #e0a626, 0 6px 12px rgba(204,138,0,.15), inset 0 2px 3px #ffffff;
+}
+#storyModeRoot .st-turn-pill.listening {
+  background: linear-gradient(180deg, #f0fff6 0%, #d3f9e3 100%) !important;
+  border-color: #2ecc71; color: #116333 !important;
+  box-shadow: 0 4px 0 #21a659, 0 6px 12px rgba(33,166,89,.18), inset 0 2px 3px #ffffff;
+}
+#storyModeRoot .st-turn-pill.auto {
+  background: linear-gradient(180deg, #f5faff 0%, #dfeeff 100%) !important;
+  border-color: #68acff; color: #154c96 !important;
+  box-shadow: 0 4px 0 #4d90e3, 0 6px 12px rgba(77,144,227,.14), inset 0 2px 3px #ffffff;
+}
+#storyModeRoot .st-turn-pill.hidden { display: none; }
+#storyModeRoot .st-turn-dot {
+  width: 9px; height: 9px; border-radius: 50%; background: currentColor; flex-shrink: 0;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.55);
+}
+#storyModeRoot .st-turn-pill.listening .st-turn-dot { animation: stDotBlink .9s infinite; }
+@keyframes stDotBlink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.75); } }
+
+#storyModeRoot .st-caption {
+  display: none; max-width: 460px; text-align: center; font-size: 14px; font-weight: 800; color: #224e31 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f3faf3 100%) !important;
+  border-radius: 16px; padding: 6px 14px; line-height: 1.36;
+  box-shadow: 0 4px 0 rgba(36,64,44,.1), inset 0 2px 3px #ffffff;
+  flex-shrink: 0;
+}
+#storyModeRoot .st-caption.show { display: block; }
+
+#storyModeRoot .st-card {
+  width: 100%; max-width: 480px;
+  min-height: clamp(142px, 22dvh, 192px);
+  border-radius: 28px;
+  padding: clamp(14px, 2dvh, 20px) 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf5 65%, #faf4e3 100%) !important;
+  border: 5px solid #ffd65a;
+  box-shadow: 0 8px 0 #e0a514, 0 15px 24px rgba(32,66,42,.18), inset 0 4px 6px rgba(255,255,255,.95);
+  text-align: center;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  gap: 9px; transition: border-color .2s, box-shadow .2s; flex-shrink: 0;
+}
+#storyModeRoot .st-card.auto-active,
+#storyModeRoot .st-card.listening-active {
+  border-color: #35d678;
+  box-shadow: 0 8px 0 #1f9f55, 0 15px 24px rgba(31,159,85,.22), inset 0 4px 6px rgba(255,255,255,.95);
+}
+#storyModeRoot .st-card.empty {
+  border-color: #b6e59c;
+  box-shadow: 0 8px 0 #82be64, 0 15px 24px rgba(32,66,42,.14), inset 0 4px 6px rgba(255,255,255,.95);
+}
+#storyModeRoot .st-card .en {
+  font-family: 'Fredoka', 'Quicksand', sans-serif;
+  font-size: clamp(26px, 7.6vw, 40px);
+  font-weight: 700; line-height: 1.38; color: #1b3859 !important;
+  word-break: keep-all;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 2px 3px;
+}
+#storyModeRoot .st-card .en.small { font-family: inherit; font-size: 20px; font-weight: 900; }
+#storyModeRoot .st-word-btn {
+  display: inline-block; padding: 2px 5px; border-radius: 10px; cursor: pointer;
+  transition: transform .12s, background-color .15s, box-shadow .15s, color .15s;
+}
+#storyModeRoot .st-word-btn:hover { background: #fff5cf; }
+#storyModeRoot .st-word-btn:active { transform: scale(.95); }
+#storyModeRoot .st-word-btn.active {
+  background: linear-gradient(180deg, #ffea96 0%, #ffd34f 100%) !important;
+  color: #5c3400 !important;
+  box-shadow: 0 3px 0 #d99f0f, inset 0 2px 2px rgba(255,255,255,.7);
+  transform: translateY(-1px);
+}
+#storyModeRoot .st-word-meaning-box { display: none; align-items: center; justify-content: center; }
+#storyModeRoot .st-word-meaning-box.show { display: flex; }
+#storyModeRoot .st-word-meaning-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(180deg, #f4fff6 0%, #daf7df 100%) !important;
+  border: 2px solid #7cd167; color: #18541d !important;
+  font-size: 16px; font-weight: 900; padding: 6px 14px; border-radius: 999px;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 0 #55aa42, 0 5px 10px rgba(27,94,32,.14), inset 0 2px 3px rgba(255,255,255,.9);
+}
+#storyModeRoot .st-word-meaning-pill:active { transform: translateY(2px); box-shadow: 0 2px 0 #55aa42; }
+#storyModeRoot .st-word-meaning-pill strong { color: #0d47a1; }
+#storyModeRoot .st-word-meaning-pill .spk-ic {
+  display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; color: #1b5e20; flex-shrink: 0; box-shadow: 0 2px 3px rgba(27,94,32,.15);
+}
+#storyModeRoot .st-card .hint { font-size: 12px; font-weight: 700; color: #839689 !important; white-space: nowrap; }
+
+#storyModeRoot .st-card.finish {
+  border-color: #ffb61e;
+  background: linear-gradient(180deg, #fffef5 0%, #fff3c2 100%) !important;
+  box-shadow: 0 8px 0 #d68b00, 0 18px 28px rgba(178,108,0,.22), inset 0 4px 8px #ffffff;
+  gap: 9px;
+}
+#storyModeRoot .st-trophy-badge {
+  width: 58px; height: 58px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff4b8 0%, #ffd54f 60%, #f0a800 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 5px 0 #c98600, 0 8px 14px rgba(178,116,0,.28), inset 0 3px 5px rgba(255,255,255,.8);
+}
+#storyModeRoot .st-finish-title { font-size: 21px; font-weight: 900; color: #a85500 !important; line-height: 1.25; }
+#storyModeRoot .st-finish-sub { font-size: 14px; font-weight: 800; color: #4b6b55 !important; }
+#storyModeRoot .st-finish-actions { display: flex; gap: 10px; width: 100%; margin-top: 4px; }
+#storyModeRoot .st-finish-btn {
+  flex: 1; padding: 12px 10px; border-radius: 16px; border: none; font-size: 14.5px; font-weight: 900; cursor: pointer; font-family: inherit;
+}
+#storyModeRoot .st-finish-btn.again {
+  background: linear-gradient(180deg, #ffffff 0%, #fff6d8 100%) !important; color: #223c2a !important; border: 2.5px solid #ffd45c;
+  box-shadow: 0 5px 0 #d9a726, inset 0 2px 3px #ffffff;
+}
+#storyModeRoot .st-finish-btn.other {
+  background: linear-gradient(180deg, #ff89a8 0%, #ff5c87 100%) !important; color: #fff !important;
+  box-shadow: 0 5px 0 #cc3f67, inset 0 3px 4px rgba(255,255,255,.4);
+}
+#storyModeRoot .st-finish-btn:active { transform: translateY(3px); }
+
+#storyModeRoot .st-dots {
+  display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; min-height: 14px; flex-shrink: 0;
+}
+#storyModeRoot .st-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.75) 0%, rgba(36,64,44,.22) 70%);
+  box-shadow: 0 2px 3px rgba(36,64,44,.16); transition: all .25s;
+}
+#storyModeRoot .st-dot.done {
+  background: radial-gradient(circle at 35% 30%, #98ffbe 0%, #2ecc71 58%, #1c9c52 100%);
+  box-shadow: 0 2px 0 #157d41; transform: scale(1.06);
+}
+#storyModeRoot .st-dot.cur {
+  background: radial-gradient(circle at 35% 30%, #fff3a8 0%, #ffb700 58%, #d68a00 100%);
+  box-shadow: 0 2px 0 #b57300, 0 0 0 3px rgba(255,183,0,.35); transform: scale(1.24);
+}
+#storyModeRoot .st-book-big { font-size: 25px; font-weight: 900; color: #1b3859 !important; line-height: 1.3; }
+#storyModeRoot .st-start-book {
+  margin-top: 4px; padding: 14px 30px; border-radius: 22px; border: none; cursor: pointer; font-family: inherit;
+  background: linear-gradient(180deg, #ff89a8 0%, #ff5784 100%) !important; color: #fff !important;
+  font-size: 20px; font-weight: 900;
+  box-shadow: 0 6px 0 #cc3f67, 0 10px 18px rgba(204,63,103,.32), inset 0 3px 5px rgba(255,255,255,.45);
+}
+#storyModeRoot .st-start-book:active { transform: translateY(3px); box-shadow: 0 3px 0 #cc3f67; }
+#storyModeRoot .st-childline { font-size: 13px; font-weight: 800; color: #176335 !important; min-height: 16px; text-align: center; flex-shrink: 0; }
+
+/* Story Bottom 5-Column Dock */
+#storyModeRoot .st-dock {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  padding: 4px 4px 4px; max-width: 520px; width: 100%; margin: 0 auto; align-items: end; flex-shrink: 0;
+}
+#storyModeRoot .st-ctl {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  gap: 5px; border: none; background: none !important; cursor: pointer; font-family: inherit;
+}
+#storyModeRoot .st-ctl .face {
+  width: 54px; height: 54px; border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8ef 65%, #e2efe0 100%) !important;
+  box-shadow: 0 5px 0 #b8d1b5, 0 9px 14px rgba(26,64,38,.18), inset 0 3px 4px rgba(255,255,255,.98);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .09s, box-shadow .09s;
+}
+#storyModeRoot .st-ctl:active .face { transform: translateY(3px); box-shadow: 0 2px 0 #b8d1b5; }
+#storyModeRoot .st-ctl:disabled { opacity: .42; cursor: default; }
+#storyModeRoot .st-ctl:disabled:active .face { transform: none; }
+#storyModeRoot .st-ctl > span:last-child {
+  font-size: 12px; font-weight: 900; color: #1d3b27 !important; white-space: nowrap; line-height: 1.2;
+  text-shadow: 0 1px 0 rgba(255,255,255,.65);
+}
+#storyModeRoot .st-ctl.mic .face {
+  width: 60px; height: 60px; border-radius: 20px; color: #fff !important;
+  background: linear-gradient(180deg, #ff8dab 0%, #ff5b87 65%, #eb4775 100%) !important;
+  box-shadow: 0 6px 0 #cc3f67, 0 10px 16px rgba(196,49,92,.3), inset 0 4px 5px rgba(255,255,255,.48);
+}
+#storyModeRoot .st-ctl.mic.on .face {
+  background: linear-gradient(180deg, #59ee96 0%, #26cc6b 65%, #1cb65d 100%) !important;
+  box-shadow: 0 6px 0 #1c9c52, 0 10px 16px rgba(28,156,82,.35), inset 0 4px 5px rgba(255,255,255,.5);
+  animation: stPulse3d 1.15s infinite;
+}
+@keyframes stPulse3d {
+  0%, 100% { box-shadow: 0 6px 0 #1c9c52, 0 0 0 0 rgba(46,204,113,.55), inset 0 4px 5px rgba(255,255,255,.5); }
+  50% { box-shadow: 0 6px 0 #1c9c52, 0 0 0 11px rgba(46,204,113,0), inset 0 4px 5px rgba(255,255,255,.5); }
+}
+#storyModeRoot .flag svg { display: block; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,.14); }
+
+/* Story Splash Overlay (Scoped inside Story Workspace — Top Hub Bar stays accessible!) */
+#storyModeRoot .st-splash {
+  position: absolute; inset: 0; z-index: 25;
+  border-radius: 26px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
+  padding: 20px 18px; text-align: center;
+  background: radial-gradient(circle at 25% 15%, #fffbe0 0%, rgba(255,251,224,0) 35%),
+              linear-gradient(180deg, rgba(168,224,255,.94) 0%, rgba(235,251,255,.96) 58%, rgba(217,247,198,.96) 100%) !important;
+  box-shadow: inset 0 3px 6px rgba(255,255,255,.85);
+}
+#storyModeRoot .st-splash.hide { display: none; }
+#storyModeRoot .st-splash-badge {
+  width: 86px; height: 86px; border-radius: 26px;
+  background: linear-gradient(180deg, #ffffff 0%, #eef9ec 100%) !important;
+  box-shadow: 0 7px 0 #c3dcc0, 0 14px 22px rgba(30,72,44,.16), inset 0 4px 6px #ffffff;
+  display: flex; align-items: center; justify-content: center;
+}
+#storyModeRoot .st-splash h1 {
+  font-size: clamp(24px, 6.5vw, 30px); font-weight: 900; color: #1b5533 !important; line-height: 1.25;
+  text-shadow: 0 2px 0 rgba(255,255,255,.8);
+}
+#storyModeRoot .st-splash-book-btn {
+  padding: 8px 16px; border-radius: 999px; border: 2px solid #cfe6c9;
+  background: #ffffff !important; color: #223c2a !important;
+  font-family: inherit; font-size: 13.5px; font-weight: 900; cursor: pointer;
+  box-shadow: 0 3px 0 #bfd9b8;
+  display: inline-flex; align-items: center; gap: 6px; max-width: 92%;
+}
+#storyModeRoot .st-splash-actions {
+  width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px;
+}
+#storyModeRoot .st-big-start {
+  width: 100%; padding: 16px 22px; font-size: 19px; font-weight: 900; border: none; border-radius: 22px;
+  cursor: pointer; font-family: inherit;
+  background: linear-gradient(180deg, #ffe176 0%, #ffb81c 100%) !important; color: #422b00 !important;
+  box-shadow: 0 6px 0 #c98600, 0 12px 20px rgba(178,118,0,.24), inset 0 3px 5px rgba(255,255,255,.68);
+  transition: transform .1s, box-shadow .1s;
+}
+#storyModeRoot .st-big-start:active { transform: translateY(4px); box-shadow: 0 2px 0 #c98600; }
+#storyModeRoot .st-big-start.simple {
+  padding: 13px 20px; font-size: 16.5px;
+  background: linear-gradient(180deg, #ffffff 0%, #ebfaef 100%) !important; color: #145b2c !important;
+  border: 2.5px solid #59d986;
+  box-shadow: 0 5px 0 #28a658, 0 8px 14px rgba(28,156,82,.14), inset 0 2px 4px #ffffff;
+}
+#storyModeRoot .st-big-start.simple:active { transform: translateY(3px); box-shadow: 0 2px 0 #28a658; }
+#storyModeRoot .st-splash-hint {
+  font-size: 12px; font-weight: 800; color: #4f6f59 !important; line-height: 1.4;
+}
+#storyModeRoot .st-msg {
+  font-size: 13px; font-weight: 800; color: #c62828 !important; min-height: 18px; max-width: 380px; line-height: 1.4;
+}
+
+/* Story Book Shelf Modal (Styled to harmonize with Hub Modals) */
+.st-filter-section { display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; border-bottom: 2px solid #ece3cb; }
+.st-filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.st-filter-chip {
+  padding: 7px 13px; border-radius: 999px; border: 2px solid #cae2be;
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8ee 100%) !important;
+  font-size: 13.5px; font-weight: 800; color: #223c2a !important; cursor: pointer; font-family: inherit;
+  box-shadow: 0 3px 0 #bdd6b0;
+}
+.st-filter-chip.on {
+  background: linear-gradient(180deg, #ffea92 0%, #ffd24c 100%) !important;
+  border-color: #f0ab00; color: #3b2600 !important; box-shadow: 0 3px 0 #cc8e00;
+}
+.st-filter-chip.lvl.on {
+  background: linear-gradient(180deg, #d2fae3 0%, #8ee8b5 100%) !important;
+  border-color: #26bd65; color: #114a28 !important; box-shadow: 0 3px 0 #1f9b53;
+}
+.st-book-grid { display: flex; flex-direction: column; gap: 9px; }
+.st-book-item {
+  width: 100%; padding: 13px 15px; border-radius: 18px; border: 2.5px solid #d7e9ca;
+  background: linear-gradient(180deg, #ffffff 0%, #f6faf3 100%) !important;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  cursor: pointer; text-align: left; font-family: inherit;
+  box-shadow: 0 4px 0 #c2d9b4;
+}
+.st-book-item:active { transform: translateY(2px); box-shadow: 0 2px 0 #c2d9b4; }
+.st-book-item.active {
+  border-color: #f5b000; background: linear-gradient(180deg, #fffef4 0%, #fff3c7 100%) !important;
+  box-shadow: 0 4px 0 #d99c00;
+}
+.st-book-item-sub { font-size: 11.5px; font-weight: 800; color: #6b8773 !important; margin-bottom: 2px; }
+.st-book-item-title { font-size: 16.5px; font-weight: 900; color: #223c2a !important; line-height: 1.25; }
+.st-book-item-meta {
+  font-size: 12px; font-weight: 800; color: #9e5200 !important;
+  background: linear-gradient(180deg, #fff0be 0%, #ffd878 100%) !important;
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
+}
+
 </style>
 </head>
-<body>
+<body class="mode-word">
+<!-- Background 1: Word Explorer Pastel Scene -->
 <div class="bg-scene" aria-hidden="true">
   <div class="bg-cloud c1"></div>
   <div class="bg-cloud c2"></div>
@@ -1853,14 +2496,71 @@ html, body {
   <div class="bg-hill-2"></div>
 </div>
 
+<!-- Background 2: Story Mode Forest Tent 3D Clay Scene -->
+<div class="story-bg" aria-hidden="true">
+  <div class="st-sun"></div>
+  <span class="st-cloud st-c1"></span>
+  <span class="st-cloud st-c2"></span>
+</div>
+<div class="story-hills" aria-hidden="true">
+  <div class="st-hill-back"></div>
+  <div class="st-hill-front"></div>
+  <svg class="st-scenic-props" viewBox="0 0 420 210" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="stTreeG" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#58c768"/><stop offset="100%" stop-color="#2c8a47"/>
+      </linearGradient>
+      <linearGradient id="stTentMain" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ffe07d"/><stop offset="100%" stop-color="#f29f29"/>
+      </linearGradient>
+      <linearGradient id="stTentDoor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#5a3c24"/><stop offset="100%" stop-color="#2e1d11"/>
+      </linearGradient>
+    </defs>
+    <g opacity=".9">
+      <rect x="24" y="138" width="10" height="22" rx="4" fill="#8b5a2b"/>
+      <ellipse cx="29" cy="118" rx="22" ry="26" fill="url(#stTreeG)"/>
+      <ellipse cx="23" cy="108" rx="9" ry="12" fill="rgba(255,255,255,.18)"/>
+      <rect x="56" y="146" width="8" height="18" rx="3" fill="#8b5a2b"/>
+      <ellipse cx="60" cy="130" rx="16" ry="20" fill="url(#stTreeG)"/>
+    </g>
+    <g transform="translate(328,112)" opacity=".92">
+      <ellipse cx="34" cy="48" rx="36" ry="7" fill="rgba(34,78,44,.22)"/>
+      <path d="M4 46 L34 4 L64 46 Z" fill="url(#stTentMain)"/>
+      <path d="M34 4 L64 46 L48 46 Z" fill="rgba(186,96,12,.22)"/>
+      <path d="M24 46 Q34 24 44 46 Z" fill="url(#stTentDoor)"/>
+      <circle cx="34" cy="4" r="4" fill="#ff6d94"/>
+    </g>
+  </svg>
+</div>
+
 <div id="globalToast" class="global-toast"></div>
 
 <div class="app-shell">
-  <!-- Unified Single Top Bar -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <button type="button" id="headerLogoBtn" class="logo-btn" aria-label="메인으로">📖</button>
-      <div class="top-nav-pill">
+  <!-- ==================== MASTER HUB TOP BAR ==================== -->
+  <header class="hub-bar">
+    <div class="hub-tabs" role="tablist" aria-label="학습 모드 전환">
+      <button type="button" id="hubTabWord" class="hub-tab tab-word active" role="tab">🔤 오늘 단어</button>
+      <button type="button" id="hubTabStory" class="hub-tab tab-story" role="tab">📖 동화책</button>
+    </div>
+    <div class="topbar-right">
+      <button type="button" id="topSyncBtn" class="circle-btn" aria-label="실시간 동기화" title="단어장 시트 최신 진도 불러오기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button type="button" id="openSettingsBtn" class="circle-btn" aria-label="부모 통합 설정">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="settings-lock-dot" aria-hidden="true">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== WORKSPACE 1: 오늘 단어 (학습지 세이펜 & 암기 체크) ==================== -->
+  <div id="wordModeRoot" class="hub-workspace active">
+    <div class="word-subbar">
+      <button type="button" id="headerLogoBtn" class="logo-btn" aria-label="메인으로">🏠</button>
+      <div class="top-nav-pill" style="flex:1">
         <button type="button" id="headerChildChip" class="child-chip" aria-label="첫째 둘째 전환">
           <span id="headerChildName">첫째 민준</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -1872,20 +2572,7 @@ html, body {
       </div>
     </div>
 
-    <div class="topbar-right">
-      <button type="button" id="topSyncBtn" class="circle-btn" aria-label="구글 시트 실시간 동기화" title="시트 최신 진도 불러오기">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-      </button>
-      <button type="button" id="openSettingsBtn" class="circle-btn" aria-label="부모 설정">
-        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-        <span class="settings-lock-dot" aria-hidden="true">
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        </span>
-      </button>
-    </div>
-  </header>
-
-  <main class="stage-frame">
+    <main class="stage-frame">
     <!-- ==================== VIEW 1A: 학습지 DAY 세이펜 ==================== -->
     <section id="dayView" class="view-panel active">
       <div class="day-ctrl-bar">
@@ -2128,9 +2815,117 @@ html, body {
           <button type="button" id="doneHomeBtn" class="done-btn home">🔊 세이펜으로</button>
           <button type="button" id="doneNextBtn" class="done-btn next">다음 DAY로 ▶</button>
         </div>
+        <button type="button" id="doneGoStoryBtn" class="done-story-btn">🐻 오늘 단어 끝! 곰돌이 선생님이랑 동화책 읽을까? →</button>
       </div>
     </section>
   </main>
+  </div>
+
+
+  <!-- ==================== WORKSPACE 2: 숲속 텐트 동화책 읽기 ==================== -->
+  <div id="storyModeRoot" class="hub-workspace">
+    <div class="st-top">
+      <button type="button" class="st-book-pill" id="st_bookPillBtn" title="눌러서 다른 책 고르기">
+        <span class="st-tag">오늘의 책</span>
+        <span class="st-book-title" id="st_bookTitle">책을 골라 주세요</span>
+      </button>
+      <button type="button" class="st-engine-pill" id="st_engineBadge" title="읽기 방식 전환 (AI / 간편 듣기)">
+        <span id="st_engineText">🔊 간편</span>
+      </button>
+      <button type="button" class="st-mode-pill" id="st_autoModeBtn" aria-label="계속 읽기 모드 전환">
+        <span id="st_autoModeIcon">▶</span>
+        <span id="st_autoModeText">계속 읽기</span>
+      </button>
+    </div>
+
+    <main class="st-stage">
+      <div class="st-teacher-wrap" id="st_teacherWrap" title="곰돌이 선생님을 눌러 보세요">
+        <div class="st-bear-pedestal"></div>
+        <div class="st-mic-ring" id="st_micRing"></div>
+        <canvas id="st_bear3dCanvas" aria-label="3D 곰돌이 선생님"></canvas>
+        <svg class="st-bear-fallback" viewBox="-12 -10 144 132" aria-hidden="true">
+          <defs>
+            <radialGradient id="bfHead" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#d89758"/><stop offset="100%" stop-color="#9e6029"/></radialGradient>
+            <radialGradient id="bfMuzzle" cx="40%" cy="30%" r="70%"><stop offset="0%" stop-color="#fff0d4"/><stop offset="100%" stop-color="#e7be89"/></radialGradient>
+            <linearGradient id="bfHat" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#48c774"/><stop offset="100%" stop-color="#1e7d44"/></linearGradient>
+          </defs>
+          <circle cx="28" cy="30" r="14" fill="#9e6029"/><circle cx="92" cy="30" r="14" fill="#9e6029"/>
+          <circle cx="28" cy="30" r="7" fill="#e7be89"/><circle cx="92" cy="30" r="7" fill="#e7be89"/>
+          <circle cx="60" cy="62" r="46" fill="url(#bfHead)"/>
+          <ellipse cx="60" cy="80" rx="24" ry="18" fill="url(#bfMuzzle)"/>
+          <circle cx="44" cy="56" r="5.5" fill="#2b2b2b"/><circle cx="76" cy="56" r="5.5" fill="#2b2b2b"/>
+          <circle cx="42.5" cy="54" r="1.8" fill="#fff"/><circle cx="74.5" cy="54" r="1.8" fill="#fff"/>
+          <circle cx="38" cy="68" r="5.5" fill="#ff9aa8" opacity=".75"/><circle cx="82" cy="68" r="5.5" fill="#ff9aa8" opacity=".75"/>
+          <ellipse cx="60" cy="73" rx="6" ry="4" fill="#2b2b2b"/>
+          <path d="M52 82 Q60 88 68 82" fill="none" stroke="#5a351c" stroke-width="3" stroke-linecap="round"/>
+          <path d="M34 26 L60 -4 L86 26 Z" fill="url(#bfHat)"/>
+          <path d="M28 26 H92" stroke="#1e7d44" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="st-turn-pill hidden" id="st_turnPill"><span class="st-turn-dot"></span><span id="st_turnText"></span></div>
+      <div class="st-caption" id="st_caption"></div>
+      <div class="st-card" id="st_card"></div>
+      <div class="st-dots" id="st_dots"></div>
+      <div class="st-childline" id="st_childLine"></div>
+    </main>
+
+    <footer class="st-dock">
+      <button type="button" class="st-ctl" id="st_prevBtn" aria-label="이전 문장">
+        <span class="face"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#223c2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+        <span>이전</span>
+      </button>
+      <button type="button" class="st-ctl" id="st_meaningBtn" aria-label="한글로 뜻 듣기">
+        <span class="face flag" id="st_krFlag"></span>
+        <span>한글</span>
+      </button>
+      <button type="button" class="st-ctl mic" id="st_micBtn" aria-label="마이크">
+        <span class="face"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg></span>
+        <span id="st_micLabel">말하기</span>
+      </button>
+      <button type="button" class="st-ctl" id="st_rereadBtn" aria-label="영어로 다시 읽기">
+        <span class="face flag" id="st_usFlag"></span>
+        <span>다시읽기</span>
+      </button>
+      <button type="button" class="st-ctl" id="st_nextBtn" aria-label="다음 문장">
+        <span class="face"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#223c2a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+        <span>다음</span>
+      </button>
+    </footer>
+
+    <!-- Story Splash Overlay (Only shown inside Story Tab) -->
+    <section class="st-splash" id="st_splash">
+      <div class="st-splash-badge" aria-hidden="true">
+        <svg width="58" height="58" viewBox="-12 -10 144 132">
+          <defs>
+            <radialGradient id="spHead" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#dc9c5e"/><stop offset="100%" stop-color="#9e6029"/></radialGradient>
+            <linearGradient id="spHat" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#48c774"/><stop offset="100%" stop-color="#1e7d44"/></linearGradient>
+          </defs>
+          <circle cx="28" cy="30" r="14" fill="#9e6029"/><circle cx="92" cy="30" r="14" fill="#9e6029"/>
+          <circle cx="28" cy="30" r="7" fill="#ecc490"/><circle cx="92" cy="30" r="7" fill="#ecc490"/>
+          <circle cx="60" cy="62" r="46" fill="url(#spHead)"/>
+          <ellipse cx="60" cy="80" rx="24" ry="18" fill="#f7dfb8"/>
+          <circle cx="44" cy="56" r="5.5" fill="#2b2b2b"/><circle cx="76" cy="56" r="5.5" fill="#2b2b2b"/>
+          <circle cx="42.5" cy="54" r="1.8" fill="#fff"/><circle cx="74.5" cy="54" r="1.8" fill="#fff"/>
+          <circle cx="38" cy="68" r="5.5" fill="#ff9aa8" opacity=".75"/><circle cx="82" cy="68" r="5.5" fill="#ff9aa8" opacity=".75"/>
+          <ellipse cx="60" cy="73" rx="6" ry="4" fill="#2b2b2b"/>
+          <path d="M52 82 Q60 88 68 82" fill="none" stroke="#5a351c" stroke-width="3" stroke-linecap="round"/>
+          <path d="M34 26 L60 -4 L86 26 Z" fill="url(#spHat)"/>
+          <path d="M28 26 H92" stroke="#1e7d44" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>숲속 텐트 영어 친구</h1>
+      <button type="button" class="st-splash-book-btn" id="st_splashBookBtn">
+        <span>📚</span><span id="st_splashBookName">I Can Draw!</span><span>▾</span>
+      </button>
+      <div class="st-splash-actions">
+        <button type="button" class="st-big-start" id="st_splashStartAi">🤖 AI 선생님과 시작하기</button>
+        <button type="button" class="st-big-start simple" id="st_splashStartSimple">🔊 간편 듣기로 바로 읽기</button>
+      </div>
+      <div class="st-splash-hint">API 키가 없거나 인터넷이 느려도 '간편 듣기'로 바로 읽을 수 있어요</div>
+      <div class="st-msg" id="st_splashMsg"></div>
+    </section>
+  </div>
+
 </div>
 
 <!-- ==================== MODAL 1: DAY / 단계 선택 팝업 ==================== -->
@@ -2163,116 +2958,227 @@ html, body {
   </div>
 </div>
 
-<!-- ==================== MODAL 3: 학부모 설정 ==================== -->
+
+<!-- ==================== MODAL 3: 통합 학부모 설정 (공통 / 단어장 / 동화책 AI) ==================== -->
 <div id="settingsModal" class="modal-bg">
-  <div class="modal-card" role="dialog" aria-label="학습 및 시트 연동 설정">
+  <div class="modal-card" role="dialog" aria-label="학부모 통합 설정">
     <div class="modal-head">
-      <h2 class="modal-title">학습 및 시트 연동 설정</h2>
+      <h2 class="modal-title">학부모 통합 설정</h2>
       <button type="button" id="closeSettingsBtn" class="modal-close" aria-label="닫기">✕</button>
     </div>
-    <div class="modal-body">
-      <!-- 1. Child -->
-      <div class="sec-grp">
-        <div class="sec-lbl"><span>1. 학습 아동 선택</span><span class="sec-sub">이름 터치 수정</span></div>
-        <div class="grid-2 seg-box">
-          <div id="childCardFirst" data-child="first" class="child-card on">
-            <span class="sec-sub" style="text-align:center">첫째 (Q~T열)</span>
-            <input id="firstNameInput" type="text" maxlength="12" value="첫째 민준" />
+
+    <div class="settings-tabs" role="tablist">
+      <button type="button" class="settings-tab-btn active" data-stab="common">🏠 공통</button>
+      <button type="button" class="settings-tab-btn" data-stab="word">🔤 단어장</button>
+      <button type="button" class="settings-tab-btn st-tab" data-stab="story">📖 동화책(AI)</button>
+    </div>
+
+    <div class="modal-body" id="settingsModalBody">
+      <!-- ===== TAB 1: 공통 설정 ===== -->
+      <div class="settings-tab-pane active" id="stab_common">
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>1. 학습 아동 선택</span><span class="sec-sub">단어장·동화책 인사말 동시 적용</span></div>
+          <div class="grid-2 seg-box">
+            <div id="childCardFirst" data-child="first" class="child-card on">
+              <span class="sec-sub" style="text-align:center">첫째 (Q~T열)</span>
+              <input id="firstNameInput" type="text" maxlength="12" value="첫째 민준" />
+            </div>
+            <div id="childCardSecond" data-child="second" class="child-card">
+              <span class="sec-sub" style="text-align:center">둘째 (U~X열)</span>
+              <input id="secondNameInput" type="text" maxlength="12" value="둘째 서아" />
+            </div>
           </div>
-          <div id="childCardSecond" data-child="second" class="child-card">
-            <span class="sec-sub" style="text-align:center">둘째 (U~X열)</span>
-            <input id="secondNameInput" type="text" maxlength="12" value="둘째 서아" />
+        </div>
+
+        <div class="sec-grp" style="background:#f4fbf5;padding:12px;border-radius:16px;border:1.5px solid #cdecd5">
+          <div class="sec-lbl"><span>2. Gemini API 키 (동화책 AI 선생님용)</span><span class="sec-sub">없어도 간편 듣기 가능</span></div>
+          <input id="st_apiKeyInput" type="password" class="inp-field" placeholder="AIza..." autocomplete="off" />
+          <div class="mini-btn-row" style="align-items:center">
+            <button type="button" class="mini-btn pull-now" id="st_testBtn">🔌 연결 확인</button>
+            <span class="st-res" id="st_testResult"></span>
           </div>
+        </div>
+
+        <div class="sec-grp" style="background:#edf7ff;padding:12px;border-radius:16px;border:1.5px solid #cde5ff">
+          <div class="sec-lbl"><span>3. 주간 일일학습지 PDF 인쇄기</span><span class="sec-sub">Colab 없이 바로 인쇄</span></div>
+          <p class="sec-sub">공식 테스트에서 졸업한 단어를 실시간으로 빼고 5일치(A4 10쪽) 컬러 학습지를 바로 PDF 저장·인쇄해요.</p>
+          <button type="button" id="openWorksheetPrinterBtn" class="print-launch-cta">🖨️ 주간 학습지 인쇄기 열기</button>
         </div>
       </div>
 
-      <!-- 2. Mode -->
-      <div class="sec-grp">
-        <div class="sec-lbl"><span>2. 학습 모드</span></div>
-        <div class="grid-3 seg-box">
-          <button type="button" data-mode="day" class="opt-btn mode-btn"><span>📖 학습지 DAY</span><span style="font-size:10px;opacity:.8">서포트 · 졸업X</span></button>
-          <button type="button" data-mode="alphablocks" class="opt-btn mode-btn"><span>🧱 알파블럭스</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
-          <button type="button" data-mode="elem800" class="opt-btn mode-btn"><span>📚 초등800</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
+      <!-- ===== TAB 2: 단어장 설정 ===== -->
+      <div class="settings-tab-pane" id="stab_word">
+        <div class="tts-info-banner word">
+          🔊 <strong>단어장 발음 엔진:</strong> 빠른 원어민 기기 발음(Web Speech TTS)을 사용합니다. API 비용 없이 0.1초 만에 반응해요.
         </div>
-        <div class="sec-lbl" style="margin-top:4px"><span style="font-size:13px">공식 테스트 1회 단어 수 (알파블럭스 · 초등800)</span></div>
-        <div class="grid-3">
-          <button type="button" data-batch="10" class="opt-btn batch-btn"><span>10단어</span><span style="font-size:10px;opacity:.75">권장</span></button>
-          <button type="button" data-batch="15" class="opt-btn batch-btn"><span>15단어</span><span style="font-size:10px;opacity:.75">조금 길게</span></button>
-          <button type="button" data-batch="0" class="opt-btn batch-btn"><span>전체</span><span style="font-size:10px;opacity:.75">단계 전체</span></button>
-        </div>
-        <div class="toggle-row">
-          <div>
-            <div style="font-size:13.5px;font-weight:800">졸업 단어 자동 제외 (미졸업 3단어씩)</div>
-            <div class="sec-sub">켜면 PDF와 똑같이 이미 졸업한 단어를 빼고 배정해요</div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>1. 학습 모드</span></div>
+          <div class="grid-3 seg-box">
+            <button type="button" data-mode="day" class="opt-btn mode-btn"><span>📖 학습지 DAY</span><span style="font-size:10px;opacity:.8">서포트 · 졸업X</span></button>
+            <button type="button" data-mode="alphablocks" class="opt-btn mode-btn"><span>🧱 알파블럭스</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
+            <button type="button" data-mode="elem800" class="opt-btn mode-btn"><span>📚 초등800</span><span style="font-size:10px;opacity:.8">공식 졸업 판정</span></button>
           </div>
-          <button type="button" id="excludeGradToggle" class="switch-btn on" aria-label="졸업 단어 자동 제외">
-            <span class="switch-knob"></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 3. Spelling Mode Switch -->
-      <div class="sec-grp">
-        <div class="sec-lbl"><span>3. 학습지 DAY 연습 · 철자 입력 방식</span><span class="sec-sub">공부 서포트용</span></div>
-        <div class="grid-2 seg-box">
-          <button type="button" data-spell="blocks" class="opt-btn spell-mode-btn"><span>🧱 글자 블록 조립</span><span style="font-size:10.5px;opacity:.75">초반 추천 · 오타 적음</span></button>
-          <button type="button" data-spell="qwerty" class="opt-btn spell-mode-btn"><span>⌨️ 쿼티 키보드</span><span style="font-size:10.5px;opacity:.75">익숙해지면 전환</span></button>
-        </div>
-        <div class="toggle-row">
-          <div>
-            <div style="font-size:13.5px;font-weight:800">2단계 철자 체크 포함</div>
-            <div class="sec-sub">끄면 1단계(4지선다)만 진행해요 (둘째용)</div>
+          <div class="sec-lbl" style="margin-top:4px"><span style="font-size:13px">공식 테스트 1회 단어 수 (알파블럭스 · 초등800)</span></div>
+          <div class="grid-3">
+            <button type="button" data-batch="10" class="opt-btn batch-btn"><span>10단어</span><span style="font-size:10px;opacity:.75">권장</span></button>
+            <button type="button" data-batch="15" class="opt-btn batch-btn"><span>15단어</span><span style="font-size:10px;opacity:.75">조금 길게</span></button>
+            <button type="button" data-batch="0" class="opt-btn batch-btn"><span>전체</span><span style="font-size:10px;opacity:.75">단계 전체</span></button>
           </div>
-          <button type="button" id="enableSpellToggle" class="switch-btn on" aria-label="철자 체크 포함 여부">
-            <span class="switch-knob"></span>
-          </button>
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13.5px;font-weight:800">졸업 단어 자동 제외 (미졸업 3단어씩)</div>
+              <div class="sec-sub">켜면 PDF와 똑같이 이미 졸업한 단어를 빼고 배정해요</div>
+            </div>
+            <button type="button" id="excludeGradToggle" class="switch-btn on" aria-label="졸업 단어 자동 제외">
+              <span class="switch-knob"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>2. 학습지 DAY 연습 · 철자 입력 방식</span><span class="sec-sub">공부 서포트용</span></div>
+          <div class="grid-2 seg-box">
+            <button type="button" data-spell="blocks" class="opt-btn spell-mode-btn"><span>🧱 글자 블록 조립</span><span style="font-size:10.5px;opacity:.75">초반 추천 · 오타 적음</span></button>
+            <button type="button" data-spell="qwerty" class="opt-btn spell-mode-btn"><span>⌨️ 쿼티 키보드</span><span style="font-size:10.5px;opacity:.75">익숙해지면 전환</span></button>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div style="font-size:13.5px;font-weight:800">2단계 철자 체크 포함</div>
+              <div class="sec-sub">끄면 1단계(4지선다)만 진행해요 (둘째용)</div>
+            </div>
+            <button type="button" id="enableSpellToggle" class="switch-btn on" aria-label="철자 체크 포함 여부">
+              <span class="switch-knob"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>3. 단어장 원어민 발음 속도</span><span class="sec-sub" style="color:#006399">0.8x 권장</span></div>
+          <div class="grid-4">
+            <button type="button" data-rate="1" class="opt-btn speed-btn"><span>1.0x</span><span style="font-size:10px;opacity:.75">보통</span></button>
+            <button type="button" data-rate="0.8" class="opt-btn speed-btn"><span>0.8x</span><span style="font-size:10px;opacity:.75">천천히</span></button>
+            <button type="button" data-rate="0.65" class="opt-btn speed-btn"><span>0.65x</span><span style="font-size:10px;opacity:.75">느리게</span></button>
+            <button type="button" data-rate="0.5" class="opt-btn speed-btn"><span>0.5x</span><span style="font-size:10px;opacity:.75">최대느림</span></button>
+          </div>
+        </div>
+
+        <div class="sec-grp" style="background:#f0eee8;padding:12px;border-radius:16px">
+          <div class="sec-lbl"><span>4. 단어장 구글 시트 양방향 연동</span></div>
+          <input id="csvUrlInput" type="url" class="inp-field" placeholder="DAY확장 단어장 CSV 게시 URL (웹에 게시 .csv)" />
+          <input id="webhookUrlInput" type="url" class="inp-field" placeholder="Apps Script 웹앱 URL (/exec · 읽기+쓰기 공용)" />
+          <div class="mini-btn-row">
+            <button type="button" id="pullLiveBtn" class="mini-btn pull-now">🔄 시트 진도 불러오기</button>
+            <button type="button" id="syncAllRecordsBtn" class="mini-btn sync-now">📤 기기 기록 일괄 전송</button>
+            <button type="button" id="reloadCsvBtn" class="mini-btn">단어장 CSV 새로고침</button>
+            <button type="button" id="copyGasBtn" class="mini-btn" style="color:#006399">📋 통합 Apps Script 복사</button>
+          </div>
+          <p id="settingsInfoMsg" style="font-size:12px;font-weight:800;color:#006d3d;min-height:16px"></p>
+        </div>
+
+        <div class="sec-grp" style="background:#f5f8fc;padding:12px;border-radius:16px">
+          <div class="sec-lbl"><span>5. 449개 스티커 이미지 (256px WebP)</span></div>
+          <input id="stickerBaseInput" type="text" class="inp-field" placeholder="stickers/" />
+          <div class="mini-btn-row">
+            <button type="button" id="pickLocalStickersBtn" class="mini-btn">📁 내 폰 그림 폴더 불러오기</button>
+            <button type="button" id="clearLocalStickersBtn" class="mini-btn danger">로컬 캐시 비우기</button>
+            <button type="button" id="resetStageBtn" class="mini-btn danger">현재 DAY/단계 초기화</button>
+          </div>
+          <input id="localStickerFileInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
+          <p id="stickerInfoMsg" class="sec-sub">기본값: GitHub 저장소의 stickers/ 폴더(예: stickers/cat.webp)</p>
         </div>
       </div>
 
-      <!-- 4. TTS Speed -->
-      <div class="sec-grp">
-        <div class="sec-lbl"><span>4. 원어민 발음 속도</span><span class="sec-sub" style="color:#006399">0.8x 권장</span></div>
-        <div class="grid-4">
-          <button type="button" data-rate="1" class="opt-btn speed-btn"><span>1.0x</span><span style="font-size:10px;opacity:.75">보통</span></button>
-          <button type="button" data-rate="0.8" class="opt-btn speed-btn"><span>0.8x</span><span style="font-size:10px;opacity:.75">천천히</span></button>
-          <button type="button" data-rate="0.65" class="opt-btn speed-btn"><span>0.65x</span><span style="font-size:10px;opacity:.75">느리게</span></button>
-          <button type="button" data-rate="0.5" class="opt-btn speed-btn"><span>0.5x</span><span style="font-size:10px;opacity:.75">최대느림</span></button>
+      <!-- ===== TAB 3: 동화책(AI) 설정 ===== -->
+      <div class="settings-tab-pane" id="stab_story">
+        <div class="tts-info-banner story">
+          🤖 <strong>동화책 발음 엔진:</strong> Gemini Live AI 선생님(따라 말하기·문맥 뜻)을 기본으로 하며, API 키가 없거나 오프라인일 때는 단어장 기기 발음(간편 듣기)으로 즉시 전환됩니다.
         </div>
-      </div>
 
-      <!-- 5. Google Sheets Two-Way Sync -->
-      <div class="sec-grp" style="background:#f0eee8;padding:12px;border-radius:16px">
-        <div class="sec-lbl"><span>5. 구글 시트 양방향 연동 (아빠·엄마 폰 동기화)</span></div>
-        <input id="csvUrlInput" type="url" class="inp-field" placeholder="DAY확장 단어장 CSV 게시 URL (웹에 게시 .csv)" />
-        <input id="webhookUrlInput" type="url" class="inp-field" placeholder="Apps Script 웹앱 URL (/exec · 읽기+쓰기 공용)" />
+        <div class="sec-grp" style="background:#f0eee8;padding:12px;border-radius:16px">
+          <div class="sec-lbl"><span>1. 동화책 선택 &amp; 책 목록 시트</span></div>
+          <select id="st_bookSelect" class="st-select"></select>
+          <input id="st_sheetInput" type="url" class="inp-field" placeholder="동화책 구글 시트 CSV 주소 (.../pub?output=csv)" />
+          <div class="mini-btn-row" style="align-items:center">
+            <button type="button" class="mini-btn pull-now" id="st_reloadBtn">📚 책 목록 새로고침</button>
+            <span id="st_settingsMsg" style="font-size:12px;font-weight:800;color:#17803d"></span>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>2. AI 선생님 목소리</span></div>
+          <div class="grid-2 seg-box">
+            <button type="button" class="opt-btn st-voice-btn" data-st-voice="female">👩 여자 선생님 (Aoede)</button>
+            <button type="button" class="opt-btn st-voice-btn" data-st-voice="male">👨 남자 선생님 (Puck)</button>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>3. 동화책 말하기 속도</span><span class="sec-sub">AI·간편 듣기 공통</span></div>
+          <div class="grid-2 seg-box">
+            <button type="button" class="opt-btn st-speed-btn" data-st-speed="0">아주 천천히</button>
+            <button type="button" class="opt-btn st-speed-btn" data-st-speed="1">천천히</button>
+            <button type="button" class="opt-btn st-speed-btn" data-st-speed="2">보통</button>
+            <button type="button" class="opt-btn st-speed-btn" data-st-speed="3">조금 빠르게</button>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>4. 마이크 방식 (AI 선생님 전용)</span></div>
+          <div class="grid-3 seg-box">
+            <button type="button" class="opt-btn st-mic-btn" data-st-mic="always">계속 듣기</button>
+            <button type="button" class="opt-btn st-mic-btn" data-st-mic="toggle">눌러서 켜기</button>
+            <button type="button" class="opt-btn st-mic-btn" data-st-mic="push">누르고 말하기</button>
+          </div>
+          <span class="sec-sub">'계속 듣기'는 작은 소음을 자동 차단하며, '눌러서 켜기'는 말할 때만 마이크를 켜는 방식입니다.</span>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>5. 단어 뜻 읽어주기</span></div>
+          <div class="grid-2 seg-box">
+            <button type="button" class="opt-btn st-wordko-btn" data-st-wordko="tap">뜻 누를 때만 듣기</button>
+            <button type="button" class="opt-btn st-wordko-btn" data-st-wordko="auto">영어+한글 바로 듣기</button>
+          </div>
+        </div>
+
+        <div class="sec-grp">
+          <div class="sec-lbl"><span>6. 동화책 인사말 아이 호칭 (선택)</span></div>
+          <input id="st_childInput" type="text" class="inp-field" placeholder="비워두면 '공통' 탭의 선택 아동 이름을 자동 사용해요" />
+        </div>
+
         <div class="mini-btn-row">
-          <button type="button" id="pullLiveBtn" class="mini-btn pull-now">🔄 시트 진도 불러오기</button>
-          <button type="button" id="syncAllRecordsBtn" class="mini-btn sync-now">📤 기기 기록 일괄 전송</button>
-          <button type="button" id="reloadCsvBtn" class="mini-btn">단어장 CSV 새로고침</button>
-          <button type="button" id="copyGasBtn" class="mini-btn" style="color:#006399">📋 통합 Apps Script 복사</button>
+          <button type="button" class="mini-btn danger" id="st_stopTeacherBtn">⏹ 동화책 선생님 연결 끄기</button>
         </div>
-        <p id="settingsInfoMsg" style="font-size:12px;font-weight:800;color:#006d3d;min-height:16px"></p>
       </div>
+    </div>
 
-      <!-- 6. Sticker Image Path & Optional Local Folder -->
-      <div class="sec-grp" style="background:#f5f8fc;padding:12px;border-radius:16px">
-        <div class="sec-lbl"><span>6. 449개 스티커 이미지 (256px WebP)</span></div>
-        <input id="stickerBaseInput" type="text" class="inp-field" placeholder="stickers/" />
-        <div class="mini-btn-row">
-          <button type="button" id="pickLocalStickersBtn" class="mini-btn">📁 내 폰 그림 폴더 불러오기 (로컬용)</button>
-          <button type="button" id="clearLocalStickersBtn" class="mini-btn danger">로컬 캐시 비우기</button>
-          <button type="button" id="resetStageBtn" class="mini-btn danger">현재 DAY/단계 초기화</button>
-        </div>
-        <input id="localStickerFileInput" type="file" webkitdirectory directory multiple accept="image/*" style="display:none" />
-        <p id="stickerInfoMsg" class="sec-sub">기본값: GitHub 저장소의 stickers/ 폴더(예: stickers/cat.webp)</p>
-      </div>
-
-      <button type="button" id="saveSettingsBtn" class="save-cta">설정 저장하기</button>
+    <div class="settings-footer">
+      <button type="button" id="saveSettingsBtn" class="save-cta">💾 전체 설정 저장하기</button>
     </div>
   </div>
 </div>
 
+<!-- ==================== MODAL 4: 동화책 책장 선택 ==================== -->
+<div id="st_bookListModal" class="modal-bg">
+  <div class="modal-card" role="dialog" aria-label="동화책 고르기">
+    <div class="modal-head">
+      <h2 class="modal-title">어떤 동화책을 읽을까?</h2>
+      <button type="button" id="st_closeBookListBtn" class="modal-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="st-filter-section" id="st_bookFilterSection">
+        <div class="st-filter-row" id="st_seriesFilterRow"></div>
+        <div class="st-filter-row" id="st_levelFilterRow"></div>
+      </div>
+      <div class="st-book-grid" id="st_bookListGrid"></div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
+window.WordApp = (() => {
 // ========== Embedded Starter Dataset (DAY 001 ~ DAY 010 · 30 Words) ==========
 const STARTER_WORDS = [{"id": 1, "word": "boy", "meaning": "소년", "phonics": "이중모음 oy (/ɔɪ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 1, "sentEn": "The {{boy}} is my friend.", "sentKo": "그 소년은 내 친구예요.", "sentSw": "the, is, my", "img": "boy"}, {"id": 2, "word": "kid", "meaning": "아이", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 2, "sentEn": "That {{kid}} can run fast.", "sentKo": "저 아이는 빨리 달릴 수 있어요.", "sentSw": "that, can", "img": "kid"}, {"id": 3, "word": "man", "meaning": "남자", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 001", "seq": 3, "sentEn": "I see a tall {{man}}.", "sentKo": "나는 키 큰 남자를 봐요.", "sentSw": "I, see, a", "img": "man"}, {"id": 4, "word": "baby", "meaning": "아기", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 4, "sentEn": "Look at the cute {{baby}}.", "sentKo": "귀여운 아기를 보세요.", "sentSw": "look, at, the", "img": "baby"}, {"id": 5, "word": "girl", "meaning": "소녀", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 5, "sentEn": "The {{girl}} has a doll.", "sentKo": "그 소녀는 인형을 가지고 있어요.", "sentSw": "the, has, a", "img": "girl"}, {"id": 6, "word": "lady", "meaning": "숙녀", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 002", "seq": 6, "sentEn": "This {{lady}} is very nice.", "sentKo": "이 숙녀분은 매우 친절해요.", "sentSw": "this, is, very", "img": "lady"}, {"id": 7, "word": "wife", "meaning": "아내", "phonics": "매직 e (i_e)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 7, "sentEn": "She is a kind {{wife}}.", "sentKo": "그녀는 친절한 아내예요.", "sentSw": "she, is, a", "img": "wife"}, {"id": 8, "word": "family", "meaning": "가족", "phonics": "단모음 a (/æ/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 8, "sentEn": "I love my happy {{family}}.", "sentKo": "나는 행복한 우리 가족을 사랑해요.", "sentSw": "I, love, my", "img": "family"}, {"id": 9, "word": "sister", "meaning": "자매", "phonics": "R통제 er (/ər/)", "catCode": 0, "topic": "01 · 가족과 사람", "day": "DAY 003", "seq": 9, "sentEn": "My {{sister}} likes to sing.", "sentKo": "내 여동생은 노래하는 걸 좋아해요.", "sentSw": "my, to", "img": "sister"}, {"id": 10, "word": "arm", "meaning": "팔", "phonics": "R통제 ar (/ɑːr/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 10, "sentEn": "Raise your right {{arm}} up.", "sentKo": "오른팔을 위로 들어 올려요.", "sentSw": "your, up", "img": "arm"}, {"id": 11, "word": "ear", "meaning": "귀", "phonics": "모음 결합 ear (/ɪər/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 11, "sentEn": "Touch your left {{ear}} now.", "sentKo": "지금 왼쪽 귀를 만져 보세요.", "sentSw": "your, now", "img": "ear"}, {"id": 12, "word": "leg", "meaning": "다리", "phonics": "단모음 e (/e/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 004", "seq": 12, "sentEn": "Hop on one {{leg}} now.", "sentKo": "지금 한쪽 다리로 깡충 뛰어 봐요.", "sentSw": "on, one, now", "img": "leg"}, {"id": 13, "word": "I", "meaning": "내가, 나는", "phonics": "완전 통암기 (/aɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 13, "sentEn": "{{I}} am a happy kid.", "sentKo": "나는 행복한 아이예요.", "sentSw": "I, am, a", "img": ""}, {"id": 14, "word": "a(an)", "meaning": "하나의", "phonics": "기초 관사 (/ə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 14, "sentEn": "I see {{a}} cute cat.", "sentKo": "나는 귀여운 고양이 한 마리를 봐요.", "sentSw": "I, see, a", "img": ""}, {"id": 15, "word": "the", "meaning": "그~, 저~", "phonics": "기초 정관사 (/ðə/)", "catCode": 0, "topic": "⭐ 사이트워드 ① · 완전 통암기", "day": "DAY 005", "seq": 15, "sentEn": "Look at {{the}} big sun.", "sentKo": "큰 태양을 보세요.", "sentSw": "look, at, the", "img": ""}, {"id": 16, "word": "face", "meaning": "얼굴", "phonics": "매직 e (a_e)", "catCode": 0, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 16, "sentEn": "Wash your clean {{face}} well.", "sentKo": "얼굴을 깨끗이 잘 씻으세요.", "sentSw": "your, well", "img": "face"}, {"id": 17, "word": "foot", "meaning": "발", "phonics": "이중모음 oo 단음 (/ʊ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 17, "sentEn": "Put on your left {{foot}}.", "sentKo": "왼쪽 발에 신어 보세요.", "sentSw": "put, on, your", "img": "foot"}, {"id": 18, "word": "hand", "meaning": "손", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "02 · 우리 몸과 건강", "day": "DAY 006", "seq": 18, "sentEn": "Hold my warm {{hand}} now.", "sentKo": "지금 내 따뜻한 손을 잡아요.", "sentSw": "my, now", "img": "hand"}, {"id": 19, "word": "cat", "meaning": "고양이", "phonics": "단모음 a (/æ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 19, "sentEn": "I see a cute {{cat}}.", "sentKo": "나는 귀여운 고양이를 봐요.", "sentSw": "I, see, a", "img": "cat"}, {"id": 20, "word": "dog", "meaning": "개", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 20, "sentEn": "I see a happy {{dog}}.", "sentKo": "나는 행복한 강아지를 봐요.", "sentSw": "I, see, a", "img": "dog"}, {"id": 21, "word": "pig", "meaning": "돼지", "phonics": "단모음 i (/ɪ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 007", "seq": 21, "sentEn": "I see a pink {{pig}}.", "sentKo": "나는 분홍색 돼지를 봐요.", "sentSw": "I, see, a", "img": "pig"}, {"id": 22, "word": "bee", "meaning": "벌", "phonics": "이중모음 ee (/iː/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 22, "sentEn": "Look at the busy {{bee}}.", "sentKo": "바쁜 벌을 보세요.", "sentSw": "look, at, the", "img": "bee"}, {"id": 23, "word": "cow", "meaning": "암소", "phonics": "이중모음 ow (/aʊ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 23, "sentEn": "The {{cow}} gives us milk.", "sentKo": "암소는 우리에게 우유를 줘요.", "sentSw": "the, us", "img": "cow"}, {"id": 24, "word": "fox", "meaning": "여우", "phonics": "단모음 o (/ɒ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 008", "seq": 24, "sentEn": "The red {{fox}} can run.", "sentKo": "빨간 여우는 달릴 수 있어요.", "sentSw": "the, can", "img": "fox"}, {"id": 25, "word": "bird", "meaning": "새", "phonics": "R통제 ir (/ɜːr/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 25, "sentEn": "The blue {{bird}} can fly.", "sentKo": "파란 새는 날 수 있어요.", "sentSw": "the, can", "img": "bird"}, {"id": 26, "word": "duck", "meaning": "오리", "phonics": "이중자음 ck (/k/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 26, "sentEn": "The yellow {{duck}} can swim.", "sentKo": "노란 오리는 수영할 수 있어요.", "sentSw": "the, can", "img": "duck"}, {"id": 27, "word": "fish", "meaning": "물고기", "phonics": "이중자음 sh (/ʃ/)", "catCode": 1, "topic": "03 · 동물 친구들", "day": "DAY 009", "seq": 27, "sentEn": "I see a little {{fish}}.", "sentKo": "나는 작은 물고기를 봐요.", "sentSw": "I, see, a", "img": "fish"}, {"id": 28, "word": "it", "meaning": "그것", "phonics": "단모음 i (/ɪ/)", "catCode": 0, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 28, "sentEn": "{{it}} is a red ball.", "sentKo": "그것은 빨간 공이에요.", "sentSw": "it, is, a", "img": ""}, {"id": 29, "word": "this", "meaning": "이것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 29, "sentEn": "{{this}} is my blue book.", "sentKo": "이것은 내 파란 책이에요.", "sentSw": "this, is, my", "img": ""}, {"id": 30, "word": "that", "meaning": "저것", "phonics": "이중자음 th (/ð/)", "catCode": 1, "topic": "⭐ 사이트워드 ② · 필수 기능어·위치", "day": "DAY 010", "seq": 30, "sentEn": "{{that}} is a tall tree.", "sentKo": "저것은 큰 나무예요.", "sentSw": "that, is, a", "img": ""}];
 const GAS_SCRIPT_TEXT = "// 단어장 통합 시트 (단어장_초등800_알파블럭스_DAY확장) 양방향 동기화 Apps Script (v6)\n// doGet: 아빠/엄마 폰 실시간 진도 불러오기 (캐시 지연 0초)\n// doPost: 암기 체크 결과 Q~X열 자동 저장 & 일괄 동기화\n\nfunction findWordSheet_(ss) {\n  var sheets = ss.getSheets();\n  for (var s = 0; s < sheets.length; s++) {\n    var h1 = String(sheets[s].getRange(1, 1).getValue() || \"\").trim();\n    var h2 = String(sheets[s].getRange(1, 2).getValue() || \"\").trim();\n    if (h1 === \"번호\" && h2 === \"단어\") return sheets[s];\n  }\n  return sheets[0];\n}\n\nfunction findProgressCols_(sheet, autoCreate) {\n  var maxCol = Math.max(sheet.getLastColumn(), 24);\n  var headerRow = sheet.getRange(1, 1, 1, maxCol).getValues()[0];\n  var firstCol = -1, secondCol = -1;\n  for (var c = 0; c < headerRow.length; c++) {\n    var title = String(headerRow[c] || \"\").trim();\n    if (title === \"첫째_상태\") firstCol = c + 1;\n    if (title === \"둘째_상태\") secondCol = c + 1;\n  }\n  if ((firstCol === -1 || secondCol === -1) && autoCreate) {\n    firstCol = 17; // Q열\n    secondCol = 21; // U열\n    sheet.getRange(1, 17, 1, 8).setValues([[\n      \"첫째_상태\", \"첫째_헷갈림누적\", \"첫째_모름누적\", \"첫째_최근일\",\n      \"둘째_상태\", \"둘째_헷갈림누적\", \"둘째_모름누적\", \"둘째_최근일\"\n    ]]);\n  }\n  return { firstCol: firstCol, secondCol: secondCol };\n}\n\nfunction doGet(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = findWordSheet_(ss);\n    var cols = findProgressCols_(sheet, false);\n    var lastRow = sheet.getLastRow();\n    var out = { first: {}, second: {} };\n\n    if (lastRow >= 2 && cols.firstCol > 0 && cols.secondCol > 0) {\n      var words = sheet.getRange(2, 2, lastRow - 1, 1).getValues();\n      var firstVals = sheet.getRange(2, cols.firstCol, lastRow - 1, 4).getValues();\n      var secondVals = sheet.getRange(2, cols.secondCol, lastRow - 1, 4).getValues();\n\n      for (var r = 0; r < words.length; r++) {\n        var w = String(words[r][0] || \"\").trim().toLowerCase();\n        if (!w) continue;\n\n        var fs = String(firstVals[r][0] || \"\").trim();\n        if (fs) {\n          var fd = firstVals[r][3];\n          var fdStr = (fd instanceof Date) ? Utilities.formatDate(fd, \"Asia/Seoul\", \"yyyy-MM-dd\") : String(fd || \"\").trim();\n          out.first[w] = {\n            status: fs,\n            confused: Number(firstVals[r][1]) || 0,\n            unknown: Number(firstVals[r][2]) || 0,\n            date: fdStr\n          };\n        }\n\n        var ss2 = String(secondVals[r][0] || \"\").trim();\n        if (ss2) {\n          var sd = secondVals[r][3];\n          var sdStr = (sd instanceof Date) ? Utilities.formatDate(sd, \"Asia/Seoul\", \"yyyy-MM-dd\") : String(sd || \"\").trim();\n          out.second[w] = {\n            status: ss2,\n            confused: Number(secondVals[r][1]) || 0,\n            unknown: Number(secondVals[r][2]) || 0,\n            date: sdStr\n          };\n        }\n      }\n    }\n\n    return ContentService.createTextOutput(JSON.stringify({\n      status: \"success\",\n      sheet: sheet.getName(),\n      syncedAt: Utilities.formatDate(new Date(), \"Asia/Seoul\", \"yyyy-MM-dd HH:mm:ss\"),\n      firstCount: Object.keys(out.first).length,\n      secondCount: Object.keys(out.second).length,\n      records: out\n    })).setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: \"error\", message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n}\n\nfunction doPost(e) {\n  try {\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n    var sheet = findWordSheet_(ss);\n    var cols = findProgressCols_(sheet, true);\n\n    var data = JSON.parse(e.postData.contents);\n    var childKey = data.childKey || \"first\";\n    var results = data.results || [];\n    var startCol = (childKey === \"second\") ? cols.secondCol : cols.firstCol;\n\n    var lastRow = sheet.getLastRow();\n    if (lastRow < 2) {\n      return ContentService.createTextOutput(JSON.stringify({ status: \"empty\" }))\n        .setMimeType(ContentService.MimeType.JSON);\n    }\n\n    var wordVals = sheet.getRange(2, 2, lastRow - 1, 1).getValues();\n    var wordRowIdx = {};\n    for (var r = 0; r < wordVals.length; r++) {\n      var w = String(wordVals[r][0] || \"\").trim().toLowerCase();\n      if (w) wordRowIdx[w] = r;\n    }\n\n    var progRange = sheet.getRange(2, startCol, lastRow - 1, 4);\n    var progVals = progRange.getValues();\n    var updated = 0;\n    var todayStr = Utilities.formatDate(new Date(), \"Asia/Seoul\", \"yyyy-MM-dd\");\n\n    for (var i = 0; i < results.length; i++) {\n      var item = results[i];\n      var key = String(item.word || \"\").trim().toLowerCase();\n      if (!(key in wordRowIdx)) continue;\n      var idx = wordRowIdx[key];\n\n      var prevConfused = Number(progVals[idx][1]) || 0;\n      var prevUnknown = Number(progVals[idx][2]) || 0;\n\n      var newStatus = item.finalStatus || \"\";\n      var newConfused = (item.setConfused !== undefined) ? Number(item.setConfused) : (prevConfused + (Number(item.addConfused) || 0));\n      var newUnknown = (item.setUnknown !== undefined) ? Number(item.setUnknown) : (prevUnknown + (Number(item.addUnknown) || 0));\n      var dateStr = item.date || todayStr;\n\n      progVals[idx][0] = newStatus;\n      progVals[idx][1] = newConfused;\n      progVals[idx][2] = newUnknown;\n      progVals[idx][3] = dateStr;\n      updated++;\n    }\n\n    if (updated > 0) {\n      progRange.setValues(progVals);\n    }\n\n    return ContentService.createTextOutput(JSON.stringify({\n      status: \"success\",\n      updated: updated,\n      sheet: sheet.getName()\n    })).setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: \"error\", message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n}\n";
@@ -4071,7 +4977,8 @@ function openParentalGate() {
       if (n === gateAns) {
         playTone(640, 0.08);
         $('gateModal').classList.remove('open');
-        openSettingsModal();
+        if (window.HubApp) window.HubApp.openUnifiedSettings();
+        else openSettingsModal();
       } else {
         playGentleBoing();
         $('gateError').textContent = '어른과 함께 다시 풀어 주세요.';
@@ -4135,8 +5042,7 @@ $('dayTitlePill').addEventListener('click', () => { playTone(520, 0.06); openSta
 $('closeStageModalBtn').addEventListener('click', () => $('stageModal').classList.remove('open'));
 $('stageModal').addEventListener('click', e => { if (e.target === $('stageModal')) $('stageModal').classList.remove('open'); });
 
-$('topSyncBtn').addEventListener('click', () => { playTone(560, 0.06); syncFromSheetLive(true); });
-$('openSettingsBtn').addEventListener('click', () => { playTone(500, 0.06); openParentalGate(); });
+// topSyncBtn & openSettingsBtn handled by HubApp
 $('closeGateBtn').addEventListener('click', () => $('gateModal').classList.remove('open'));
 $('gateModal').addEventListener('click', e => { if (e.target === $('gateModal')) $('gateModal').classList.remove('open'); });
 $('closeSettingsBtn').addEventListener('click', () => $('settingsModal').classList.remove('open'));
@@ -4398,7 +5304,7 @@ $('resetStageBtn').addEventListener('click', () => {
   $('settingsInfoMsg').textContent = `✓ ${name}의 "${label}" 기록을 초기화했어요.`;
 });
 
-$('saveSettingsBtn').addEventListener('click', async () => {
+async function saveWordSettingsFromModal() {
   const prevCsv = cfg.csvUrl;
   const prevWebhook = cfg.webhookUrl;
   const prevMode = cfg.mode;
@@ -4424,12 +5330,37 @@ $('saveSettingsBtn').addEventListener('click', async () => {
     rebuildIndexes();
   }
   saveCfg();
-  playTone(620, 0.08);
-  $('settingsModal').classList.remove('open');
   renderMainScreen();
 
   if (cfg.webhookUrl && cfg.webhookUrl !== prevWebhook) {
     syncFromSheetLive(true);
+  }
+}
+
+$('openWorksheetPrinterBtn').addEventListener('click', () => {
+  playTone(600, 0.08);
+  // 인쇄기(worksheet.html)가 최신 시트 주소·아이 선택을 즉시 이어받도록 먼저 저장
+  cfg.childKey = draft.childKey || cfg.childKey;
+  cfg.firstName = ($('firstNameInput').value || '').trim() || cfg.firstName || '첫째 민준';
+  cfg.secondName = ($('secondNameInput').value || '').trim() || cfg.secondName || '둘째 서아';
+  cfg.csvUrl = $('csvUrlInput').value.trim();
+  cfg.webhookUrl = $('webhookUrlInput').value.trim();
+  cfg.stickerBase = $('stickerBaseInput').value.trim() || 'stickers/';
+  saveCfg();
+
+  const win = window.open('worksheet.html', '_blank');
+  if (!win) {
+    window.location.href = 'worksheet.html';
+  }
+});
+
+// 다른 탭(worksheet.html)에서 [📌 웹앱에 5일치 고정] 등을 눌렀을 때 자동 반영
+window.addEventListener('storage', e => {
+  if (e.key === STORE_CFG || e.key === STORE_REC) {
+    if (currentView === 'p1' || currentView === 'handoff' || currentView === 'quiz' || currentView === 'spell') return;
+    loadStorage();
+    rebuildIndexes();
+    renderMainScreen();
   }
 });
 
@@ -4450,8 +5381,1923 @@ async function init() {
     syncFromSheetLive(false);
   }
 }
-init();
+
+// Built-in extra storybook mini-glossary for Simple TTS fallback mode
+const STORY_MINI_GLOSSARY = {
+  i: '나, 나는', me: '나를', my: '나의', myself: '나 자신', you: '너, 너는', your: '너의',
+  he: '그', she: '그녀', we: '우리', they: '그들', it: '그것',
+  a: '하나의', an: '하나의', the: '그', this: '이것', that: '저것',
+  is: '~이다', am: '~이다', are: '~이다', was: '~였다', were: '~였다',
+  can: '~할 수 있다', will: '~할 것이다', do: '하다', have: '가지고 있다', has: '가지고 있다',
+  like: '좋아하다', love: '사랑하다', see: '보다', look: '보다', go: '가다', come: '오다',
+  play: '놀다', run: '달리다', jump: '뛰다', eat: '먹다', drink: '마시다', sleep: '자다',
+  draw: '그리다', make: '만들다', read: '읽다', write: '쓰다', sing: '노래하다', dance: '춤추다',
+  seal: '바다표범', clown: '광대', king: '왕', queen: '여왕', crown: '왕관',
+  sheep: '양', bed: '침대', cat: '고양이', dog: '개', pig: '돼지', cow: '암소',
+  fox: '여우', bear: '곰', frog: '개구리', duck: '오리', bird: '새', fish: '물고기',
+  bee: '벌', bug: '벌레', hat: '모자', cap: '모자', sun: '태양', moon: '달', star: '별',
+  big: '큰', small: '작은', little: '작은', happy: '행복한', sad: '슬픈', red: '빨간',
+  blue: '파란', green: '초록', yellow: '노란', pink: '분홍', good: '좋은', fun: '재미있는',
+  to: '~로, ~하기 위해', in: '~안에', on: '~위에', at: '~에', with: '~와 함께', and: '그리고',
+  here: '여기에', there: '저기에', yes: '네', no: '아니요', hello: '안녕', hi: '안녕'
+};
+
+let koVoice = null;
+function loadKoVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const list = speechSynthesis.getVoices();
+  koVoice = list.find(v => /ko-KR/i.test(v.lang) && /Google|Yuna|Sora|Natural/i.test(v.name))
+         || list.find(v => /^ko/i.test(v.lang))
+         || null;
+}
+if ('speechSynthesis' in window) {
+  loadKoVoice();
+  const prevOnVoices = speechSynthesis.onvoiceschanged;
+  speechSynthesis.onvoiceschanged = () => {
+    if (prevOnVoices) prevOnVoices();
+    loadVoices();
+    loadKoVoice();
+  };
+}
+
+function speakKo(text, onEnd) {
+  if (!text || !('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text).trim());
+    u.lang = 'ko-KR';
+    if (koVoice) u.voice = koVoice;
+    u.rate = 0.96;
+    u.pitch = 1.04;
+    if (onEnd) { u.onend = onEnd; u.onerror = onEnd; }
+    speechSynthesis.speak(u);
+  } catch (e) { if (onEnd) onEnd(); }
+}
+
+function lookupWordMeaning(rawWord) {
+  const clean = String(rawWord || '').replace(/^[^a-zA-Z']+|[^a-zA-Z']+$/g, '').toLowerCase();
+  if (!clean) return '';
+  const exact = allWords.find(w => w.word.toLowerCase() === clean || w.word.toLowerCase().replace(/\([^)]*\)/g, '').trim() === clean);
+  if (exact && exact.meaning) return exact.meaning;
+  // Simple plural / -s / -ing / -ed stem check
+  const stems = [
+    clean.replace(/ies$/, 'y'),
+    clean.replace(/es$/, ''),
+    clean.replace(/s$/, ''),
+    clean.replace(/ing$/, ''),
+    clean.replace(/ed$/, '')
+  ];
+  for (const st of stems) {
+    if (st.length < 2) continue;
+    const hit = allWords.find(w => w.word.toLowerCase() === st);
+    if (hit && hit.meaning) return hit.meaning;
+  }
+  if (STORY_MINI_GLOSSARY[clean]) return STORY_MINI_GLOSSARY[clean];
+  for (const st of stems) {
+    if (STORY_MINI_GLOSSARY[st]) return STORY_MINI_GLOSSARY[st];
+  }
+  return '';
+}
+
+function getCleanChildShortName() {
+  const full = getActiveChildName();
+  const stripped = full.replace(/^(첫째|둘째|막내)\s*/, '').trim();
+  return stripped || full;
+}
+
+function fillWordSettingsForm() {
+  draft = { ...cfg };
+  $('firstNameInput').value = draft.firstName;
+  $('secondNameInput').value = draft.secondName;
+  $('csvUrlInput').value = draft.csvUrl;
+  $('webhookUrlInput').value = draft.webhookUrl;
+  $('stickerBaseInput').value = draft.stickerBase || 'stickers/';
+  $('settingsInfoMsg').textContent = '';
+  const localCnt = Object.keys(localStickerBlobs).length;
+  $('stickerInfoMsg').textContent = localCnt > 0
+    ? `✓ 내 폰 로컬 캐시에 ${localCnt}개 스티커가 저장되어 있어요 (GitHub 기본 경로: ${draft.stickerBase})`
+    : `기본값: GitHub 저장소의 stickers/ 폴더 (예: stickers/cat.webp)`;
+  paintSettingsUI();
+}
+
+return {
+  init,
+  playTone,
+  speakEn,
+  speakKo,
+  stopAllAudio: stopSeqPlay,
+  lookupWordMeaning,
+  getActiveChildName,
+  getCleanChildShortName,
+  getRate: () => Number(cfg.rate) || 0.8,
+  showGlobalToast,
+  syncFromSheetLive,
+  openParentalGate,
+  fillWordSettingsForm,
+  saveWordSettingsFromModal,
+  getCfg: () => cfg
+};
+
+})();
+
+
+// ==================== 3D Bear Character Controller (Three.js Hybrid) ====================
+const Bear3D = (() => {
+  let state = { talking: false, listening: false, happy: false, micRms: 0, tapPop: 0 };
+  let ready = false;
+  let renderer, scene, camera, root, headGroup, mouthMesh, leftEar, rightEar;
+  let normalEyesGroup, happyEyesGroup, confettiGroup, stars = [];
+  let nextBlinkAt = 2.8;
+  let wrapEl = null;
+
+  function resize() {
+    if (!ready || !renderer || !wrapEl) return;
+    const rect = wrapEl.getBoundingClientRect();
+    if (rect.width < 10 || rect.height < 10) return;
+    const size = Math.max(80, Math.round(Math.min(rect.width, rect.height)));
+    renderer.setSize(size, size, false);
+    camera.aspect = 1;
+    camera.updateProjectionMatrix();
+  }
+
+  function init() {
+    wrapEl = document.getElementById('st_teacherWrap');
+    const canvas = document.getElementById('st_bear3dCanvas');
+    if (typeof THREE === 'undefined' || !canvas || !wrapEl) {
+      if (wrapEl) wrapEl.classList.add('fallback-mode');
+      return;
+    }
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.08;
+    } catch (e) {
+      wrapEl.classList.add('fallback-mode');
+      return;
+    }
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(34, 1, 0.1, 30);
+    camera.position.set(0, 0.25, 5.2);
+    camera.lookAt(0, 0.12, 0);
+
+    const hemi = new THREE.HemisphereLight(0xfffdf2, 0x8bc98a, 1.15);
+    scene.add(hemi);
+    const key = new THREE.DirectionalLight(0xfff5dc, 1.35);
+    key.position.set(2.6, 4.2, 4.0);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xbbeeff, 0.65);
+    rim.position.set(-3.0, 2.0, -2.5);
+    scene.add(rim);
+
+    const furMat = new THREE.MeshStandardMaterial({ color: 0xc47e3e, roughness: 0.62, metalness: 0.02 });
+    const darkFurMat = new THREE.MeshStandardMaterial({ color: 0xa56228, roughness: 0.66, metalness: 0.02 });
+    const muzzleMat = new THREE.MeshStandardMaterial({ color: 0xf7dcb2, roughness: 0.58, metalness: 0.01 });
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x221b18, roughness: 0.14, metalness: 0.1 });
+    const specMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const cheekMat = new THREE.MeshStandardMaterial({ color: 0xff8ea3, roughness: 0.55, transparent: true, opacity: 0.85 });
+    const noseMat = new THREE.MeshStandardMaterial({ color: 0x2d1e17, roughness: 0.25 });
+    const mouthMat = new THREE.MeshStandardMaterial({ color: 0xd94b54, roughness: 0.4 });
+    const hatMat = new THREE.MeshStandardMaterial({ color: 0x2ba85c, roughness: 0.48, metalness: 0.04 });
+    const hatRimMat = new THREE.MeshStandardMaterial({ color: 0x1e8346, roughness: 0.52 });
+    const pomMat = new THREE.MeshStandardMaterial({ color: 0xffd54f, roughness: 0.35, metalness: 0.08 });
+    const scarfMat = new THREE.MeshStandardMaterial({ color: 0xff6d94, roughness: 0.5 });
+
+    root = new THREE.Group();
+    scene.add(root);
+
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.86, 28, 22), furMat);
+    body.scale.set(1.04, 0.78, 0.88);
+    body.position.set(0, -1.02, -0.06);
+    root.add(body);
+
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.56, 24, 18), muzzleMat);
+    belly.scale.set(0.95, 0.75, 0.5);
+    belly.position.set(0, -1.04, 0.44);
+    root.add(belly);
+
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.14, 16, 32), scarfMat);
+    scarf.rotation.x = Math.PI * 0.48;
+    scarf.position.set(0, -0.58, 0.02);
+    root.add(scarf);
+
+    headGroup = new THREE.Group();
+    headGroup.position.set(0, 0.18, 0);
+    root.add(headGroup);
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.98, 36, 30), furMat);
+    head.scale.set(1.06, 0.98, 0.96);
+    headGroup.add(head);
+
+    function makeEar(side) {
+      const g = new THREE.Group();
+      const outer = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 20), darkFurMat);
+      outer.scale.set(1, 1, 0.62);
+      g.add(outer);
+      const inner = new THREE.Mesh(new THREE.SphereGeometry(0.18, 18, 16), muzzleMat);
+      inner.scale.set(1, 1, 0.45);
+      inner.position.set(0, 0, 0.14);
+      g.add(inner);
+      g.position.set(side * 0.76, 0.74, -0.04);
+      return g;
+    }
+    leftEar = makeEar(-1);
+    rightEar = makeEar(1);
+    headGroup.add(leftEar, rightEar);
+
+    const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.46, 28, 22), muzzleMat);
+    muzzle.scale.set(1.16, 0.86, 0.76);
+    muzzle.position.set(0, -0.22, 0.76);
+    headGroup.add(muzzle);
+
+    const nose = new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 16), noseMat);
+    nose.scale.set(1.25, 0.82, 0.75);
+    nose.position.set(0, -0.05, 1.12);
+    headGroup.add(nose);
+
+    normalEyesGroup = new THREE.Group();
+    [-1, 1].forEach(side => {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.125, 20, 16), eyeMat);
+      eye.position.set(side * 0.37, 0.16, 0.87);
+      normalEyesGroup.add(eye);
+      const glint = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 10), specMat);
+      glint.position.set(side * 0.37 - 0.035, 0.20, 0.97);
+      normalEyesGroup.add(glint);
+    });
+    headGroup.add(normalEyesGroup);
+
+    happyEyesGroup = new THREE.Group();
+    [-1, 1].forEach(side => {
+      const arc = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 12, 20, Math.PI), eyeMat);
+      arc.position.set(side * 0.37, 0.12, 0.92);
+      happyEyesGroup.add(arc);
+    });
+    happyEyesGroup.visible = false;
+    headGroup.add(happyEyesGroup);
+
+    [-1, 1].forEach(side => {
+      const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.15, 18, 14), cheekMat);
+      cheek.scale.set(1.25, 0.78, 0.45);
+      cheek.position.set(side * 0.56, -0.10, 0.80);
+      headGroup.add(cheek);
+    });
+
+    mouthMesh = new THREE.Mesh(new THREE.SphereGeometry(0.15, 18, 14), mouthMat);
+    mouthMesh.scale.set(1.15, 0.22, 0.55);
+    mouthMesh.position.set(0, -0.34, 1.03);
+    headGroup.add(mouthMesh);
+
+    const hatGroup = new THREE.Group();
+    hatGroup.position.set(0, 0.84, 0.02);
+    hatGroup.rotation.x = -0.08;
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.62, 0.76, 28), hatMat);
+    cone.position.y = 0.34;
+    hatGroup.add(cone);
+    const brim = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.095, 14, 32), hatRimMat);
+    brim.rotation.x = Math.PI / 2;
+    hatGroup.add(brim);
+    const pom = new THREE.Mesh(new THREE.SphereGeometry(0.13, 18, 14), pomMat);
+    pom.position.y = 0.74;
+    hatGroup.add(pom);
+    headGroup.add(hatGroup);
+
+    confettiGroup = new THREE.Group();
+    const starColors = [0xffd54f, 0xff6d94, 0x35d678, 0x64b5f6];
+    for (let i = 0; i < 8; i++) {
+      const s = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.11, 0),
+        new THREE.MeshStandardMaterial({ color: starColors[i % starColors.length], roughness: 0.3, metalness: 0.15 })
+      );
+      const angle = (i / 8) * Math.PI * 2;
+      s.userData = { angle, radius: 1.38 + (i % 2) * 0.18, yOff: (i % 3) * 0.25 - 0.1 };
+      confettiGroup.add(s);
+      stars.push(s);
+    }
+    confettiGroup.visible = false;
+    scene.add(confettiGroup);
+
+    window.addEventListener('resize', resize);
+    wrapEl.addEventListener('click', () => { state.tapPop = 1.0; });
+
+    ready = true;
+    resize();
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!document.body.classList.contains('mode-story')) return;
+      const dt = Math.min(0.05, clock.getDelta());
+      const t = clock.elapsedTime;
+
+      if (state.tapPop > 0) state.tapPop = Math.max(0, state.tapPop - dt * 3.4);
+      const popLift = Math.sin(state.tapPop * Math.PI) * 0.26;
+
+      if (state.happy) {
+        normalEyesGroup.visible = false;
+        happyEyesGroup.visible = true;
+      } else {
+        normalEyesGroup.visible = true;
+        happyEyesGroup.visible = false;
+        if (t > nextBlinkAt) {
+          const blinkPhase = (t - nextBlinkAt) / 0.14;
+          if (blinkPhase < 1) {
+            normalEyesGroup.scale.y = Math.max(0.08, 1 - Math.sin(blinkPhase * Math.PI));
+          } else {
+            normalEyesGroup.scale.y = 1;
+            nextBlinkAt = t + 2.6 + Math.random() * 2.8;
+          }
+        }
+      }
+
+      let targetY = Math.sin(t * 2.2) * 0.045 + popLift;
+      let targetRotY = Math.sin(t * 1.05) * 0.12 + Math.sin(state.tapPop * Math.PI * 2) * 0.22;
+      let targetRotX = 0.03;
+      let targetRotZ = Math.sin(t * 0.9) * 0.035;
+      let mouthOpen = 0.22;
+      let earPerk = 0;
+
+      if (state.happy) {
+        targetY = Math.abs(Math.sin(t * 5.8)) * 0.28;
+        targetRotY = Math.sin(t * 3.4) * 0.35;
+        targetRotZ = Math.sin(t * 5.8) * 0.09;
+        mouthOpen = 0.72 + Math.sin(t * 10) * 0.12;
+        confettiGroup.visible = true;
+        stars.forEach((s, idx) => {
+          const a = s.userData.angle + t * 1.8;
+          s.position.set(
+            Math.cos(a) * s.userData.radius,
+            0.35 + s.userData.yOff + Math.sin(t * 4 + idx) * 0.16,
+            Math.sin(a) * 0.65
+          );
+          s.rotation.x = t * 2.5 + idx;
+          s.rotation.y = t * 3.1;
+        });
+      } else {
+        confettiGroup.visible = false;
+        if (state.talking) {
+          targetY += Math.abs(Math.sin(t * 7.5)) * 0.11;
+          targetRotY = Math.sin(t * 3.6) * 0.16;
+          targetRotX = Math.sin(t * 6.5) * 0.06;
+          mouthOpen = 0.42 + Math.abs(Math.sin(t * 14.0)) * 0.65;
+        } else if (state.listening) {
+          const voiceBoost = Math.min(1, state.micRms * 12);
+          targetRotX = 0.12 - voiceBoost * 0.06;
+          targetRotZ = 0.11 + Math.sin(t * 2.4) * 0.04;
+          targetRotY = Math.sin(t * 1.5) * 0.08;
+          earPerk = 0.16 + voiceBoost * 0.18;
+          mouthOpen = 0.28 + voiceBoost * 0.22;
+        }
+      }
+
+      root.position.y += (targetY - root.position.y) * 0.22;
+      headGroup.rotation.y += (targetRotY - headGroup.rotation.y) * 0.16;
+      headGroup.rotation.x += (targetRotX - headGroup.rotation.x) * 0.16;
+      headGroup.rotation.z += (targetRotZ - headGroup.rotation.z) * 0.16;
+      mouthMesh.scale.y += (mouthOpen - mouthMesh.scale.y) * 0.35;
+      leftEar.rotation.z += (earPerk - leftEar.rotation.z) * 0.2;
+      rightEar.rotation.z += (-earPerk - rightEar.rotation.z) * 0.2;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+
+  return {
+    init,
+    resize,
+    setState(patch) { Object.assign(state, patch); },
+    isReady() { return ready; }
+  };
+})();
+
+// ==================== Story Reader App (Gemini Live AI + Simple Device TTS Hybrid) ====================
+window.StoryApp = (() => {
+  const MODEL = 'gemini-3.8-live';
+  const STORE_KEY = 'tent_reader_live_v3';
+  const MAX_TURNS_BEFORE_REFRESH = 18;
+  const VOICES = {
+    female: { label: '여자 선생님', voice: 'Aoede', desc: '친절하고 상냥한 젊은 여자 영어 선생님 (목소리: Aoede, 차분하고 맑은 여성 톤 고정)' },
+    male:   { label: '남자 선생님', voice: 'Puck',  desc: '친절하고 부드러운 젊은 남자 영어 선생님 (목소리: Puck, 차분하고 따뜻한 남성 톤 고정)' }
+  };
+  const SPEEDS = [
+    { label: '아주 천천히', text: '아주 천천히, 한 단어씩 또박또박 끊어서 (약 0.7배속)', ttsRate: 0.58 },
+    { label: '천천히',     text: '천천히, 단어 사이를 살짝 쉬면서 (약 0.85배속)', ttsRate: 0.72 },
+    { label: '보통',       text: '아이가 듣기 편한 일정한 보통 빠르기로 (1.0배속)', ttsRate: 0.88 },
+    { label: '조금 빠르게', text: '조금 빠르지만 또렷하고 일정한 빠르기로 (1.15배속)', ttsRate: 1.0 }
+  ];
+  const INTROS = [
+    t => `오늘 같이 읽어볼 책은 "${t}"이라는 책이야. 선생님이 먼저 읽어 줄 테니까 잘 들어주렴.`,
+    t => `오늘은 "${t}" 책을 함께 읽어 볼 거야. 선생님 목소리를 잘 들어 주렴!`,
+    t => `오늘 읽을 책은 "${t}"이야. 선생님이 한 문장씩 읽어 줄게, 귀 기울여 들어 봐.`,
+    t => `"${t}" 책 같이 읽어 볼까? 선생님이 먼저 읽어 줄 테니 잘 들어주렴.`
+  ];
+  const SAMPLE_BOOK = {
+    series: 'First Little Readers',
+    level: 'levelA',
+    title: 'I Can Draw!',
+    sentences: [
+      'I can draw a seal.', 'I can draw a clown.', 'I can draw a king.', 'I can draw a crown.',
+      'I can draw a sheep.', 'I can draw a bed.', 'I can draw myself to sleep.'
+    ]
+  };
+  const DEFAULTS = {
+    apiKey: '', sheetUrl: '', bookTitle: '',
+    voice: 'female', speed: 2, micMode: 'always', wordKoMode: 'tap', childName: ''
+  };
+
+  let cfg = { ...DEFAULTS };
+  let books = [];
+  let book = null;
+  let index = -1;
+  let finished = false;
+  let autoReadMode = false;
+  let autoReadTimer = null;
+  let pendingAutoNext = false;
+  let selectedWord = '';
+  let selectedWordMeaning = '';
+  let wordMode = false;
+  let suppressCaption = false;
+  let phase = 'splash'; // 'splash' | 'loading' | 'ready'
+  let engineMode = 'none'; // 'none' | 'live' | 'simple'
+  let simpleSpeaking = false;
+
+  let ws = null, connected = false, setupDone = false, introPending = false, introTimer = null;
+  let silentReconnect = false, turnCountInSession = 0, reconnectAttempts = 0;
+  let wakeLock = null;
+
+  let outCtx = null, inCtx = null, micStream = null, micNode = null;
+  let micOn = false, pushing = false, voiceActiveUntil = 0;
+  let playAt = 0, sources = [], firstAudioStarted = false;
+  let teacherText = '', newTurn = false;
+  let selVoice = 'female', selSpeed = 2, selMic = 'always', selWordKo = 'tap';
+
+  let reqSeq = 0;
+  let pendingTurns = 0;
+  let turnInFlight = false;
+  let captionTimer = null;
+  let currentTurnChunks = [];
+  let activeCacheKey = '';
+  const audioCache = new Map();
+
+  const $ = id => document.getElementById(id);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function getGreetingChildName() {
+    const custom = (cfg.childName || '').trim();
+    if (custom) return custom;
+    return window.WordApp ? window.WordApp.getCleanChildShortName() : '';
+  }
+
+  function flagKR() {
+    return `<svg width="36" height="24" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff" stroke="#ccc"/><circle cx="30" cy="20" r="9" fill="#cd2e3a"/><path d="M30 11a9 9 0 0 1 0 18a4.5 4.5 0 0 1 0-9a4.5 4.5 0 0 0 0-9z" fill="#0047a0"/><path d="M6 7h9M6 10h9M6 13h9M45 7h9M45 10h9M45 13h9M6 27h9M6 30h9M6 33h9M45 27h9M45 30h9M45 33h9" stroke="#000" stroke-width="1.6"/></svg>`;
+  }
+  function flagUS() {
+    let s = '<svg width="36" height="24" viewBox="0 0 60 40"><rect width="60" height="40" rx="4" fill="#fff"/>';
+    for (let i = 0; i < 13; i += 2) s += `<rect y="${i * 40 / 13}" width="60" height="${40 / 13}" fill="#d22b3a"/>`;
+    s += '<rect width="26" height="21.5" fill="#3c3b6e"/>';
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) s += `<circle cx="${3.5 + c * 5}" cy="${3 + r * 5}" r="1" fill="#fff"/>`;
+    return s + '</svg>';
+  }
+  function speakerIconSvg() {
+    return `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+  }
+
+  function pickTimeGreeting(namePrefix) {
+    const h = new Date().getHours();
+    const pool = [
+      `${namePrefix}안녕! 숲속 텐트에 온 걸 환영해!`,
+      `${namePrefix}어서 와! 선생님이 오늘도 기다리고 있었어.`,
+      `${namePrefix}반가워! 다시 만나서 정말 기뻐.`,
+      `${namePrefix}안녕안녕! 오늘도 재미있는 책 읽을 준비 됐니?`,
+      `${namePrefix}와, 왔구나! 오늘 기분은 어때?`
+    ];
+    if (h >= 5 && h < 12) pool.push(`${namePrefix}좋은 아침이야! 숲속 텐트에 와 줘서 고마워.`);
+    else if (h >= 12 && h < 18) pool.push(`${namePrefix}즐거운 오후야! 오늘도 신나게 읽어 보자.`);
+    else pool.push(`${namePrefix}오늘 하루도 잘 보냈니? 잠들기 전에 재미있는 책 읽어 볼까?`);
+    return pick(pool);
+  }
+
+  function buildSystemPrompt() {
+    const speedDesc = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
+    const v = VOICES[cfg.voice] || VOICES.female;
+    const wordRule = cfg.wordKoMode === 'auto'
+      ? `  1) 음성으로는 해당 영어 단어를 "${speedDesc}" 속도로 또박또박 한 번 읽은 뒤, 짧은 숨을 쉬고 한국어 뜻(1~3단어)만 부드럽게 덧붙이고 바로 멈춘다.`
+      : `  1) 음성으로는 해당 영어 단어 하나만 "${speedDesc}" 속도로 또박또박 한 번 읽고 바로 멈춘다. (한국어는 말하지 않는다.)`;
+    return `너는 미취학 아이와 실물 영어 동화책을 함께 읽는 ${v.desc}이야.
+- [절대 목소리·속도 고정 규칙] 첫 인사부터 마지막 문장까지 반드시 위에서 정한 단 한 명의 ${v.label}(${v.voice}) 성별, 음높이, 말투를 절대 바꾸지 않는다. 한국어와 영어를 오갈 때나 단어 하나만 짧게 읽을 때도 절대 반대 성별이나 다른 화자 톤으로 바뀌지 않는다.
+- [일정한 속도 규칙] 모든 영어 문장과 영어 단어는 반드시 "${speedDesc}" 속도로 동일하게 읽는다. 단어 하나를 읽을 때 갑자기 빨라지거나 느려지지 않도록 문장 읽기와 동일한 템포를 유지한다.
+- [언어 제한] 한국어(Korean)와 영어(English)만 사용한다. 제3국 언어는 절대 출력하지 않는다.
+- "GREET:"으로 시작하면 뒤에 적힌 인사말만 자연스럽게 한 번 읽고 멈춘다.
+- "READ_SENTENCE:"로 시작하면 뒤에 적힌 영어 문장만 원문 그대로 "${speedDesc}" 속도로 한 번 읽고 바로 멈춘다. ("따라 해 봐" 등 질문 금지)
+- "READ_WORD:"로 시작하면:
+${wordRule}
+  2) 동시에 \`show_word_meaning\` 도구를 호출하여 문맥에 맞는 쉬운 한국어 뜻(1~3단어)만 전달한다.
+- "SPEAK_KO:"로 시작하면 뒤에 적힌 한국어 짧은 뜻만 따뜻하게 한 번 읽어주고 바로 멈춘다.
+- "MEANING:"으로 시작하면 해당 영어 문장의 뜻을 한국어로 한두 문장만 짧게 말하고 멈춘다.
+- "CELEBRATE:"로 시작하면 뒤에 적힌 완독 축하 인사를 따뜻하게 한 번 말하고 멈춘다.
+- 아이가 영어를 따라 읽으려고 시도하면(일부만 말하거나 발음이 서툴러도) 지적하지 말고 짧게 칭찬("정말 잘했어! Great job!") 한 마디만 하고 \`move_to_next_sentence\` 도구를 호출한다.
+- 아이가 책 내용이나 다른 질문을 할 때만 짧게 답하고 "그럼 우리 읽던 문장으로 돌아가 볼까?"라고 말한다.`;
+  }
+
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator && !wakeLock) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      }
+    } catch (e) {}
+  }
+  function releaseWakeLock() {
+    try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && (connected || engineMode === 'simple')) requestWakeLock();
+  });
+
+  function loadCfg() {
+    try { cfg = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(STORE_KEY) || '{}') }; }
+    catch (e) { cfg = { ...DEFAULTS }; }
+  }
+  function saveCfg() { try { localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); } catch (e) {} }
+
+  function parseCsv(text) {
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function buildBooks(rows) {
+    const map = new Map();
+    rows.forEach((r, i) => {
+      let series = '기본 시리즈', level = '전체', title = '', ord = NaN, en = '';
+      if (r.length >= 5 && !isNaN(parseInt(r[3], 10))) {
+        series = (r[0] || '').trim() || '기타';
+        level = (r[1] || '').trim() || '기본';
+        title = (r[2] || '').trim();
+        ord = parseInt(r[3], 10);
+        en = (r[4] || '').trim();
+      } else {
+        title = (r[0] || '').trim();
+        ord = parseInt(r[1], 10);
+        en = (r[2] || '').trim();
+      }
+      if (!title || !en || isNaN(ord)) return;
+      const key = `${series}||${level}||${title}`;
+      if (!map.has(key)) map.set(key, { series, level, title, list: [] });
+      map.get(key).list.push({ ord, i, en });
+    });
+    return [...map.values()].map(item => ({
+      series: item.series,
+      level: item.level,
+      title: item.title,
+      sentences: item.list.sort((a, b) => a.ord - b.ord || a.i - b.i).map(x => x.en)
+    }));
+  }
+  async function fetchBooks(url) {
+    if (!url) return [SAMPLE_BOOK];
+    let text;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      text = await res.text();
+    } catch (e) {
+      throw new Error('책 목록을 가져오지 못했어요. 시트를 "웹에 게시(CSV)"했는지 확인해 주세요.');
+    }
+    const list = buildBooks(parseCsv(text));
+    if (!list.length) throw new Error('책 목록을 찾지 못했어요. 시트 열 순서를 확인해 주세요.');
+    return list;
+  }
+
+  function ensureOut() {
+    if (!outCtx) outCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+    if (outCtx.state === 'suspended') outCtx.resume();
+    return outCtx;
+  }
+  function warmUpAudio() {
+    const ctx = ensureOut();
+    try {
+      const silentBuf = ctx.createBuffer(1, 1200, 24000);
+      const src = ctx.createBufferSource();
+      src.buffer = silentBuf;
+      src.connect(ctx.destination);
+      src.start(ctx.currentTime);
+    } catch (e) {}
+  }
+  function playFanfare() {
+    const ctx = ensureOut();
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    const now = ctx.currentTime + 0.02;
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.11);
+      gain.gain.setValueAtTime(0.001, now + idx * 0.11);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.11 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.11 + (idx === 3 ? 0.55 : 0.22));
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + idx * 0.11);
+      osc.stop(now + idx * 0.11 + (idx === 3 ? 0.6 : 0.25));
+    });
+  }
+  function flushCaption() {
+    if (!teacherText || wordMode || suppressCaption) return;
+    const cap = $('st_caption');
+    cap.textContent = teacherText;
+    cap.classList.add('show');
+  }
+  function scheduleFloat32Chunk(f32) {
+    const ctx = ensureOut();
+    const buf = ctx.createBuffer(1, f32.length, 24000);
+    buf.getChannelData(0).set(f32);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    const now = ctx.currentTime;
+    if (!firstAudioStarted || playAt < now) playAt = now + 0.03;
+    const startAt = playAt;
+    src.start(startAt);
+    playAt += buf.duration;
+
+    if (!firstAudioStarted) {
+      firstAudioStarted = true;
+      const delayMs = Math.max(0, (startAt - now) * 1000);
+      clearTimeout(captionTimer);
+      captionTimer = setTimeout(() => { flushCaption(); updateVisualState(true); }, delayMs);
+    } else {
+      flushCaption();
+      updateVisualState(true);
+    }
+
+    sources.push(src);
+    src.onended = () => {
+      sources = sources.filter(s => s !== src);
+      if (!sources.length) {
+        firstAudioStarted = false;
+        updateVisualState(false);
+      }
+    };
+  }
+  function playPcm(b64) {
+    const bin = atob(b64), len = bin.length >> 1, f = new Float32Array(len);
+    for (let i = 0; i < len; i++) {
+      let v = bin.charCodeAt(i * 2) | (bin.charCodeAt(i * 2 + 1) << 8);
+      if (v >= 0x8000) v -= 0x10000;
+      f[i] = v / 32768;
+    }
+    if (activeCacheKey) currentTurnChunks.push(f);
+    scheduleFloat32Chunk(f);
+  }
+  function playCachedChunks(chunks, triggerAutoNext = false) {
+    stopPlayback();
+    firstAudioStarted = false;
+    if (outCtx) playAt = outCtx.currentTime;
+    for (const f of chunks) scheduleFloat32Chunk(f);
+    if (triggerAutoNext && autoReadMode && index >= 0 && !finished && !wordMode) {
+      scheduleNextStep(1500);
+    }
+  }
+  function stopPlayback() {
+    clearTimeout(autoReadTimer);
+    clearTimeout(captionTimer);
+    sources.forEach(s => { try { s.stop(); } catch (e) {} });
+    sources = [];
+    firstAudioStarted = false;
+    simpleSpeaking = false;
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+    if (outCtx) playAt = outCtx.currentTime;
+    updateVisualState(false);
+  }
+
+  async function startMic() {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+      inCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+      const src = inCtx.createMediaStreamSource(micStream);
+      micNode = inCtx.createScriptProcessor(4096, 1, 1);
+      micNode.onaudioprocess = e => {
+        const canListen = isMicListeningNow();
+        const input = e.inputBuffer.getChannelData(0);
+        let sum = 0;
+        for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+        const rms = Math.sqrt(sum / input.length);
+
+        if (canListen) {
+          const scale = Math.min(1.22, 1.03 + rms * 2.1);
+          $('st_teacherWrap').style.setProperty('--mic-scale', scale.toFixed(3));
+          Bear3D.setState({ micRms: rms });
+        } else {
+          $('st_teacherWrap').style.setProperty('--mic-scale', '1');
+          Bear3D.setState({ micRms: 0 });
+          return;
+        }
+
+        const nowMs = performance.now();
+        if (cfg.micMode === 'always') {
+          if (rms > 0.016) voiceActiveUntil = nowMs + 950;
+          if (nowMs > voiceActiveUntil) return;
+        }
+
+        const out = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          const s = Math.max(-1, Math.min(1, input[i]));
+          out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        const bytes = new Uint8Array(out.buffer);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192));
+        send({ realtimeInput: { audio: { data: btoa(bin), mimeType: 'audio/pcm;rate=16000' } } });
+      };
+      src.connect(micNode);
+      micNode.connect(inCtx.destination);
+      return true;
+    } catch (e) {
+      stopMic();
+      return false;
+    }
+  }
+  function stopMic() {
+    if (micNode) { try { micNode.disconnect(); } catch (e) {} micNode.onaudioprocess = null; micNode = null; }
+    if (inCtx) { try { inCtx.close(); } catch (e) {} inCtx = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  }
+  function isMicListeningNow() {
+    if (engineMode !== 'live') return false;
+    if (!connected || !setupDone || introPending || sources.length || turnInFlight || autoReadMode) return false;
+    if (cfg.micMode === 'always' || cfg.micMode === 'toggle') return micOn;
+    return pushing;
+  }
+
+  function wsUrl(key) {
+    return `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${encodeURIComponent(key)}`;
+  }
+  function send(obj) { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj)); }
+  function setupMessage() {
+    return { setup: {
+      model: 'models/' + MODEL,
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: (VOICES[cfg.voice] || VOICES.female).voice } } }
+      },
+      systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
+      tools: [{
+        functionDeclarations: [
+          {
+            name: 'move_to_next_sentence',
+            description: '아이가 방금 들은 영어 문장을 따라 읽었을 때, 칭찬을 한 뒤 자동으로 다음 문장(또는 완독 화면)으로 넘어가기 위해 호출합니다.'
+          },
+          {
+            name: 'show_word_meaning',
+            description: '아이가 특정 영어 단어를 눌렀을 때, 해당 단어의 짧은 한국어 뜻을 카드 화면에 텍스트로 보여주기 위해 호출합니다.',
+            parameters: {
+              type: 'OBJECT',
+              properties: {
+                word: { type: 'STRING', description: '요청된 영어 단어' },
+                meaning: { type: 'STRING', description: '문맥에 맞는 쉬운 한국어 뜻 (1~3단어 이내, 예: 바다표범)' }
+              },
+              required: ['word', 'meaning']
+            }
+          }
+        ]
+      }],
+      inputAudioTranscription: {},
+      outputAudioTranscription: {}
+    } };
+  }
+
+  function canUse() {
+    if (!book) return false;
+    if (engineMode === 'simple') return phase === 'ready';
+    return engineMode === 'live' && connected && setupDone && !introPending;
+  }
+
+  // ---------- Simple Device TTS Mode (Free Fallback) ----------
+  function startSimpleSession(preserveProgress = false) {
+    const savedIdx = preserveProgress ? index : -1;
+    const savedFin = preserveProgress ? finished : false;
+    closeSession(preserveProgress);
+    engineMode = 'simple';
+    index = savedIdx;
+    finished = savedFin;
+    warmUpAudio();
+    requestWakeLock();
+    $('st_splashMsg').textContent = '';
+    setPhase('ready');
+    renderAll();
+    if (index < 0 && !finished) {
+      setTurnBanner('간편 듣기 모드예요! 책 읽기 시작을 눌러 주세요', 'auto');
+    } else if (index >= 0 && !finished) {
+      readSentence();
+    }
+  }
+
+  function getSimpleTtsRate() {
+    const sp = SPEEDS[cfg.speed] || SPEEDS[2];
+    return sp.ttsRate || 0.88;
+  }
+
+  // ---------- Gemini Live AI Session ----------
+  async function startSession(preserveState = false) {
+    if (!cfg.apiKey.trim()) {
+      $('st_splashMsg').textContent = 'Gemini API 키가 없어요. [⚙️ 설정 → 공통]에서 키를 넣거나, 아래 "간편 듣기"로 바로 읽어 보세요!';
+      return;
+    }
+    const savedIdx = preserveState ? index : -1;
+    const savedFin = preserveState ? finished : false;
+    silentReconnect = preserveState;
+    closeSession(preserveState);
+    engineMode = 'live';
+    index = savedIdx;
+    finished = savedFin;
+
+    warmUpAudio();
+    requestWakeLock();
+    if (!preserveState) {
+      setPhase('loading');
+      setTurnBanner('AI 선생님을 부르는 중이에요...', 'talking');
+    }
+    if (!micStream) {
+      const micOk = await startMic();
+      micOn = micOk && cfg.micMode === 'always';
+      if (!micOk && !preserveState) setTurnBanner('마이크 없이 듣기 모드로 시작해요', 'auto');
+    } else {
+      micOn = cfg.micMode === 'always';
+    }
+
+    const sock = new WebSocket(wsUrl(cfg.apiKey.trim()));
+    ws = sock;
+    sock.onopen = () => {
+      if (ws !== sock) return;
+      connected = true;
+      reconnectAttempts = 0;
+      turnCountInSession = 0;
+      sock.send(JSON.stringify(setupMessage()));
+      renderDock();
+    };
+    sock.onmessage = async ev => {
+      if (ws !== sock) return;
+      let raw = ev.data;
+      if (raw instanceof Blob) raw = await raw.text();
+      let msg;
+      try { msg = JSON.parse(raw); } catch (e) { return; }
+      handle(msg);
+    };
+    sock.onerror = () => { if (ws === sock && !silentReconnect) fail('AI 연결에 실패했어요. 아래 "간편 듣기"로 바로 읽으실 수 있어요.'); };
+    sock.onclose = e => {
+      if (ws !== sock) return;
+      connected = false;
+      setupDone = false;
+      if (engineMode === 'live' && phase === 'ready' && reconnectAttempts < 2 && e.code !== 1000) {
+        reconnectAttempts += 1;
+        setTurnBanner('잠시 연결을 다시 잇고 있어요...', 'talking');
+        setTimeout(() => {
+          if (engineMode === 'live' && phase === 'ready' && !connected) startSession(true);
+        }, 900);
+        return;
+      }
+      if (e.code !== 1000) {
+        fail('AI 연결이 끊겼어요 (코드 ' + e.code + '). 다시 시작하거나 "간편 듣기"를 이용해 주세요.');
+      }
+    };
+  }
+
+  function closeSession(keepProgress = false) {
+    const s = ws;
+    ws = null; connected = false; setupDone = false; introPending = false; pendingAutoNext = false;
+    pendingTurns = 0; turnInFlight = false; activeCacheKey = ''; currentTurnChunks = [];
+    if (!keepProgress) {
+      engineMode = 'none';
+      index = -1;
+      finished = false;
+      audioCache.clear();
+      selectedWord = ''; selectedWordMeaning = ''; wordMode = false;
+      stopMic();
+      releaseWakeLock();
+    } else {
+      stopMic();
+    }
+    clearTimeout(introTimer);
+    clearTimeout(autoReadTimer);
+    clearTimeout(captionTimer);
+    pushing = false;
+    if (!keepProgress) micOn = false;
+    if (s) { try { s.close(1000); } catch (e) {} }
+    stopPlayback();
+    teacherText = '';
+    $('st_caption').classList.remove('show');
+    $('st_caption').textContent = '';
+    $('st_childLine').textContent = '';
+  }
+
+  function fail(msg) {
+    silentReconnect = false;
+    closeSession(false);
+    setPhase('splash');
+    $('st_splashMsg').textContent = msg;
+  }
+
+  function maybeRefreshSession() {
+    if (engineMode === 'live' && turnCountInSession >= MAX_TURNS_BEFORE_REFRESH && !sources.length && !turnInFlight && connected && phase === 'ready') {
+      turnCountInSession = 0;
+      startSession(true);
+    }
+  }
+
+  function scheduleNextStep(delayAfterAudioMs) {
+    const waitAndGo = () => {
+      if (!pendingAutoNext && !autoReadMode) return;
+      if (sources.length > 0 || turnInFlight || simpleSpeaking) {
+        autoReadTimer = setTimeout(waitAndGo, 150);
+        return;
+      }
+      pendingAutoNext = false;
+      autoReadTimer = setTimeout(() => {
+        if (canUse() && index >= 0 && !finished) go(1);
+      }, delayAfterAudioMs);
+    };
+    autoReadTimer = setTimeout(waitAndGo, 200);
+  }
+
+  function handle(msg) {
+    if (msg.error) return fail('선생님 연결에 문제가 생겼어요: ' + (msg.error.message || '알 수 없는 오류'));
+    if (msg.setupComplete) {
+      setupDone = true;
+      if (silentReconnect) {
+        silentReconnect = false;
+        setPhase('ready');
+        updateVisualState(false);
+        return;
+      }
+      sayIntro();
+      return;
+    }
+
+    const isStaleTurn = pendingTurns > 1;
+
+    if (msg.toolCall && Array.isArray(msg.toolCall.functionCalls)) {
+      const responses = [];
+      for (const fc of msg.toolCall.functionCalls) {
+        if (fc.name === 'move_to_next_sentence') {
+          if (!isStaleTurn) pendingAutoNext = true;
+          responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
+        } else if (fc.name === 'show_word_meaning') {
+          const args = fc.args || {};
+          if (!isStaleTurn && args.meaning) {
+            selectedWordMeaning = String(args.meaning).trim();
+            if (activeCacheKey) {
+              const existing = audioCache.get(activeCacheKey) || { chunks: [] };
+              existing.meaning = selectedWordMeaning;
+              audioCache.set(activeCacheKey, existing);
+            }
+            renderWordMeaningBox();
+          }
+          responses.push({ id: fc.id, name: fc.name, response: { result: 'ok' } });
+        }
+      }
+      if (responses.length > 0) send({ toolResponse: { functionResponses: responses } });
+      return;
+    }
+
+    const sc = msg.serverContent;
+    if (!sc) return;
+
+    if (sc.interrupted) {
+      pendingAutoNext = false;
+      if (pendingTurns > 0) pendingTurns -= 1;
+      turnInFlight = pendingTurns > 0;
+      stopPlayback();
+    }
+
+    if (pendingTurns > 1) {
+      if (sc.turnComplete) {
+        pendingTurns = Math.max(0, pendingTurns - 1);
+        turnInFlight = pendingTurns > 0;
+      }
+      return;
+    }
+
+    if (sc.inputTranscription && sc.inputTranscription.text) {
+      $('st_childLine').textContent = '내 목소리: ' + sc.inputTranscription.text;
+    }
+    if (sc.outputTranscription && sc.outputTranscription.text) {
+      if (newTurn) { teacherText = ''; newTurn = false; }
+      teacherText += sc.outputTranscription.text;
+      if (firstAudioStarted) flushCaption();
+    }
+    for (const part of (sc.modelTurn && sc.modelTurn.parts) || []) {
+      if (part.inlineData && String(part.inlineData.mimeType || '').startsWith('audio/pcm')) {
+        playPcm(part.inlineData.data);
+      }
+    }
+    if (sc.turnComplete) {
+      pendingTurns = Math.max(0, pendingTurns - 1);
+      turnInFlight = pendingTurns > 0;
+      turnCountInSession += 1;
+
+      if (activeCacheKey && currentTurnChunks.length > 0) {
+        const prev = audioCache.get(activeCacheKey) || {};
+        audioCache.set(activeCacheKey, {
+          chunks: currentTurnChunks.slice(),
+          meaning: prev.meaning || selectedWordMeaning || ''
+        });
+      }
+      activeCacheKey = '';
+      currentTurnChunks = [];
+
+      if (teacherText && !firstAudioStarted) flushCaption();
+      newTurn = true;
+      $('st_childLine').textContent = '';
+
+      if (cfg.micMode === 'toggle' && micOn && !wordMode && !suppressCaption) {
+        micOn = false;
+        renderDock();
+      }
+
+      if (introPending) {
+        introPending = false;
+        clearTimeout(introTimer);
+        setPhase('ready');
+        if (autoReadMode) startBook();
+        else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+      } else if (pendingAutoNext) {
+        scheduleNextStep(450);
+      } else if (autoReadMode && index >= 0 && !finished && !wordMode) {
+        scheduleNextStep(1500);
+      } else {
+        updateVisualState(sources.length > 0);
+        if (!sources.length) maybeRefreshSession();
+      }
+    }
+  }
+
+  function sendText(text, isWordReq = false, cacheKey = '', hideCap = false) {
+    clearTimeout(autoReadTimer);
+    pendingTurns += 1;
+    turnInFlight = true;
+    activeCacheKey = cacheKey;
+    currentTurnChunks = [];
+    wordMode = isWordReq;
+    suppressCaption = hideCap;
+    teacherText = ''; newTurn = false; firstAudioStarted = false;
+    $('st_caption').classList.remove('show');
+    $('st_caption').textContent = '';
+    reqSeq += 1;
+    const v = VOICES[cfg.voice] || VOICES.female;
+    const sp = (SPEEDS[cfg.speed] || SPEEDS[2]).text;
+    const voiceTag = `[#${reqSeq} | 고정화자:${v.voice}(${v.label}) | 고정속도:${sp}]`;
+    send({ clientContent: { turns: [{ role: 'user', parts: [{ text: `${voiceTag} ${text}` }] }], turnComplete: true } });
+  }
+
+  function sayIntro() {
+    const nm = getGreetingChildName();
+    const greet = pickTimeGreeting(nm ? nm + '! ' : '');
+    const intro = pick(INTROS)(book ? book.title : '오늘의 책');
+    introPending = true;
+    setPhase('loading');
+    setTurnBanner('선생님이 인사하고 있어요', 'talking');
+    clearTimeout(introTimer);
+    introTimer = setTimeout(() => {
+      if (introPending) {
+        introPending = false;
+        pendingTurns = 0;
+        turnInFlight = false;
+        setPhase('ready');
+        if (autoReadMode) startBook();
+        else setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+      }
+    }, 18000);
+    sendText(`GREET: ${greet} ${intro}`, false, '', false);
+  }
+
+  function toggleAutoRead() {
+    autoReadMode = !autoReadMode;
+    clearTimeout(autoReadTimer);
+    pendingAutoNext = false;
+    wordMode = false;
+    renderAutoButton();
+    renderCard();
+    renderDock();
+
+    if (autoReadMode) {
+      setTurnBanner('계속 읽기 모드예요. 쭉 읽어줄게요!', 'auto');
+      if (canUse() && !finished) {
+        if (index < 0) startBook();
+        else if (!sources.length && !simpleSpeaking) readSentence();
+      }
+    } else {
+      updateVisualState(sources.length > 0 || simpleSpeaking);
+    }
+  }
+  function renderAutoButton() {
+    const btn = $('st_autoModeBtn');
+    btn.classList.toggle('auto', autoReadMode);
+    $('st_autoModeIcon').textContent = autoReadMode ? '❚❚' : '▶';
+    $('st_autoModeText').textContent = autoReadMode ? '읽는 중' : '계속 읽기';
+  }
+  function renderEngineBadge() {
+    const pill = $('st_engineBadge');
+    const txt = $('st_engineText');
+    if (engineMode === 'live') {
+      pill.classList.add('ai');
+      txt.textContent = '🤖 AI';
+    } else {
+      pill.classList.remove('ai');
+      txt.textContent = '🔊 간편';
+    }
+  }
+
+  function clearWordSelection() {
+    selectedWord = '';
+    selectedWordMeaning = '';
+    wordMode = false;
+  }
+  function startBook() {
+    if (!canUse()) return;
+    finished = false;
+    index = 0;
+    clearWordSelection();
+    readSentence();
+  }
+  function readSentence(forceFresh = false) {
+    if (!canUse() || index < 0 || finished) return;
+    stopPlayback();
+    clearWordSelection();
+    const sentence = book.sentences[index];
+
+    if (engineMode === 'simple') {
+      $('st_caption').classList.remove('show');
+      simpleSpeaking = true;
+      renderAll();
+      updateVisualState(true);
+      window.WordApp.speakEn(sentence, getSimpleTtsRate(), () => {
+        simpleSpeaking = false;
+        updateVisualState(false);
+        if (autoReadMode && index >= 0 && !finished && !wordMode) {
+          scheduleNextStep(1400);
+        }
+      });
+      return;
+    }
+
+    const cacheKey = `S:${cfg.voice}:${cfg.speed}:${sentence}`;
+    const cached = audioCache.get(cacheKey);
+    if (!forceFresh && cached && cached.chunks && cached.chunks.length > 0) {
+      suppressCaption = true;
+      $('st_caption').classList.remove('show');
+      renderAll();
+      playCachedChunks(cached.chunks, true);
+      return;
+    }
+    sendText(`READ_SENTENCE: ${sentence}`, false, cacheKey, true);
+    renderAll();
+  }
+
+  function readWord(cleanWord, displayWord) {
+    if (!canUse() || index < 0 || finished || !cleanWord) return;
+    stopPlayback();
+    if (autoReadMode) {
+      autoReadMode = false;
+      renderAutoButton();
+      renderDock();
+    }
+    selectedWord = displayWord;
+    wordMode = true;
+
+    if (engineMode === 'simple') {
+      const meaningText = window.WordApp ? window.WordApp.lookupWordMeaning(cleanWord) : '';
+      selectedWordMeaning = meaningText || '단어장 미등록 단어 (AI 모드에서 문맥 뜻 지원)';
+      simpleSpeaking = true;
+      renderCard();
+      updateVisualState(true);
+      window.WordApp.speakEn(cleanWord, getSimpleTtsRate(), () => {
+        if (cfg.wordKoMode === 'auto' && meaningText) {
+          window.WordApp.speakKo(meaningText, () => {
+            simpleSpeaking = false;
+            updateVisualState(false);
+          });
+        } else {
+          simpleSpeaking = false;
+          updateVisualState(false);
+        }
+      });
+      return;
+    }
+
+    const sentence = book.sentences[index];
+    const cacheKey = `W:${cfg.voice}:${cfg.speed}:${cfg.wordKoMode}:${sentence}:${cleanWord.toLowerCase()}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      selectedWordMeaning = cached.meaning || '';
+      renderCard();
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+    selectedWordMeaning = '뜻 찾는 중...';
+    renderCard();
+    sendText(`READ_WORD: "${cleanWord}" (문맥: "${sentence}")`, true, cacheKey, true);
+  }
+
+  function speakWordMeaning() {
+    if (!canUse() || !selectedWordMeaning || selectedWordMeaning === '뜻 찾는 중...') return;
+    stopPlayback();
+    if (engineMode === 'simple') {
+      if (selectedWordMeaning.includes('미등록')) return;
+      simpleSpeaking = true;
+      updateVisualState(true);
+      window.WordApp.speakKo(selectedWordMeaning, () => {
+        simpleSpeaking = false;
+        updateVisualState(false);
+      });
+      return;
+    }
+    const cacheKey = `WK:${cfg.voice}:${selectedWordMeaning}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+    sendText(`SPEAK_KO: ${selectedWordMeaning}`, true, cacheKey, true);
+  }
+
+  function finishBook() {
+    if (!canUse()) return;
+    stopPlayback();
+    clearWordSelection();
+    finished = true;
+    playFanfare();
+    renderAll();
+    const nm = getGreetingChildName();
+    const who = nm ? `${nm}! ` : '';
+
+    if (engineMode === 'simple') {
+      setTimeout(() => {
+        if (!finished) return;
+        simpleSpeaking = true;
+        updateVisualState(true);
+        window.WordApp.speakKo(`${who}우와, 책을 끝까지 다 읽었어! 정말 잘했어!`, () => {
+          simpleSpeaking = false;
+          updateVisualState(false);
+        });
+      }, 650);
+      return;
+    }
+
+    setTimeout(() => {
+      if (!finished) return;
+      sendText(`CELEBRATE: ${who}우와, "${book.title}" 책을 끝까지 다 읽었어! 정말 최고야, 참 잘했어!`, false, '', false);
+    }, 650);
+  }
+
+  function go(delta) {
+    if (!canUse()) return;
+    pendingAutoNext = false;
+    clearTimeout(autoReadTimer);
+    clearWordSelection();
+    if (finished) {
+      if (delta < 0) {
+        finished = false;
+        index = book.sentences.length - 1;
+        readSentence();
+      }
+      return;
+    }
+    if (index < 0) { if (delta > 0) startBook(); return; }
+    const next = index + delta;
+    if (next < 0) {
+      setTurnBanner('첫 문장이에요', 'auto');
+      return;
+    }
+    if (next >= book.sentences.length) {
+      finishBook();
+      return;
+    }
+    index = next;
+    readSentence();
+  }
+
+  function meaning() {
+    if (!canUse() || index < 0 || finished) return;
+    stopPlayback();
+    clearWordSelection();
+    if (autoReadMode) {
+      autoReadMode = false;
+      renderAutoButton();
+    }
+    const sentence = book.sentences[index];
+
+    if (engineMode === 'simple') {
+      const tokens = sentence.trim().split(/\s+/);
+      const pairs = [];
+      const seen = new Set();
+      tokens.forEach(tok => {
+        const clean = tok.replace(/^[^a-zA-Z']+|[^a-zA-Z']+$/g, '').toLowerCase();
+        if (!clean || seen.has(clean)) return;
+        const m = window.WordApp ? window.WordApp.lookupWordMeaning(clean) : '';
+        if (m) {
+          seen.add(clean);
+          pairs.push(`${clean}(${m})`);
+        }
+      });
+      const capText = pairs.length
+        ? `핵심 뜻: ${pairs.slice(0, 6).join(' · ')}`
+        : '문장 전체 해석은 AI 선생님 모드에서 들을 수 있어요.';
+      const cap = $('st_caption');
+      cap.textContent = capText;
+      cap.classList.add('show');
+      if (pairs.length) {
+        simpleSpeaking = true;
+        updateVisualState(true);
+        const speakText = pairs.slice(0, 4).map(p => p.replace(/[()]/g, ' ')).join(', ');
+        window.WordApp.speakKo(speakText, () => {
+          simpleSpeaking = false;
+          updateVisualState(false);
+        });
+      }
+      return;
+    }
+
+    const cacheKey = `M:${cfg.voice}:${sentence}`;
+    const cached = audioCache.get(cacheKey);
+    if (cached && cached.chunks && cached.chunks.length > 0) {
+      renderAll();
+      playCachedChunks(cached.chunks, false);
+      return;
+    }
+    sendText(`MEANING: "${sentence}"`, false, cacheKey, false);
+    renderAll();
+  }
+
+  function setPhase(p) {
+    phase = p;
+    $('st_splash').classList.toggle('hide', p !== 'splash');
+    renderAll();
+  }
+  function setTurnBanner(text, mode) {
+    const pill = $('st_turnPill');
+    const label = $('st_turnText');
+    if (!text) {
+      pill.className = 'st-turn-pill hidden';
+      label.textContent = '';
+      return;
+    }
+    pill.className = 'st-turn-pill ' + (mode || '');
+    label.textContent = text;
+  }
+  function updateVisualState(isTalking) {
+    const wrap = $('st_teacherWrap');
+    const card = $('st_card');
+    wrap.classList.toggle('talking', isTalking);
+
+    const listening = !isTalking && isMicListeningNow() && index >= 0 && !finished;
+    wrap.classList.toggle('listening', listening);
+    card.classList.toggle('listening-active', listening);
+
+    Bear3D.setState({ talking: isTalking, listening, happy: finished });
+
+    if (phase !== 'ready') return;
+    if (engineMode === 'live' && (!connected || !setupDone || introPending)) return;
+
+    if (isTalking) {
+      if (wordMode) setTurnBanner(`"${selectedWord}" 발음을 들려주고 있어요`, 'talking');
+      else if (autoReadMode) setTurnBanner('계속 읽어주고 있어요', 'talking');
+      else setTurnBanner(engineMode === 'simple' ? '간편 듣기로 읽어주고 있어요' : '선생님 목소리를 잘 들어 봐요', 'talking');
+    } else if (finished) {
+      setTurnBanner('책을 끝까지 다 읽었어요!', 'talking');
+    } else if (autoReadMode && index >= 0 && !wordMode) {
+      setTurnBanner('잠시 뒤 다음 문장을 읽어요...', 'auto');
+    } else if (engineMode === 'simple') {
+      setTurnBanner(index >= 0 ? '단어를 눌러 발음·뜻을 듣거나 다음으로 넘겨요' : '책 읽기 시작을 눌러 주세요', 'auto');
+    } else if (listening) {
+      setTurnBanner('내 차례예요! 크게 따라 말해 봐요', 'listening');
+    } else if (index >= 0) {
+      if (cfg.micMode === 'toggle') setTurnBanner('말하기 버튼을 눌러 따라 말해 봐요', 'auto');
+      else if (cfg.micMode === 'push') setTurnBanner('말하기 버튼을 누른 채 말해 봐요', 'auto');
+      else setTurnBanner('마이크가 꺼져 있어요', 'auto');
+    } else {
+      setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+    }
+  }
+  function renderAll() {
+    const title = book ? book.title : '책을 골라 주세요';
+    $('st_bookTitle').textContent = title;
+    $('st_splashBookName').textContent = title;
+    renderEngineBadge();
+    renderAutoButton();
+    renderCard();
+    renderDots();
+    renderDock();
+    updateVisualState(sources.length > 0 || simpleSpeaking);
+  }
+  function renderDots() {
+    const wrap = $('st_dots');
+    if (!book || phase === 'loading' || index < 0) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = book.sentences.map((_, i) => {
+      const cls = finished || i < index ? 'st-dot done' : (i === index ? 'st-dot cur' : 'st-dot');
+      return `<span class="${cls}"></span>`;
+    }).join('');
+  }
+  function renderWordMeaningBox() {
+    const box = $('st_wordMeaningBox');
+    if (!box) return;
+    if (!selectedWord) {
+      box.classList.remove('show');
+      box.innerHTML = '';
+      return;
+    }
+    const cleanLabel = selectedWord.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, '') || selectedWord;
+    box.classList.add('show');
+    box.innerHTML = `<button type="button" class="st-word-meaning-pill" data-act="speak-meaning" title="눌러서 한글 뜻 듣기"><span class="spk-ic">${speakerIconSvg()}</span><strong>${esc(cleanLabel)}</strong> : ${esc(selectedWordMeaning)}</button>`;
+  }
+  function renderCard() {
+    const el = $('st_card');
+    if (!book) { el.className = 'st-card empty'; el.innerHTML = '<div class="en small">설정에서 책을 골라 주세요</div>'; return; }
+    if (phase === 'loading') { el.className = 'st-card empty'; el.innerHTML = '<div class="en small">선생님이 인사하고 있어요</div><div class="hint">잠시만 기다려 주세요</div>'; return; }
+    if (finished) {
+      el.className = 'st-card finish';
+      el.innerHTML = `
+        <div class="st-trophy-badge" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="#ff9f00" stroke="#995200" stroke-width="1.8" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="st-finish-title">참 잘했어요! 책 읽기 끝!</div>
+        <div class="st-finish-sub">"${esc(book.title)}" 완독 성공!</div>
+        <div class="st-finish-actions">
+          <button type="button" class="st-finish-btn again" data-act="again">처음부터 다시</button>
+          <button type="button" class="st-finish-btn other" data-act="other">다른 책 고르기</button>
+        </div>`;
+      return;
+    }
+    if (index < 0) {
+      el.className = 'st-card empty';
+      el.innerHTML = `<div class="st-book-big">${esc(book.title)}</div><button type="button" class="st-start-book" data-act="start">책 읽기 시작</button>`;
+      return;
+    }
+    el.className = 'st-card' + (autoReadMode ? ' auto-active' : '');
+    const tokens = book.sentences[index].trim().split(/\s+/);
+    const wordsHtml = tokens.map(tok => {
+      const clean = tok.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, '');
+      const isSel = selectedWord && selectedWord === tok;
+      return `<span class="st-word-btn${isSel ? ' active' : ''}" data-word="${esc(clean || tok)}" data-raw="${esc(tok)}">${esc(tok)}</span>`;
+    }).join('');
+    el.innerHTML = `<div class="en">${wordsHtml}</div><div class="st-word-meaning-box" id="st_wordMeaningBox"></div><div class="hint">단어를 누르면 발음과 뜻이 나와요</div>`;
+    renderWordMeaningBox();
+  }
+  function renderDock() {
+    const ok = canUse();
+    $('st_prevBtn').disabled = !(ok && (finished || index > 0));
+    $('st_nextBtn').disabled = !(ok && !finished && (index < 0 || index <= book.sentences.length - 1));
+    $('st_meaningBtn').disabled = !(ok && !finished && index >= 0);
+    $('st_rereadBtn').disabled = !(ok && !finished && index >= 0);
+
+    if (engineMode === 'simple') {
+      $('st_micBtn').disabled = false;
+      $('st_micBtn').classList.remove('on');
+      $('st_micLabel').textContent = 'AI 전환';
+      return;
+    }
+
+    $('st_micBtn').disabled = !connected || autoReadMode;
+    const on = !autoReadMode && (cfg.micMode === 'push' ? pushing : micOn);
+    $('st_micBtn').classList.toggle('on', on);
+    $('st_micLabel').textContent = !connected ? '말하기'
+      : autoReadMode ? '듣기 모드'
+      : cfg.micMode === 'always' ? (micOn ? '듣는 중' : '마이크 꺼짐')
+      : cfg.micMode === 'toggle' ? (micOn ? '말하는 중' : '눌러서 말해요')
+      : (pushing ? '말하는 중' : '누르고 말해요');
+  }
+
+  // ---------- Unified Settings Helpers for Story Tab ----------
+  function fillStorySettingsForm() {
+    $('st_apiKeyInput').value = cfg.apiKey;
+    $('st_sheetInput').value = cfg.sheetUrl;
+    $('st_childInput').value = cfg.childName;
+    selVoice = cfg.voice; selSpeed = cfg.speed; selMic = cfg.micMode; selWordKo = cfg.wordKoMode || 'tap';
+    $('st_testResult').textContent = '';
+    $('st_testResult').className = 'st-res';
+    $('st_settingsMsg').textContent = '';
+    paintSegs();
+    renderBookSelect();
+  }
+  function renderBookSelect() {
+    const sel = $('st_bookSelect');
+    sel.innerHTML = '';
+    books.forEach(b => {
+      const o = document.createElement('option');
+      o.value = b.title;
+      const prefix = b.level && b.level !== '전체' ? `[${b.level}] ` : '';
+      o.textContent = `${prefix}${b.title} (${b.sentences.length}문장)`;
+      sel.appendChild(o);
+    });
+    if (book) sel.value = book.title;
+  }
+  function paintSegs() {
+    document.querySelectorAll('[data-st-voice]').forEach(b => b.classList.toggle('on-mint', b.dataset.stVoice === selVoice));
+    document.querySelectorAll('[data-st-speed]').forEach(b => b.classList.toggle('on-blue', Number(b.dataset.stSpeed) === selSpeed));
+    document.querySelectorAll('[data-st-mic]').forEach(b => b.classList.toggle('on-gold', b.dataset.stMic === selMic));
+    document.querySelectorAll('[data-st-wordko]').forEach(b => b.classList.toggle('on-mint', b.dataset.stWordko === selWordKo));
+  }
+  function showTest(text, bad) {
+    const o = $('st_testResult');
+    o.textContent = text;
+    o.className = 'st-res ' + (bad ? 'bad' : 'ok');
+  }
+  function testConnection() {
+    const key = $('st_apiKeyInput').value.trim();
+    if (!key) { showTest('API 키를 먼저 넣어 주세요.', true); return; }
+    showTest('연결을 확인하는 중...', false);
+    let done = false, t = null, timer = null;
+    const finish = (text, bad) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      if (t) { try { t.close(); } catch (e) {} }
+      showTest(text, bad);
+    };
+    t = new WebSocket(wsUrl(key));
+    timer = setTimeout(() => finish('응답이 없어요. 인터넷 연결을 확인해 주세요.', true), 10000);
+    t.onopen = () => t.send(JSON.stringify({ setup: { model: 'models/' + MODEL, generationConfig: { responseModalities: ['AUDIO'] } } }));
+    t.onmessage = async ev => {
+      let raw = ev.data;
+      if (raw instanceof Blob) raw = await raw.text();
+      const m = JSON.parse(raw);
+      if (m.setupComplete) finish('연결 성공! AI 선생님 목소리를 쓸 수 있어요.', false);
+      else if (m.error) finish('연결 실패: ' + (m.error.message || '키나 모델 권한을 확인해 주세요.'), true);
+    };
+    t.onerror = () => finish('연결에 실패했어요. 키와 인터넷을 확인해 주세요.', true);
+    t.onclose = e => finish('연결이 닫혔어요 (코드 ' + e.code + ').', true);
+  }
+
+  async function saveStorySettingsFromModal() {
+    const before = { key: cfg.apiKey, voice: cfg.voice, speed: cfg.speed, mic: cfg.micMode, sheet: cfg.sheetUrl, wordKo: cfg.wordKoMode };
+    cfg.apiKey = $('st_apiKeyInput').value.trim();
+    cfg.sheetUrl = $('st_sheetInput').value.trim();
+    cfg.childName = $('st_childInput').value.trim();
+    cfg.voice = selVoice; cfg.speed = selSpeed; cfg.micMode = selMic; cfg.wordKoMode = selWordKo;
+
+    if (cfg.sheetUrl !== before.sheet || !books.length) {
+      try { books = await fetchBooks(cfg.sheetUrl); }
+      catch (e) { saveCfg(); $('st_settingsMsg').textContent = e.message; return false; }
+    }
+    const chosen = $('st_bookSelect').value;
+    const changed = !book || chosen !== book.title;
+    book = books.find(b => b.title === chosen) || books[0];
+    cfg.bookTitle = book.title;
+    if (changed) { index = -1; finished = false; clearWordSelection(); }
+    saveCfg();
+
+    const needRestart = connected && (cfg.apiKey !== before.key || cfg.voice !== before.voice || cfg.speed !== before.speed || cfg.micMode !== before.mic || cfg.wordKoMode !== before.wordKo);
+    audioCache.clear();
+    if (needRestart) {
+      closeSession(false);
+      setPhase('splash');
+      $('st_splashMsg').textContent = '설정을 적용했어요. 시작하기를 누르면 선생님이 새로 인사해요.';
+    } else {
+      renderAll();
+    }
+    return true;
+  }
+
+  async function reloadBooks(showGlobal = false) {
+    const url = ($('st_sheetInput').value || cfg.sheetUrl || '').trim();
+    $('st_settingsMsg').textContent = '책 목록을 불러오는 중...';
+    try {
+      books = await fetchBooks(url);
+      if (!book || !books.some(b => b.title === book.title)) {
+        book = books[0];
+        cfg.bookTitle = book.title;
+      }
+      renderBookSelect();
+      renderAll();
+      $('st_settingsMsg').textContent = `✓ 책 ${books.length}권을 불러왔어요.`;
+      if (showGlobal && window.WordApp) window.WordApp.showGlobalToast(`📚 동화책 ${books.length}권 목록 새로고침 완료!`, 'ok');
+    } catch (e) {
+      $('st_settingsMsg').textContent = e.message;
+      if (showGlobal && window.WordApp) window.WordApp.showGlobalToast(e.message, 'err');
+    }
+  }
+
+  // ---------- Book Shelf Modal ----------
+  let activeSeriesFilter = '';
+  let activeLevelFilter = '';
+  function openBookList() {
+    if (book) { activeSeriesFilter = book.series || ''; activeLevelFilter = book.level || ''; }
+    renderBookShelf();
+    $('st_bookListModal').classList.add('open');
+  }
+  function renderBookShelf() {
+    const seriesRow = $('st_seriesFilterRow');
+    const levelRow = $('st_levelFilterRow');
+    const grid = $('st_bookListGrid');
+    seriesRow.innerHTML = ''; levelRow.innerHTML = ''; grid.innerHTML = '';
+
+    const allSeries = [...new Set(books.map(b => b.series))];
+    if (!activeSeriesFilter || !allSeries.includes(activeSeriesFilter)) activeSeriesFilter = allSeries[0] || '';
+    allSeries.forEach(s => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'st-filter-chip' + (s === activeSeriesFilter ? ' on' : '');
+      chip.textContent = s;
+      chip.addEventListener('click', () => {
+        activeSeriesFilter = s;
+        const levelsInSeries = [...new Set(books.filter(b => b.series === s).map(b => b.level))];
+        activeLevelFilter = levelsInSeries[0] || '';
+        renderBookShelf();
+      });
+      seriesRow.appendChild(chip);
+    });
+
+    const booksInSeries = books.filter(b => b.series === activeSeriesFilter);
+    const levels = [...new Set(booksInSeries.map(b => b.level))];
+    if (!activeLevelFilter || !levels.includes(activeLevelFilter)) activeLevelFilter = levels[0] || '';
+    levels.forEach(lvl => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'st-filter-chip lvl' + (lvl === activeLevelFilter ? ' on' : '');
+      chip.textContent = lvl;
+      chip.addEventListener('click', () => { activeLevelFilter = lvl; renderBookShelf(); });
+      levelRow.appendChild(chip);
+    });
+
+    booksInSeries.filter(b => b.level === activeLevelFilter).forEach(b => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      const isCurrent = book && b.title === book.title;
+      btn.className = 'st-book-item' + (isCurrent ? ' active' : '');
+      const badgeText = (isCurrent && finished) ? `완독! · ${b.sentences.length}문장` : `${b.sentences.length}문장`;
+      btn.innerHTML = `<div><div class="st-book-item-sub">${esc(b.series)} · ${esc(b.level)}</div><div class="st-book-item-title">${esc(b.title)}</div></div><span class="st-book-item-meta">${badgeText}</span>`;
+      btn.addEventListener('click', () => {
+        stopPlayback();
+        pendingAutoNext = false;
+        clearWordSelection();
+        book = b;
+        cfg.bookTitle = b.title;
+        index = -1;
+        finished = false;
+        saveCfg();
+        closeBookList();
+        renderAll();
+        if (engineMode === 'live' && turnCountInSession >= 8 && connected) startSession(true);
+        if (autoReadMode && canUse()) startBook();
+        else if (phase === 'ready') setTurnBanner('책 읽기 시작을 눌러 주세요', 'auto');
+      });
+      grid.appendChild(btn);
+    });
+  }
+  function closeBookList() { $('st_bookListModal').classList.remove('open'); }
+
+  // ---------- Event Bindings ----------
+  function bindEvents() {
+    $('st_splashStartAi').addEventListener('click', () => startSession(false));
+    $('st_splashStartSimple').addEventListener('click', () => startSimpleSession(false));
+    $('st_splashBookBtn').addEventListener('click', openBookList);
+    $('st_bookPillBtn').addEventListener('click', openBookList);
+    $('st_autoModeBtn').addEventListener('click', toggleAutoRead);
+
+    $('st_engineBadge').addEventListener('click', () => {
+      if (engineMode === 'live') {
+        if (confirm('AI 선생님 연결을 끄고 무료 "간편 듣기(기기 발음)"로 전환할까요?')) {
+          startSimpleSession(true);
+        }
+      } else {
+        if (!cfg.apiKey.trim()) {
+          if (window.WordApp) window.WordApp.showGlobalToast('AI 선생님을 쓰려면 ⚙️ 설정에서 Gemini API 키를 입력해 주세요.', 'err');
+          return;
+        }
+        if (confirm('Gemini AI 선생님 모드로 전환할까요?')) {
+          startSession(true);
+        }
+      }
+    });
+
+    $('st_testBtn').addEventListener('click', testConnection);
+    $('st_reloadBtn').addEventListener('click', () => reloadBooks(false));
+    $('st_stopTeacherBtn').addEventListener('click', () => {
+      closeSession(false);
+      $('settingsModal').classList.remove('open');
+      setPhase('splash');
+      $('st_splashMsg').textContent = '';
+    });
+
+    document.querySelectorAll('[data-st-voice]').forEach(b => b.addEventListener('click', () => { selVoice = b.dataset.stVoice; paintSegs(); }));
+    document.querySelectorAll('[data-st-speed]').forEach(b => b.addEventListener('click', () => { selSpeed = Number(b.dataset.stSpeed); paintSegs(); }));
+    document.querySelectorAll('[data-st-mic]').forEach(b => b.addEventListener('click', () => { selMic = b.dataset.stMic; paintSegs(); }));
+    document.querySelectorAll('[data-st-wordko]').forEach(b => b.addEventListener('click', () => { selWordKo = b.dataset.stWordko; paintSegs(); }));
+
+    $('st_closeBookListBtn').addEventListener('click', closeBookList);
+    $('st_bookListModal').addEventListener('click', e => { if (e.target === $('st_bookListModal')) closeBookList(); });
+
+    $('st_card').addEventListener('click', e => {
+      if (e.target.closest('[data-act="start"]') || e.target.closest('[data-act="again"]')) { startBook(); return; }
+      if (e.target.closest('[data-act="other"]')) { openBookList(); return; }
+      if (e.target.closest('[data-act="speak-meaning"]')) { speakWordMeaning(); return; }
+      const wordEl = e.target.closest('.st-word-btn');
+      if (wordEl && index >= 0 && !finished) readWord(wordEl.dataset.word, wordEl.dataset.raw);
+    });
+    $('st_prevBtn').addEventListener('click', () => go(-1));
+    $('st_nextBtn').addEventListener('click', () => go(1));
+    $('st_meaningBtn').addEventListener('click', meaning);
+    $('st_rereadBtn').addEventListener('click', () => readSentence());
+
+    $('st_micBtn').addEventListener('click', () => {
+      if (engineMode === 'simple') {
+        if (!cfg.apiKey.trim()) {
+          if (window.WordApp) window.WordApp.showGlobalToast('따라 말하기는 AI 선생님 전용이에요. ⚙️ 설정에서 API 키를 넣어주세요.', 'err');
+        } else if (confirm('따라 말하기를 위해 AI 선생님 모드로 전환할까요?')) {
+          startSession(true);
+        }
+        return;
+      }
+      if (!connected || autoReadMode) return;
+      if (cfg.micMode === 'always' || cfg.micMode === 'toggle') {
+        micOn = !micOn;
+        renderDock();
+        updateVisualState(sources.length > 0);
+      }
+    });
+    $('st_micBtn').addEventListener('pointerdown', () => {
+      if (engineMode === 'live' && connected && !autoReadMode && cfg.micMode === 'push') {
+        pushing = true;
+        renderDock();
+        updateVisualState(sources.length > 0);
+      }
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => $('st_micBtn').addEventListener(ev, () => {
+      if (engineMode === 'live' && cfg.micMode === 'push' && pushing) {
+        pushing = false;
+        renderDock();
+        updateVisualState(sources.length > 0);
+      }
+    }));
+
+    $('st_krFlag').innerHTML = flagKR();
+    $('st_usFlag').innerHTML = flagUS();
+  }
+
+  async function init() {
+    Bear3D.init();
+    loadCfg();
+    bindEvents();
+    let loadErr = '';
+    try { books = await fetchBooks(cfg.sheetUrl); }
+    catch (e) { books = [SAMPLE_BOOK]; loadErr = e.message + ' (기본 책으로 시작해요)'; }
+    book = books.find(b => b.title === cfg.bookTitle) || books[0];
+    renderBookSelect();
+    renderAll();
+    if (loadErr) $('st_splashMsg').textContent = loadErr;
+  }
+
+  function onEnter() {
+    requestAnimationFrame(() => Bear3D.resize());
+    renderAll();
+  }
+
+  function onLeave() {
+    // Suspend playback, auto-read, and Live WebSocket/Mic cleanly when switching back to Word Explorer
+    autoReadMode = false;
+    stopPlayback();
+    if (engineMode === 'live' && (connected || ws)) {
+      closeSession(false);
+      setPhase('splash');
+      $('st_splashMsg').textContent = '';
+    }
+  }
+
+  return {
+    init,
+    onEnter,
+    onLeave,
+    reloadBooks,
+    fillStorySettingsForm,
+    saveStorySettingsFromModal
+  };
+})();
+
+// ==================== Master Hub Controller (Tab Switcher & Unified Settings) ====================
+window.HubApp = (() => {
+  const $ = id => document.getElementById(id);
+  let activeHubTab = 'word'; // Default entry: 'word' (오늘 단어)
+
+  function switchHubTab(tabName) {
+    if (activeHubTab === tabName && document.body.classList.contains('mode-' + tabName)) return;
+    if (tabName === 'story') {
+      if (window.WordApp) window.WordApp.stopAllAudio();
+    } else {
+      if (window.StoryApp) window.StoryApp.onLeave();
+    }
+    activeHubTab = tabName;
+    document.body.classList.toggle('mode-word', tabName === 'word');
+    document.body.classList.toggle('mode-story', tabName === 'story');
+
+    $('hubTabWord').classList.toggle('active', tabName === 'word');
+    $('hubTabStory').classList.toggle('active', tabName === 'story');
+    $('wordModeRoot').classList.toggle('active', tabName === 'word');
+    $('storyModeRoot').classList.toggle('active', tabName === 'story');
+
+    $('topSyncBtn').title = tabName === 'word' ? '단어장 시트 최신 진도 불러오기' : '동화책 목록 시트 새로고침';
+
+    if (tabName === 'story' && window.StoryApp) {
+      window.StoryApp.onEnter();
+    }
+  }
+
+  function switchSettingsTab(stab) {
+    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.stab === stab);
+    });
+    document.querySelectorAll('.settings-tab-pane').forEach(pane => {
+      pane.classList.toggle('active', pane.id === 'stab_' + stab);
+    });
+    $('settingsModalBody').scrollTop = 0;
+  }
+
+  function openUnifiedSettings(defaultTab) {
+    if (window.WordApp) window.WordApp.fillWordSettingsForm();
+    if (window.StoryApp) window.StoryApp.fillStorySettingsForm();
+    const target = defaultTab || (activeHubTab === 'story' ? 'story' : 'common');
+    switchSettingsTab(target);
+    $('settingsModal').classList.add('open');
+  }
+
+  function bindHubEvents() {
+    $('hubTabWord').addEventListener('click', () => {
+      if (window.WordApp) window.WordApp.playTone(540, 0.06);
+      switchHubTab('word');
+    });
+    $('hubTabStory').addEventListener('click', () => {
+      if (window.WordApp) window.WordApp.playTone(620, 0.06);
+      switchHubTab('story');
+    });
+    $('doneGoStoryBtn').addEventListener('click', () => {
+      if (window.WordApp) window.WordApp.playTone(640, 0.08);
+      switchHubTab('story');
+    });
+
+    $('topSyncBtn').addEventListener('click', () => {
+      if (window.WordApp) window.WordApp.playTone(560, 0.06);
+      if (activeHubTab === 'word') {
+        window.WordApp.syncFromSheetLive(true);
+      } else {
+        window.StoryApp.reloadBooks(true);
+      }
+    });
+
+    $('openSettingsBtn').addEventListener('click', () => {
+      if (window.WordApp) {
+        window.WordApp.playTone(500, 0.06);
+        window.WordApp.openParentalGate();
+      }
+    });
+
+    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchSettingsTab(btn.dataset.stab));
+    });
+
+    $('saveSettingsBtn').addEventListener('click', async () => {
+      await window.WordApp.saveWordSettingsFromModal();
+      const storyOk = await window.StoryApp.saveStorySettingsFromModal();
+      if (!storyOk) {
+        switchSettingsTab('story');
+        return;
+      }
+      if (window.WordApp) window.WordApp.playTone(620, 0.08);
+      $('settingsModal').classList.remove('open');
+      if (window.WordApp) window.WordApp.showGlobalToast('✓ 통합 설정이 모두 저장되었어요!', 'ok');
+    });
+  }
+
+  async function boot() {
+    bindHubEvents();
+    document.body.classList.add('mode-word');
+    await window.WordApp.init();
+    await window.StoryApp.init();
+  }
+
+  return {
+    boot,
+    switchHubTab,
+    openUnifiedSettings
+  };
+})();
+
+window.HubApp.boot();
+
 </script>
 </body>
 </html>
-
